@@ -10,7 +10,17 @@ header{text-align:center;padding:20px 12px 8px}h1{margin:0;font-size:clamp(25px,
 main{max-width:1050px;margin:auto;padding:12px;display:grid;grid-template-columns:minmax(300px,680px) minmax(250px,1fr);gap:16px}
 .panel{background:var(--panel);border:1px solid #d6b98a;border-radius:16px;padding:15px;box-shadow:0 8px 22px #6e4b251c}
 #boardWrap{display:flex;justify-content:center;align-items:center;overflow:auto}canvas{display:block;max-width:100%;height:auto;touch-action:manipulation}
-.controls{display:grid;gap:12px}.group{display:grid;gap:7px}label{font-weight:700}select,button{font:inherit;border-radius:9px;padding:10px;border:1px solid #b99a6b;background:white;color:var(--ink)}button{cursor:pointer;font-weight:700;background:#8b4e25;color:white;border:0}button.secondary{background:#e8d6b8;color:#382a1b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.status{padding:12px;border-radius:10px;background:#f1e3c8;line-height:1.6;min-height:74px}.small{font-size:13px;opacity:.8;line-height:1.6}.hidden{display:none}.bracket{max-height:260px;overflow:auto;font-size:13px;line-height:1.7}.bracket div{border-bottom:1px dashed #d6c2a0;padding:3px}
+.controls{display:grid;gap:12px}.group{display:grid;gap:7px}label{font-weight:700}select,button{font:inherit;border-radius:9px;padding:10px;border:1px solid #b99a6b;background:white;color:var(--ink)}button{cursor:pointer;font-weight:700;background:#8b4e25;color:white;border:0}button.secondary{background:#e8d6b8;color:#382a1b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.status{padding:12px;border-radius:10px;background:#f1e3c8;line-height:1.6;min-height:74px}.small{font-size:13px;opacity:.8;line-height:1.6}.hidden{display:none}.bracket{max-height:560px;overflow:auto;font-size:12px;line-height:1.35;padding:8px;background:#f8edda;border-radius:10px}
+.bracketTree{display:grid;grid-template-columns:repeat(5,minmax(145px,1fr));gap:10px;min-width:790px;align-items:stretch}
+.bracketRound{display:flex;flex-direction:column;gap:8px}
+.bracketRound h4{margin:0 0 3px;text-align:center;color:#7b4b25;position:sticky;top:0;background:#f8edda;padding:5px;z-index:1}
+.match{border:1px solid #c9ad82;border-radius:8px;background:#fffaf0;padding:6px;min-height:54px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.match .team{padding:3px 5px;border-radius:4px;overflow-wrap:anywhere}
+.match .winner{background:#e6d4a8;font-weight:800;color:#5c3517}
+.match .eliminated{opacity:.48;text-decoration:line-through}
+.match .pending{color:#9b8b75;font-style:italic}
+.match.current{border:2px solid #c66b22;box-shadow:0 0 0 2px #f2d2a8}
+.bracketNote{font-size:12px;color:#765d3d;margin:6px 0}
 @media(max-width:760px){main{grid-template-columns:1fr}#boardWrap{order:0}.controls{order:1}}
 </style>
 </head>
@@ -31,7 +41,7 @@ main{max-width:1050px;margin:auto;padding:12px;display:grid;grid-template-column
 <div class="row"><button class="secondary" id="undo">悔棋</button><button class="secondary" id="menu">回主選單</button></div>
 <div class="status" id="status">請選擇模式，按「開始新對局」。</div>
 <div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。</div>
-<div id="tourPanel" class="hidden"><b>淘汰賽賽程紀錄</b><div id="bracket" class="bracket"></div></div>
+<div id="tourPanel" class="hidden"><b>32 強淘汰賽樹狀賽程</b><div id="bracket" class="bracket"></div></div>
 <div class="small">提示：第 8～10 級搜尋較深，電腦思考時間可能較長。此網頁版不需要安裝 Python。</div>
 </aside>
 </main>
@@ -50,12 +60,25 @@ const cfgs=[
 let board, history, last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null;
 const canvas=document.querySelector("#board"),ctx=canvas.getContext("2d"),statusEl=document.querySelector("#status");
 function fresh(){board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;turn=first;over=false;busy=false;draw();statusEl.textContent=turn===PLAYER?"輪到你了，請下黑棋。":"電腦先手，正在思考…";if(turn===AI)setTimeout(aiMove,250);}
+let flashCell=null,flashVisible=true,flashTimer=null;
+function startFlash(r,c){
+ if(flashTimer)clearTimeout(flashTimer);
+ flashCell=[r,c];flashVisible=true;let ticks=0;
+ function pulse(){flashVisible=(ticks%2===0);draw();ticks++;if(ticks<4)flashTimer=setTimeout(pulse,110);else{flashCell=null;flashTimer=null;draw();}}
+ pulse();
+}
 function draw(){
  const w=canvas.width,step=40,margin=40;ctx.clearRect(0,0,w,w);ctx.fillStyle="#e9c98d";ctx.fillRect(0,0,w,w);
  ctx.strokeStyle="#79552d";ctx.lineWidth=1;
  for(let i=0;i<N;i++){let p=margin+i*step;ctx.beginPath();ctx.moveTo(margin,p);ctx.lineTo(margin+(N-1)*step,p);ctx.stroke();ctx.beginPath();ctx.moveTo(p,margin);ctx.lineTo(p,margin+(N-1)*step);ctx.stroke();}
  for(let r of [3,7,11])for(let c of [3,7,11]){ctx.beginPath();ctx.arc(margin+c*step,margin+r*step,3,0,Math.PI*2);ctx.fillStyle="#79552d";ctx.fill();}
- for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){let x=margin+c*step,y=margin+r*step;let g=ctx.createRadialGradient(x-5,y-6,2,x,y,15);if(board[r][c]===PLAYER){g.addColorStop(0,"#666");g.addColorStop(1,"#080808")}else{g.addColorStop(0,"#fff");g.addColorStop(1,"#c8c8c8")}ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle=board[r][c]===PLAYER?"#000":"#999";ctx.stroke();}
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){
+  let x=margin+c*step,y=margin+r*step;let flashing=flashCell&&flashCell[0]===r&&flashCell[1]===c;
+  ctx.save();if(flashing&&!flashVisible)ctx.globalAlpha=.16;
+  let g=ctx.createRadialGradient(x-5,y-6,2,x,y,15);
+  if(board[r][c]===PLAYER){g.addColorStop(0,"#666");g.addColorStop(1,"#080808")}else{g.addColorStop(0,"#fff");g.addColorStop(1,"#c8c8c8")}
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle=board[r][c]===PLAYER?"#000":"#999";ctx.stroke();ctx.restore();
+ }
  if(last){ctx.strokeStyle="#d22";ctx.lineWidth=2;ctx.strokeRect(40+last[1]*40-5,40+last[0]*40-5,10,10);}
 }
 function inside(r,c){return r>=0&&r<N&&c>=0&&c<N}
@@ -78,15 +101,84 @@ function chooseAI(){
  if(level>=7&&predict){let best=null,bv=-Infinity;for(const item of ranked.slice(0,level>=10?14:8)){let [r,c]=item.m;board[r][c]=AI;let reply=0;for(const [rr,cc] of candidateMoves())reply=Math.max(reply,score(rr,cc,PLAYER));board[r][c]=0;let v=item.s-reply*(level>=9?.42:.25);if(v>bv){bv=v;best=item.m;}}return best||ranked[0].m;}
  return ranked[0].m;
 }
-function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;history.push({r,c,p});last=[r,c];draw();if(won(r,c,p)){over=true;statusEl.textContent=(p===PLAYER?"恭喜！你獲勝！":"電腦獲勝！")+(mode==="tournament"?" 淘汰賽結果已更新。":"");if(mode==="tournament")finishTournament(p===PLAYER);return true;}if(history.length===N*N){over=true;statusEl.textContent="平手！";return true;}return true;}
+function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;history.push({r,c,p});last=[r,c];draw();startFlash(r,c);if(won(r,c,p)){over=true;statusEl.textContent=(p===PLAYER?"恭喜！你獲勝！":"電腦獲勝！")+(mode==="tournament"?" 淘汰賽結果已更新。":"");if(mode==="tournament")finishTournament(p===PLAYER);return true;}if(history.length===N*N){over=true;statusEl.textContent="平手！";return true;}return true;}
 function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請下黑棋。";}},30);}
 canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect=canvas.getBoundingClientRect(),scale=canvas.width/rect.width,x=(e.clientX-rect.left)*scale,y=(e.clientY-rect.top)*scale,c=Math.round((x-40)/40),r=Math.round((y-40)/40);if(!inside(r,c)||Math.hypot(x-(40+c*40),y-(40+r*40))>19)return;if(place(r,c,PLAYER)&&!over){turn=AI;aiMove();}});
-function newTournament(){let pool=names.map((name,i)=>({name,rank:i+1}));pool.push({name:"玩家",rank:0,player:true});pool.sort(()=>Math.random()-.5);let matches=[];for(let i=0;i<32;i+=2)matches.push([pool[i],pool[i+1]]);tournament={round:0,matches,playerAlive:true,log:[],playerRank:null};advanceTournament();}
-function simulatedWinner(a,b){if(a.player||b.player)return a.player?a:b;return Math.random()<(.5+(b.rank-a.rank)*.009)?a:b;}
-function advanceTournament(){let t=tournament;while(t.matches.length>1){let winners=[];t.matches.forEach((pair,i)=>{if(pair.some(x=>x.player)&&t.playerAlive){let opp=pair.find(x=>!x.player);t.log.push(`${["32強","16強","8強","4強","決賽"][t.round]}：玩家 vs ${opp.name}（請完成棋局）`);winners.push({name:"玩家",rank:0,player:true,opponent:opp});}else{let w=simulatedWinner(...pair);t.log.push(`${["32強","16強","8強","4強","決賽"][t.round]}：${pair[0].name} vs ${pair[1].name} → ${w.name}`);winners.push(w);}});t.next=winners;t.round++;break;}renderBracket();}
-function finishTournament(playerWon){let t=tournament;if(!t)return;let round=t.round-1,opp=t.next?.find(x=>x.player)?.opponent;if(!playerWon){t.playerAlive=false;t.log.push(`玩家於${["32強","16強","8強","決賽"][round]||"賽事"}遭淘汰。`);}else t.log.push("玩家晉級下一輪！");if(!t.playerAlive){t.log.push("其餘賽事由系統模擬完成；此簡化網頁版先記錄玩家淘汰輪次。");renderBracket();return;}if(t.next.length===1){t.log.push("恭喜玩家獲得冠軍！");renderBracket();return;}t.matches=[];for(let i=0;i<t.next.length;i+=2)t.matches.push([t.next[i],t.next[i+1]]);advanceTournament();statusEl.textContent="本輪勝利！下一輪對手："+(t.matches.flat().find(x=>!x.player)?.name||"");}
-function renderBracket(){document.querySelector("#tourPanel").classList.remove("hidden");document.querySelector("#bracket").innerHTML=tournament.log.map(x=>`<div>${x}</div>`).join("");}
-function start(){mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;first=+document.querySelector("#first").value;predict=document.querySelector("#predict").checked;document.querySelector("#tourPanel").classList.toggle("hidden",mode!=="tournament");if(mode==="tournament"){first=PLAYER;newTournament();let opp=tournament.matches.flat().find(x=>x.player)?.opponent;statusEl.textContent="32 強賽開始！你的對手："+(opp?.name||"對手")+"。請先手落黑棋。";}fresh();}
+const roundLabels=["32強","16強","8強","4強","決賽"];
+function newTournament(){
+ let pool=names.map((name,i)=>({name,rank:i+1,group:"ABCD"[Math.floor(i/8)]}));
+ pool.push({name:"玩家",rank:0,player:true,group:""});
+ pool.sort(()=>Math.random()-.5);
+ // 重新分配四組標籤，每組 8 位；淘汰賽籤位仍採隨機排列
+ pool.forEach((p,i)=>{if(!p.player)p.group="ABCD"[Math.floor(i/8)];});
+ tournament={round:0,rounds:[],third:null,champion:null,runnerUp:null,thirdPlace:null,fourthPlace:null,playerEliminated:false,playerLostRound:null};
+ let firstRound=[];for(let i=0;i<32;i+=2)firstRound.push({a:pool[i],b:pool[i+1],winner:null});
+ tournament.rounds.push(firstRound);prepareTournamentRound();
+}
+function simulatedWinner(a,b){if(a.player||b.player)return a.player?a:b;return (Math.random()<(.5+(b.rank-a.rank)*.009))?a:b;}
+function prepareTournamentRound(){
+ const t=tournament,ri=t.round,round=t.rounds[ri];if(!round)return;
+ let playerMatch=null;
+ round.forEach((m,i)=>{
+  if(m.a.player||m.b.player){if(!t.playerEliminated)playerMatch=m;}
+  else m.winner=simulatedWinner(m.a,m.b);
+ });
+ if(playerMatch){
+  t.currentMatch=playerMatch;t.waiting=true;
+  const opp=playerMatch.a.player?playerMatch.b:playerMatch.a;
+  level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
+  statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。請開始對局！`;
+ }else{t.waiting=false;completeTournamentRound();}
+ renderBracket();
+}
+function completeTournamentRound(){
+ const t=tournament,ri=t.round,round=t.rounds[ri];
+ if(round.some(m=>!m.winner))return;
+ if(ri===4){
+  t.champion=round[0].winner;
+  t.runnerUp=round[0].a===t.champion?round[0].b:round[0].a;
+  const semis=t.rounds[3],losers=semis.map(m=>m.a===m.winner?m.b:m.a);
+  t.third={a:losers[0],b:losers[1],winner:simulatedWinner(losers[0],losers[1])};
+  t.thirdPlace=t.third.winner;t.fourthPlace=t.third.a===t.thirdPlace?t.third.b:t.third.a;
+  let rank=t.champion.player?1:t.runnerUp.player?2:t.thirdPlace.player?3:t.fourthPlace.player?4:null;
+  const eliminatedText=t.playerEliminated?`你於${roundLabels[t.playerLostRound]}止步（第 ${[17,9,5,4,2][t.playerLostRound]}～${[32,16,8,4,2][t.playerLostRound]} 名區間）。`:"";
+  statusEl.textContent=`賽事結束！冠軍：${t.champion.name}；亞軍：${t.runnerUp.name}；季軍：${t.thirdPlace.name}；殿軍：${t.fourthPlace.name}。${rank?`你的名次：第 ${rank} 名。`:eliminatedText}`;
+  renderBracket();return;
+ }
+ const winners=round.map(m=>m.winner),next=[];
+ for(let i=0;i<winners.length;i+=2)next.push({a:winners[i],b:winners[i+1],winner:null});
+ t.round++;t.rounds.push(next);prepareTournamentRound();
+ if(t.currentMatch){first=PLAYER;setTimeout(()=>{first=PLAYER;fresh();statusEl.textContent=`${roundLabels[t.round]}：輪到你對戰，請下黑棋。`;},0);}
+}
+function finishTournament(playerWon){
+ const t=tournament;if(!t||!t.waiting||!t.currentMatch)return;
+ const m=t.currentMatch;m.winner=playerWon?(m.a.player?m.a:m.b):(m.a.player?m.b:m.a);
+ if(!playerWon){t.playerEliminated=true;t.playerLostRound=t.round;}
+ t.waiting=false;t.currentMatch=null;
+ renderBracket();
+ if(playerWon){statusEl.textContent="恭喜晉級！準備下一輪…";}
+ completeTournamentRound();
+}
+function renderBracket(){
+ const panel=document.querySelector("#tourPanel"),el=document.querySelector("#bracket");
+ panel.classList.remove("hidden");
+ let out='<div class="bracketNote">四組隨機編排；金色代表勝出者，橘框代表目前對戰。</div><div class="bracketTree">';
+ for(let ri=0;ri<5;ri++){
+  const arr=tournament.rounds[ri]||[];
+  out+=`<div class="bracketRound"><h4>${roundLabels[ri]}</h4>`;
+  arr.forEach(m=>{
+   const current=tournament.currentMatch===m;
+   const label=x=>{if(!x)return "待定";let group=x.group?` <small>(${x.group}組)</small>`:"";return `${x.player?"★ ":""}${x.name}${group}`;};
+   out+=`<div class="match ${current?"current":""}"><div class="team ${m.winner===m.a?"winner":""} ${m.winner&&m.winner!==m.a?"eliminated":""}">${label(m.a)}</div><div class="team ${m.winner===m.b?"winner":""} ${m.winner&&m.winner!==m.b?"eliminated":""}">${label(m.b)}</div></div>`;
+  });
+  out+='</div>';
+ }
+ out+='</div>';
+ if(tournament.third)out+=`<div class="bracketNote"><b>季軍賽：</b>${tournament.third.a.name} vs ${tournament.third.b.name} → <b>${tournament.thirdPlace.name}</b>（季軍）</div>`;
+ if(tournament.champion)out+=`<div class="bracketNote"><b>最終名次：</b>冠軍 ${tournament.champion.name}｜亞軍 ${tournament.runnerUp.name}｜季軍 ${tournament.thirdPlace.name}｜殿軍 ${tournament.fourthPlace.name}</div>`;
+ el.innerHTML=out;
+}
+function start(){mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;first=+document.querySelector("#first").value;predict=document.querySelector("#predict").checked;document.querySelector("#tourPanel").classList.toggle("hidden",mode!=="tournament");if(mode==="tournament"){first=PLAYER;newTournament();}fresh();}
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
 document.querySelector("#start").onclick=start;
