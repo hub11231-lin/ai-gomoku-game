@@ -7,32 +7,47 @@
 :root{--bg:#f5e6c8;--ink:#302719;--panel:#fffaf0;--accent:#8b4e25}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#f5e6c8,#ead1a5);color:var(--ink);font-family:"Microsoft JhengHei",sans-serif}
 header{text-align:center;padding:20px 12px 8px}h1{margin:0;font-size:clamp(25px,4vw,38px)}.sub{opacity:.75;margin-top:6px}
-main{max-width:1050px;margin:auto;padding:12px;display:grid;grid-template-columns:minmax(300px,680px) minmax(250px,1fr);gap:16px}
+main{max-width:1180px;margin:0 auto;padding:8px 12px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:center}
+#gameMain>.panel{padding:12px;min-width:0}
+#boardWrap{min-height:0;overflow:visible}
+#board{width:min(100%,560px,calc(100vh - 145px));height:auto;aspect-ratio:1}
+.controls{gap:8px;align-content:center;padding:13px!important}
+.controls .group{gap:5px}.controls .row{gap:7px}.controls select,.controls button{padding:8px 9px}
+.controls .status{min-height:56px;padding:9px;line-height:1.45}
+.controls .small{font-size:12px;line-height:1.45}
+@media(min-width:761px) and (min-height:700px){body{min-height:100vh}header{padding:10px 12px 4px}main{min-height:calc(100vh - 72px)}}
 .panel{background:var(--panel);border:1px solid #d6b98a;border-radius:16px;padding:15px;box-shadow:0 8px 22px #6e4b251c}
-#boardWrap{display:flex;justify-content:center;align-items:center;overflow:auto}canvas{display:block;max-width:100%;height:auto;touch-action:manipulation}
-.controls{display:grid;gap:12px}.group{display:grid;gap:7px}label{font-weight:700}select,button{font:inherit;border-radius:9px;padding:10px;border:1px solid #b99a6b;background:white;color:var(--ink)}button{cursor:pointer;font-weight:700;background:#8b4e25;color:white;border:0}button.secondary{background:#e8d6b8;color:#382a1b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.status{padding:12px;border-radius:10px;background:#f1e3c8;line-height:1.6;min-height:74px}.small{font-size:13px;opacity:.8;line-height:1.6}.hidden{display:none}.bracket{max-height:560px;overflow:auto;font-size:12px;line-height:1.35;padding:8px;background:#f8edda;border-radius:10px}
-.bracketTree{display:grid;grid-template-columns:repeat(5,minmax(145px,1fr));gap:10px;min-width:790px;align-items:stretch}
-.bracketRound{display:flex;flex-direction:column;gap:8px}
-.bracketRound h4{margin:0 0 3px;text-align:center;color:#7b4b25;position:sticky;top:0;background:#f8edda;padding:5px;z-index:1}
-.match{border:1px solid #c9ad82;border-radius:8px;background:#fffaf0;padding:6px;min-height:54px;display:flex;flex-direction:column;justify-content:center;gap:4px}
-.match .team{padding:3px 5px;border-radius:4px;overflow-wrap:anywhere}
-.match .winner{background:#e6d4a8;font-weight:800;color:#5c3517}
-.match .eliminated{opacity:.48;text-decoration:line-through}
-.match .pending{color:#9b8b75;font-style:italic}
-.match.current{border:2px solid #c66b22;box-shadow:0 0 0 2px #f2d2a8}
-.bracketNote{font-size:13px;color:#765d3d;margin:10px 0}
-#tournamentView{width:min(1200px,calc(100% - 28px));margin:18px auto 40px;text-align:center}
-#tournamentView .panel{padding:22px;margin:auto}
-#tournamentView h2{margin:0 0 8px;font-size:clamp(22px,3vw,30px)}
-#tournamentView .status{max-width:760px;margin:12px auto}
-#tournamentView .bracket{max-height:none;overflow-x:auto;overflow-y:visible;margin:16px auto;padding:14px;max-width:100%;}
-#tournamentView .bracketTree{width:max-content;min-width:100%;grid-template-columns:repeat(5,minmax(150px,1fr));gap:14px;justify-content:center}
-#tournamentView .bracketRound{gap:10px}
-#tournamentView .match{min-height:62px}
-#tournamentView .row{justify-content:center;max-width:520px;margin:18px auto 0}
+#boardWrap{display:flex;justify-content:center;align-items:center}canvas{display:block;max-width:100%;height:auto;touch-action:manipulation}
+.controls{display:grid;gap:12px}.group{display:grid;gap:7px}label{font-weight:700}select,button{font:inherit;border-radius:9px;padding:10px;border:1px solid #b99a6b;background:white;color:var(--ink)}button{cursor:pointer;font-weight:700;background:#8b4e25;color:white;border:0}button.secondary{background:#e8d6b8;color:#382a1b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.status{padding:12px;border-radius:10px;background:#f1e3c8;line-height:1.6;min-height:74px}.small{font-size:13px;opacity:.8;line-height:1.6}.hidden{display:none}
+.controls{gap:8px}.controls .status{min-height:56px;padding:9px;line-height:1.45}.controls .small{font-size:12px;line-height:1.45}.controls select,.controls button{padding:8px 9px}
+.bracket{max-height:72vh;overflow:auto;font-size:12px;line-height:1.3;padding:10px;background:#f8edda;border-radius:10px}
+.bracketNote{font-size:13px;color:#765d3d;margin:8px 0}
+.bracketLegend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:6px auto 10px;font-size:12px}
+.bracketLegend span{display:inline-flex;align-items:center;gap:5px}
+.legendDot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.bracketBoard{min-width:1120px;max-width:1480px;margin:0 auto}
+.bracketHeaders{display:grid;grid-template-columns:repeat(9,minmax(112px,1fr));gap:6px;margin-bottom:7px;text-align:center;font-weight:800;color:#70431f}
+.bracketHeaders span{background:#ead4ae;border-radius:6px;padding:6px 2px}
+.bracketGrid{display:grid;grid-template-columns:repeat(9,minmax(112px,1fr));grid-template-rows:repeat(32,22px);gap:0 6px;align-items:center;position:relative}
+.bracketMatch{align-self:center;height:46px;min-height:46px;max-height:46px;min-width:0;border:1px solid #c6a77a;border-radius:7px;background:#fffaf0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative;box-shadow:0 1px 2px #5d3c2012}
+.bracketLines{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}.bracketMatch{z-index:1}.bracketMatch.playerMatch{border:2px solid #e08a18;box-shadow:0 0 0 2px #f6d49a;background:#fff1cb;z-index:2}
+.bracketMatch.currentMatch{outline:2px solid #d94a35;outline-offset:1px;z-index:3}
+.bracketMatch .team{padding:3px 5px;min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#263c63;font-size:11px}
+.bracketMatch .team+.team{border-top:1px solid #eee0c8}
+.bracketMatch .team.winner{background:#e7d6a8;color:#573411;font-weight:900}
+.bracketMatch .team.eliminated{opacity:.45;text-decoration:line-through}
+.bracketMatch .team.player{color:#8b3d00;font-weight:900;background:#ffe2a1}
+.bracketMatch .team.pending{color:#9b8b75;font-style:italic}
+.bracketMatch.finalMatch{background:#fff0b8;border:2px solid #bd8b22;align-self:center}
+.bracketConnector{height:100%;width:100%;pointer-events:none}
+#tournamentView{width:min(1500px,calc(100% - 24px));margin:10px auto 18px;text-align:center}
+#tournamentView .panel{padding:14px;margin:auto}
+#tournamentView h2{margin:0 0 6px;font-size:clamp(22px,3vw,30px)}
+#tournamentView .status{max-width:760px;margin:8px auto;padding:8px;min-height:0}
+#tournamentView .bracket{margin:10px auto;padding:10px;max-width:100%}
+#tournamentView .row{justify-content:center;max-width:520px;margin:12px auto 0}
 #tournamentView .row button{flex:0 1 240px}
-@media(max-width:760px){#tournamentView{width:calc(100% - 16px);margin:8px auto 24px}#tournamentView .panel{padding:12px}#tournamentView .bracket{padding:8px}#tournamentView .bracketTree{min-width:850px}}
-@media(max-width:760px){main{grid-template-columns:1fr}#boardWrap{order:0}.controls{order:1}}
+@media(max-width:760px){main{grid-template-columns:1fr;min-height:0}#board{width:min(100%,560px)}.controls{order:1}#tournamentView{width:calc(100% - 12px);margin:6px auto 14px}#tournamentView .panel{padding:9px}#tournamentView .bracket{max-height:65vh;padding:6px}}
 </style>
 </head>
 <body>
@@ -175,20 +190,68 @@ function finishTournament(playerWon){
 }
 function renderBracket(){
  const el=document.querySelector("#bracket");
- let out='<div class="bracketNote">四組隨機編排；金色代表勝出者，橘框代表目前對戰。</div><div class="bracketTree">';
- for(let ri=0;ri<5;ri++){
-  const arr=tournament.rounds[ri]||Array.from({length:16/Math.pow(2,ri)},()=>({a:null,b:null,winner:null}));
-  out+=`<div class="bracketRound"><h4>${roundLabels[ri]}</h4>`;
-  arr.forEach(m=>{
-   const current=tournament.currentMatch===m;
-   const label=x=>{if(!x)return "待定";let group=x.group?` <small>(${x.group}組)</small>`:"";return `${x.player?"★ ":""}${x.name}${group}`;};
-   out+=`<div class="match ${current?"current":""}"><div class="team ${m.winner===m.a?"winner":""} ${m.winner&&m.winner!==m.a?"eliminated":""}">${label(m.a)}</div><div class="team ${m.winner===m.b?"winner":""} ${m.winner&&m.winner!==m.b?"eliminated":""}">${label(m.b)}</div></div>`;
-  });
-  out+='</div>';
+ const t=tournament;
+ const labels=["32 強","16 強","8 強","4 強・準決賽","冠軍","4 強・準決賽","8 強","16 強","32 強"];
+ const roundCols=[1,2,3,4,5,6,7,8,9];
+ let out='<div class="bracketNote">世界盃式左右對稱淘汰賽：由兩側逐輪晉級中央決賽。橘色醒目框為玩家所在對戰，金色為勝出者。</div>';
+ out+='<div class="bracketLegend"><span><i class="legendDot" style="background:#ffe2a1;border:1px solid #e08a18"></i>玩家</span><span><i class="legendDot" style="background:#e7d6a8"></i>勝出</span><span><i class="legendDot" style="background:#fffaf0;border:1px solid #c6a77a"></i>尚未完成</span></div>';
+ out+='<div class="bracketBoard"><div class="bracketHeaders">'+labels.map(x=>`<span>${x}</span>`).join('')+'</div><div class="bracketGrid">';
+ // 連接線：每一輪兩場對戰匯入下一輪，左右兩側朝中央決賽會合。
+ let paths='';
+ for(let ri=0;ri<3;ri++){
+   const span=Math.pow(2,ri+2);
+   const pairs=8/Math.pow(2,ri);
+   for(let side=0;side<2;side++)for(let pair=0;pair<pairs/2;pair++){
+     const y1=(pair*2*span+span/2)*22;
+     const y2=((pair*2+1)*span+span/2)*22;
+     const yn=(pair*2*span+span)*22;
+     const col=side===0?ri+1:9-ri;
+     const nextCol=side===0?ri+2:8-ri;
+     const x1=side===0?(col-1)*118+112:(col-1)*118;
+     const x2=side===0?(nextCol-1)*118:(nextCol-1)*118+112;
+     const xm=(x1+x2)/2;
+     paths+=`M ${x1} ${y1} H ${xm} V ${y2} M ${xm} ${yn} H ${x2} `;
+   }
  }
- out+='</div>';
- if(tournament.third)out+=`<div class="bracketNote"><b>季軍賽：</b>${tournament.third.a.name} vs ${tournament.third.b.name} → <b>${tournament.thirdPlace.name}</b>（季軍）</div>`;
- if(tournament.champion)out+=`<div class="bracketNote"><b>最終名次：</b>冠軍 ${tournament.champion.name}｜亞軍 ${tournament.runnerUp.name}｜季軍 ${tournament.thirdPlace.name}｜殿軍 ${tournament.fourthPlace.name}</div>`;
+ out+=`<svg aria-hidden="true" class="bracketLines" viewBox="0 0 1062 704" preserveAspectRatio="none"><path d="${paths}" fill="none" stroke="#a98b62" stroke-width="1.5"/></svg>`;
+ const teamLabel=(x)=>{
+   if(!x)return '<div class="team pending">待定</div>';
+   const cls=x.player?' player':'';
+   const group=x.group?`・${x.group}組`:'';
+   return `<div class="team${cls}" title="${x.name}${group}">${x.player?'★ ':''}${x.name}${group}</div>`;
+ };
+ // 32強到準決賽：左半邊與右半邊分別朝中央推進。
+ for(let ri=0;ri<4;ri++){
+   const arr=t.rounds[ri]||[];
+   const half=arr.length/2;
+   const span=Math.pow(2,ri+2);
+   for(let idx=0;idx<arr.length;idx++){
+     const m=arr[idx]; if(!m)continue;
+     const left=idx<half;
+     const local=left?idx:idx-half;
+     const col=left?ri+1:9-ri;
+     const rowStart=local*span+1;
+     const isPlayer=!!(m.a?.player||m.b?.player);
+     const isCurrent=t.currentMatch===m;
+     const classes=['bracketMatch',isPlayer?'playerMatch':'',isCurrent?'currentMatch':''].filter(Boolean).join(' ');
+     out+=`<div class="${classes}" style="grid-column:${col};grid-row:${rowStart}/span ${span}" title="${labels[left?ri:8-ri]} 第 ${idx+1} 場">${teamLabel(m.a,m)}${teamLabel(m.b,m)}</div>`;
+   }
+ }
+ // 決賽置中
+ const finalRound=t.rounds[4]||[];
+ if(finalRound.length){
+   const m=finalRound[0],isPlayer=!!(m.a?.player||m.b?.player),isCurrent=t.currentMatch===m;
+   const classes=['bracketMatch','finalMatch',isPlayer?'playerMatch':'',isCurrent?'currentMatch':''].filter(Boolean).join(' ');
+   out+=`<div class="${classes}" style="grid-column:5;grid-row:1/span 32">${teamLabel(m.a,m)}${teamLabel(m.b,m)}</div>`;
+ }
+ out+='</div></div>';
+ if(t.third){
+   out+=`<div class="bracketNote"><b>季軍賽：</b>${t.third.a.name} vs ${t.third.b.name} → <b>${t.thirdPlace.name}</b>（季軍）</div>`;
+ }
+ if(t.champion){
+   const rank=t.champion.player?1:t.runnerUp.player?2:t.thirdPlace.player?3:t.fourthPlace.player?4:null;
+   out+=`<div class="bracketNote"><b>最終名次：</b>冠軍 ${t.champion.name}｜亞軍 ${t.runnerUp.name}｜季軍 ${t.thirdPlace.name}｜殿軍 ${t.fourthPlace.name}${rank?`｜<b>玩家第 ${rank} 名</b>`:''}</div>`;
+ }
  el.innerHTML=out;
 }
 function showTournamentBracket(heading,message,canPlay){
@@ -206,8 +269,9 @@ function beginTournamentMatch(){
  tournamentStage="game";
  document.querySelector("#tournamentView").classList.add("hidden");
  document.querySelector("#gameMain").classList.remove("hidden");
- document.querySelector("#gameMain").style.gridTemplateColumns="minmax(300px,1fr)";
- document.querySelector("#gameMain").style.maxWidth="760px";
+ document.querySelector("#gameMain").querySelector("#practiceOpts").classList.add("hidden");
+ document.querySelector("#gameMain").style.gridTemplateColumns="";
+ document.querySelector("#gameMain").style.maxWidth="";
  first=PLAYER;fresh();
  const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
  statusEl.textContent=`${roundLabels[tournament.round]}：對戰 ${opp.name}。輪到你下黑棋！`;
@@ -220,6 +284,7 @@ function start(){
   first=PLAYER;newTournament();renderBracket();
  }else{
   document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");
+  document.querySelector("#gameMain").querySelector("#practiceOpts").classList.remove("hidden");
   document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");
   fresh();
  }
