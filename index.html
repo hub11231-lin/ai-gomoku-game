@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 五子棋</title>
+<style>
+:root{--bg:#f5e6c8;--ink:#302719;--panel:#fffaf0;--accent:#8b4e25}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#f5e6c8,#ead1a5);color:var(--ink);font-family:"Microsoft JhengHei",sans-serif}
+header{text-align:center;padding:20px 12px 8px}h1{margin:0;font-size:clamp(25px,4vw,38px)}.sub{opacity:.75;margin-top:6px}
+main{max-width:1050px;margin:auto;padding:12px;display:grid;grid-template-columns:minmax(300px,680px) minmax(250px,1fr);gap:16px}
+.panel{background:var(--panel);border:1px solid #d6b98a;border-radius:16px;padding:15px;box-shadow:0 8px 22px #6e4b251c}
+#boardWrap{display:flex;justify-content:center;align-items:center;overflow:auto}canvas{display:block;max-width:100%;height:auto;touch-action:manipulation}
+.controls{display:grid;gap:12px}.group{display:grid;gap:7px}label{font-weight:700}select,button{font:inherit;border-radius:9px;padding:10px;border:1px solid #b99a6b;background:white;color:var(--ink)}button{cursor:pointer;font-weight:700;background:#8b4e25;color:white;border:0}button.secondary{background:#e8d6b8;color:#382a1b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.status{padding:12px;border-radius:10px;background:#f1e3c8;line-height:1.6;min-height:74px}.small{font-size:13px;opacity:.8;line-height:1.6}.hidden{display:none}.bracket{max-height:260px;overflow:auto;font-size:13px;line-height:1.7}.bracket div{border-bottom:1px dashed #d6c2a0;padding:3px}
+@media(max-width:760px){main{grid-template-columns:1fr}#boardWrap{order:0}.controls{order:1}}
+</style>
+</head>
+<body>
+<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽</div></header>
+<main>
+<section class="panel">
+<div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
+</section>
+<aside class="panel controls">
+<div class="group"><label>遊戲模式</label><select id="mode"><option value="practice">單機練習</option><option value="tournament">32 強淘汰賽</option></select></div>
+<div id="practiceOpts">
+<div class="group"><label>電腦等級：<span id="levelText">5 - 中級</span></label><input id="level" type="range" min="1" max="10" value="5"></div>
+<div class="group"><label>先手</label><select id="first"><option value="1">玩家先手（黑棋）</option><option value="2">電腦先手（白棋）</option></select></div>
+<div class="group"><label><input id="predict" type="checkbox" checked> 啟用預判模式</label></div>
+</div>
+<div class="row"><button id="start">開始新對局</button><button class="secondary" id="restart">重新開始</button></div>
+<div class="row"><button class="secondary" id="undo">悔棋</button><button class="secondary" id="menu">回主選單</button></div>
+<div class="status" id="status">請選擇模式，按「開始新對局」。</div>
+<div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。</div>
+<div id="tourPanel" class="hidden"><b>淘汰賽賽程紀錄</b><div id="bracket" class="bracket"></div></div>
+<div class="small">提示：第 8～10 級搜尋較深，電腦思考時間可能較長。此網頁版不需要安裝 Python。</div>
+</aside>
+</main>
+<script>
+"use strict";
+const N=15, EMPTY=0, PLAYER=1, AI=2, FIVE=1e6, OPEN4=1e5, DANGER=5e4;
+const names=["斷水流大師兄","ψ 猗窩座-","嘴平伊之助","東尼東尼喬巴","娜美Nami","野原新之助","竈門彌豆子","綠巨人浩克","羅羅亞索隆","竈門炭治郎","怪獸8號","我妻善逸","派大星","海綿寶寶","美國隊長","間諜家家酒","蒙奇D魯夫","妮可羅賓","黑寡婦","第一神拳一步","林雷雅","火影忍者","蜘蛛人","阿甘妙世界","少年悍將","小小兵","鋼鐵人","雷神索爾","浪子踢球","騙人布","哆啦A夢"];
+const levelNames=["","新手","入門","初級","進階","中級","中高級","高級","專家","大師","棋神"];
+const cfgs=[
+{}, {noise:.86,top:12,block:.45,win:.55},{noise:.75,top:10,block:.55,win:.65},
+{noise:.60,top:8,block:.65,win:.75},{noise:.50,top:7,block:.75,win:.82},
+{noise:.40,top:6,block:.85,win:.90},{noise:.30,top:5,block:.92,win:.95},
+{noise:.15,top:3,block:.95,win:1},{noise:.08,top:2,block:1,win:1},
+{noise:.03,top:1,block:1,win:1},{noise:0,top:1,block:1,win:1}
+];
+let board, history, last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null;
+const canvas=document.querySelector("#board"),ctx=canvas.getContext("2d"),statusEl=document.querySelector("#status");
+function fresh(){board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;turn=first;over=false;busy=false;draw();statusEl.textContent=turn===PLAYER?"輪到你了，請下黑棋。":"電腦先手，正在思考…";if(turn===AI)setTimeout(aiMove,250);}
+function draw(){
+ const w=canvas.width,step=40,margin=40;ctx.clearRect(0,0,w,w);ctx.fillStyle="#e9c98d";ctx.fillRect(0,0,w,w);
+ ctx.strokeStyle="#79552d";ctx.lineWidth=1;
+ for(let i=0;i<N;i++){let p=margin+i*step;ctx.beginPath();ctx.moveTo(margin,p);ctx.lineTo(margin+(N-1)*step,p);ctx.stroke();ctx.beginPath();ctx.moveTo(p,margin);ctx.lineTo(p,margin+(N-1)*step);ctx.stroke();}
+ for(let r of [3,7,11])for(let c of [3,7,11]){ctx.beginPath();ctx.arc(margin+c*step,margin+r*step,3,0,Math.PI*2);ctx.fillStyle="#79552d";ctx.fill();}
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){let x=margin+c*step,y=margin+r*step;let g=ctx.createRadialGradient(x-5,y-6,2,x,y,15);if(board[r][c]===PLAYER){g.addColorStop(0,"#666");g.addColorStop(1,"#080808")}else{g.addColorStop(0,"#fff");g.addColorStop(1,"#c8c8c8")}ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle=board[r][c]===PLAYER?"#000":"#999";ctx.stroke();}
+ if(last){ctx.strokeStyle="#d22";ctx.lineWidth=2;ctx.strokeRect(40+last[1]*40-5,40+last[0]*40-5,10,10);}
+}
+function inside(r,c){return r>=0&&r<N&&c>=0&&c<N}
+const dirs=[[1,0],[0,1],[1,1],[1,-1]];
+function won(r,c,p){for(const [dr,dc] of dirs){let n=1;for(let s of [-1,1]){let rr=r+dr*s,cc=c+dc*s;while(inside(rr,cc)&&board[rr][cc]===p){n++;rr+=dr*s;cc+=dc*s;}}if(n>=5)return true;}return false;}
+function candidateMoves(){let set=new Set(),has=false;for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){has=true;for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){let rr=r+dr,cc=c+dc;if(inside(rr,cc)&&!board[rr][cc])set.add(rr*N+cc);}}return has?[...set].map(x=>[Math.floor(x/N),x%N]):[[7,7]];}
+function lineKind(s){const pats=[[],[],[".XXX.","XXX..","..XXX","XX.X.",".X.XX","X.XX.",".XX.X","X..XX","XX..X"],["..XXX.",".XXX..",".XX.X.",".X.XX."],["XXXX.",".XXXX","XXX.X","X.XXX","XX.XX"],[".XXXX."],["XXXXX"]];for(let k=6;k>=1;k--)for(const p of pats[k]){let i=s.indexOf(p);while(i>=0){if(i<=4&&i+p.length>4)return k;i=s.indexOf(p,i+1);}}return 0;}
+function analyze(r,c,p){let counts=Array(7).fill(0);for(const [dr,dc] of dirs){let s="";for(let k=-4;k<=4;k++){if(!k){s+="X";continue;}let rr=r+dr*k,cc=c+dc*k;s+=inside(rr,cc)?(board[rr][cc]===0?".":board[rr][cc]===p?"X":"O"):"O";}counts[lineKind(s)]++;}return counts;}
+function score(r,c,p){if(board[r][c])return -1;let a=analyze(r,c,p),f=a[6],o=a[5],q=a[4],t=a[3],cl=a[2],tw=a[1];if(f)return FIVE;let center=14-Math.abs(r-7)-Math.abs(c-7);if(o||q>=2||(q&&t))return OPEN4+center;if(t>=2)return DANGER+center;return q*10000+t*5000+cl*800+tw*150+center;}
+function winning(p){let out=[];for(const [r,c] of candidateMoves())if(score(r,c,p)>=FIVE)out.push([r,c]);return out;}
+function chooseAI(){
+ let moves=candidateMoves();if(history.length===0)return [7,7];
+ let att=moves.map(m=>score(...m,AI)),def=moves.map(m=>score(...m,PLAYER));
+ let wins=moves.filter((m,i)=>att[i]>=FIVE);if(wins.length&&Math.random()<cfgs[level].win)return wins[Math.floor(Math.random()*wins.length)];
+ let blocks=moves.filter((m,i)=>def[i]>=OPEN4);if(blocks.length)return blocks[0];
+ let instant=moves.filter((m,i)=>def[i]>=FIVE);if(instant.length&&Math.random()<cfgs[level].block)return instant[0];
+ const cfg=cfgs[level];let ranked=moves.map((m,i)=>({m,s:att[i]+def[i]*.95})).sort((a,b)=>b.s-a.s);
+ if(Math.random()<cfg.noise)return ranked[Math.floor(Math.random()*Math.min(cfg.top,ranked.length))].m;
+ // Higher levels use a shallow reply evaluation to avoid obvious traps.
+ if(level>=7&&predict){let best=null,bv=-Infinity;for(const item of ranked.slice(0,level>=10?14:8)){let [r,c]=item.m;board[r][c]=AI;let reply=0;for(const [rr,cc] of candidateMoves())reply=Math.max(reply,score(rr,cc,PLAYER));board[r][c]=0;let v=item.s-reply*(level>=9?.42:.25);if(v>bv){bv=v;best=item.m;}}return best||ranked[0].m;}
+ return ranked[0].m;
+}
+function place(r,c,p){if(over||busy||board[r][c])return false;board[r][c]=p;history.push({r,c,p});last=[r,c];draw();if(won(r,c,p)){over=true;statusEl.textContent=(p===PLAYER?"恭喜！你獲勝！":"電腦獲勝！")+(mode==="tournament"?" 淘汰賽結果已更新。":"");if(mode==="tournament")finishTournament(p===PLAYER);return true;}if(history.length===N*N){over=true;statusEl.textContent="平手！";return true;}return true;}
+function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請下黑棋。";}},30);}
+canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect=canvas.getBoundingClientRect(),scale=canvas.width/rect.width,x=(e.clientX-rect.left)*scale,y=(e.clientY-rect.top)*scale,c=Math.round((x-40)/40),r=Math.round((y-40)/40);if(!inside(r,c)||Math.hypot(x-(40+c*40),y-(40+r*40))>19)return;if(place(r,c,PLAYER)&&!over){turn=AI;aiMove();}});
+function newTournament(){let pool=names.map((name,i)=>({name,rank:i+1}));pool.push({name:"玩家",rank:0,player:true});pool.sort(()=>Math.random()-.5);let matches=[];for(let i=0;i<32;i+=2)matches.push([pool[i],pool[i+1]]);tournament={round:0,matches,playerAlive:true,log:[],playerRank:null};advanceTournament();}
+function simulatedWinner(a,b){if(a.player||b.player)return a.player?a:b;return Math.random()<(.5+(b.rank-a.rank)*.009)?a:b;}
+function advanceTournament(){let t=tournament;while(t.matches.length>1){let winners=[];t.matches.forEach((pair,i)=>{if(pair.some(x=>x.player)&&t.playerAlive){let opp=pair.find(x=>!x.player);t.log.push(`${["32強","16強","8強","4強","決賽"][t.round]}：玩家 vs ${opp.name}（請完成棋局）`);winners.push({name:"玩家",rank:0,player:true,opponent:opp});}else{let w=simulatedWinner(...pair);t.log.push(`${["32強","16強","8強","4強","決賽"][t.round]}：${pair[0].name} vs ${pair[1].name} → ${w.name}`);winners.push(w);}});t.next=winners;t.round++;break;}renderBracket();}
+function finishTournament(playerWon){let t=tournament;if(!t)return;let round=t.round-1,opp=t.next?.find(x=>x.player)?.opponent;if(!playerWon){t.playerAlive=false;t.log.push(`玩家於${["32強","16強","8強","決賽"][round]||"賽事"}遭淘汰。`);}else t.log.push("玩家晉級下一輪！");if(!t.playerAlive){t.log.push("其餘賽事由系統模擬完成；此簡化網頁版先記錄玩家淘汰輪次。");renderBracket();return;}if(t.next.length===1){t.log.push("恭喜玩家獲得冠軍！");renderBracket();return;}t.matches=[];for(let i=0;i<t.next.length;i+=2)t.matches.push([t.next[i],t.next[i+1]]);advanceTournament();statusEl.textContent="本輪勝利！下一輪對手："+(t.matches.flat().find(x=>!x.player)?.name||"");}
+function renderBracket(){document.querySelector("#tourPanel").classList.remove("hidden");document.querySelector("#bracket").innerHTML=tournament.log.map(x=>`<div>${x}</div>`).join("");}
+function start(){mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;first=+document.querySelector("#first").value;predict=document.querySelector("#predict").checked;document.querySelector("#tourPanel").classList.toggle("hidden",mode!=="tournament");if(mode==="tournament"){first=PLAYER;newTournament();let opp=tournament.matches.flat().find(x=>x.player)?.opponent;statusEl.textContent="32 強賽開始！你的對手："+(opp?.name||"對手")+"。請先手落黑棋。";}fresh();}
+document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
+document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
+document.querySelector("#start").onclick=start;
+document.querySelector("#restart").onclick=()=>{if(mode==="tournament")start();else fresh();};
+document.querySelector("#undo").onclick=()=>{if(over||busy||history.length===0)return;let n=mode==="practice"&&history.length>=2?2:1;while(n--&&history.length){let m=history.pop();board[m.r][m.c]=0;}last=history.length?[history.at(-1).r,history.at(-1).c]:null;turn=PLAYER;draw();statusEl.textContent="已悔棋，輪到你。";};
+document.querySelector("#menu").onclick=()=>{over=true;busy=false;statusEl.textContent="已回到主選單設定。選擇模式後按「開始新對局」。";};
+draw();
+</script>
+</body></html>
