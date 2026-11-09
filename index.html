@@ -48,6 +48,50 @@ main{max-width:1240px;margin:0 auto;padding:8px 12px;display:grid;grid-template-
 #tournamentView .row{justify-content:center;max-width:520px;margin:12px auto 0}
 #tournamentView .row button{flex:0 1 240px}
 @media(max-width:760px){main{grid-template-columns:1fr;min-height:0}#board{width:min(100%,620px)}.controls{order:1}#tournamentView{width:calc(100% - 12px);margin:6px auto 14px}#tournamentView .panel{padding:9px}#tournamentView .bracket{max-height:65vh;padding:6px}}
+
+/* v7：宇宙星空主題、加大主選單與賽程字體 */
+:root{--bg:#070d25;--ink:#eaf2ff;--panel:#111d3d;--accent:#72c7ff}
+html{background:#070d25}
+body{position:relative;isolation:isolate;min-height:100vh;background:radial-gradient(ellipse at 16% 12%,#243b75 0%,transparent 38%),radial-gradient(ellipse at 82% 78%,#321b64 0%,transparent 34%),linear-gradient(135deg,#050918 0%,#0b1740 52%,#11102e 100%);color:#edf4ff}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.8;background-image:radial-gradient(2px 2px at 8% 18%,#fff 98%,transparent),radial-gradient(1.5px 1.5px at 22% 72%,#a9d8ff 98%,transparent),radial-gradient(2px 2px at 42% 32%,#fff 98%,transparent),radial-gradient(1px 1px at 61% 15%,#d9c9ff 98%,transparent),radial-gradient(2px 2px at 77% 48%,#fff 98%,transparent),radial-gradient(1.5px 1.5px at 91% 82%,#9edcff 98%,transparent),radial-gradient(1px 1px at 54% 88%,#fff 98%,transparent);background-size:420px 360px}
+header h1{color:#f2f7ff;text-shadow:0 0 12px #66baff,0 0 28px #647dff}
+.sub{color:#b8d6ff;opacity:1}
+main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
+#gameMain>.panel{padding:16px}
+#board{width:min(100%,760px,calc(100vh - 100px))}
+.panel{background:linear-gradient(145deg,rgba(20,35,73,.96),rgba(12,20,48,.96));border:1px solid #466ba9;border-radius:18px;box-shadow:0 12px 34px #02061799,0 0 18px #477be522;color:#edf4ff}
+.controls{gap:13px;padding:17px!important}
+.controls .group{gap:8px}.controls .row{gap:9px}
+.controls label{font-size:16px;color:#dceaff}
+.controls select,.controls button{font-size:16px;padding:11px 12px;min-height:43px}
+.controls select{background:#eaf2ff;color:#17264b;border:1px solid #8eb8ed}
+.controls button{background:linear-gradient(135deg,#2776c9,#5948bd);color:#fff;box-shadow:0 3px 10px #02061766}
+.controls button.secondary{background:#263c68;color:#e7f0ff;border:1px solid #5876a8}
+.controls .status{font-size:15px;background:#1c315b;color:#e8f3ff;border:1px solid #45689e;min-height:66px;padding:12px;line-height:1.55}
+.controls .small{font-size:14px;color:#b9ccec;opacity:1;line-height:1.55}
+#tournamentView .panel{background:linear-gradient(145deg,rgba(20,35,73,.98),rgba(10,17,43,.98));border-color:#5278b7}
+#tournamentView h2{color:#f0f6ff;text-shadow:0 0 10px #689cff}
+#tournamentView .status{background:#1b315c;color:#eaf2ff;border:1px solid #45689e}
+.bracket{background:rgba(5,12,33,.88);border:1px solid #395b91;color:#edf4ff;font-size:16px}
+.bracketNote{font-size:16px;color:#c5d9ff}
+.bracketLegend{font-size:15px;color:#dceaff}
+.bracketBoard{min-width:1260px;max-width:1640px}
+.bracketHeaders{grid-template-columns:repeat(9,minmax(138px,1fr));gap:7px}
+.bracketHeaders span{background:#203b6d;color:#eaf3ff;border:1px solid #5278b7;padding:9px 3px;font-size:17px}
+.bracketGrid{grid-template-columns:repeat(9,minmax(138px,1fr));grid-template-rows:repeat(32,30px);gap:0 7px}
+.bracketMatch{height:68px;min-height:68px;max-height:68px;border:1px solid #5879ad;border-radius:9px;background:#17294e;box-shadow:0 2px 8px #02061777}
+.bracketMatch.playerMatch{border:2px solid #ffbd55;box-shadow:0 0 0 2px #ffbd5544,0 0 14px #ffbd5577;background:#49351e}
+.bracketMatch.currentMatch{outline:2px solid #ff6f8c;outline-offset:1px}
+.bracketMatch .team{padding:5px 7px;min-height:29px;color:#dceaff;font-size:17px;font-weight:700}
+.bracketMatch .team+.team{border-top:1px solid #40577f}
+.bracketMatch .team.winner{background:#294f75;color:#fff0b6;font-weight:900}
+.bracketMatch .team.eliminated{opacity:.55}
+.bracketMatch .team.player{color:#fff0c7;font-weight:900;background:#68451e}
+.bracketMatch .team.pending{color:#9db0d0}
+.bracketMatch.finalMatch{background:#44391b;border:2px solid #d8b64e}
+#tournamentView .row button{font-size:16px;min-height:44px}
+@media(max-width:760px){main{grid-template-columns:1fr;max-width:100%;gap:10px}#board{width:min(100%,680px)}.controls{order:1}.bracketBoard{min-width:1260px}.bracketMatch .team{font-size:16px}}
+
 </style>
 </head>
 <body>
