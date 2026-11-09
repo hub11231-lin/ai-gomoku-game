@@ -10,7 +10,7 @@ header{text-align:center;padding:20px 12px 8px}h1{margin:0;font-size:clamp(25px,
 main{max-width:1240px;margin:0 auto;padding:8px 12px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:center}
 #gameMain>.panel{padding:12px;min-width:0}
 #boardWrap{min-height:0;overflow:visible}
-#board{width:min(100%,600px,calc(100vh - 125px));height:auto;aspect-ratio:1}
+#board{width:min(100%,680px,calc(100vh - 95px));height:auto;aspect-ratio:1}
 .controls{gap:8px;align-content:center;padding:13px!important}
 .controls .group{gap:5px}.controls .row{gap:7px}.controls select,.controls button{padding:8px 9px}
 .controls .status{min-height:56px;padding:9px;line-height:1.45}
@@ -20,19 +20,19 @@ main{max-width:1240px;margin:0 auto;padding:8px 12px;display:grid;grid-template-
 #boardWrap{display:flex;justify-content:center;align-items:center}canvas{display:block;max-width:100%;height:auto;touch-action:manipulation}
 .controls{display:grid;gap:12px}.group{display:grid;gap:7px}label{font-weight:700}select,button{font:inherit;border-radius:9px;padding:10px;border:1px solid #b99a6b;background:white;color:var(--ink)}button{cursor:pointer;font-weight:700;background:#8b4e25;color:white;border:0}button.secondary{background:#e8d6b8;color:#382a1b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.status{padding:12px;border-radius:10px;background:#f1e3c8;line-height:1.6;min-height:74px}.small{font-size:13px;opacity:.8;line-height:1.6}.hidden{display:none}
 .controls{gap:8px}.controls .status{min-height:56px;padding:9px;line-height:1.45}.controls .small{font-size:12px;line-height:1.45}.controls select,.controls button{padding:8px 9px}
-.bracket{max-height:72vh;overflow:auto;font-size:12px;line-height:1.3;padding:10px;background:#f8edda;border-radius:10px}
+.bracket{max-height:72vh;overflow:auto;font-size:14px;line-height:1.35;padding:10px;background:#f8edda;border-radius:10px}
 .bracketNote{font-size:13px;color:#765d3d;margin:8px 0}
 .bracketLegend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:6px auto 10px;font-size:12px}
 .bracketLegend span{display:inline-flex;align-items:center;gap:5px}
 .legendDot{width:11px;height:11px;border-radius:3px;display:inline-block}
 .bracketBoard{min-width:1120px;max-width:1480px;margin:0 auto}
 .bracketHeaders{display:grid;grid-template-columns:repeat(9,minmax(112px,1fr));gap:6px;margin-bottom:7px;text-align:center;font-weight:800;color:#70431f}
-.bracketHeaders span{background:#ead4ae;border-radius:6px;padding:6px 2px}
-.bracketGrid{display:grid;grid-template-columns:repeat(9,minmax(112px,1fr));grid-template-rows:repeat(32,22px);gap:0 6px;align-items:center;position:relative}
-.bracketMatch{align-self:center;height:46px;min-height:46px;max-height:46px;min-width:0;border:1px solid #c6a77a;border-radius:7px;background:#fffaf0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative;box-shadow:0 1px 2px #5d3c2012}
+.bracketHeaders span{background:#ead4ae;border-radius:6px;padding:7px 2px;font-size:14px}
+.bracketGrid{display:grid;grid-template-columns:repeat(9,minmax(112px,1fr));grid-template-rows:repeat(32,26px);gap:0 6px;align-items:center;position:relative}
+.bracketMatch{align-self:center;height:54px;min-height:54px;max-height:54px;min-width:0;border:1px solid #c6a77a;border-radius:7px;background:#fffaf0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative;box-shadow:0 1px 2px #5d3c2012}
 .bracketLines{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}.bracketMatch{z-index:1}.bracketMatch.playerMatch{border:2px solid #e08a18;box-shadow:0 0 0 2px #f6d49a;background:#fff1cb;z-index:2}
 .bracketMatch.currentMatch{outline:2px solid #d94a35;outline-offset:1px;z-index:3}
-.bracketMatch .team{padding:3px 5px;min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#263c63;font-size:11px}
+.bracketMatch .team{padding:4px 5px;min-height:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#263c63;font-size:14px;font-weight:600}
 .bracketMatch .team+.team{border-top:1px solid #eee0c8}
 .bracketMatch .team.winner{background:#e7d6a8;color:#573411;font-weight:900}
 .bracketMatch .team.eliminated{opacity:.45;text-decoration:line-through}
@@ -47,7 +47,7 @@ main{max-width:1240px;margin:0 auto;padding:8px 12px;display:grid;grid-template-
 #tournamentView .bracket{margin:10px auto;padding:10px;max-width:100%}
 #tournamentView .row{justify-content:center;max-width:520px;margin:12px auto 0}
 #tournamentView .row button{flex:0 1 240px}
-@media(max-width:760px){main{grid-template-columns:1fr;min-height:0}#board{width:min(100%,560px)}.controls{order:1}#tournamentView{width:calc(100% - 12px);margin:6px auto 14px}#tournamentView .panel{padding:9px}#tournamentView .bracket{max-height:65vh;padding:6px}}
+@media(max-width:760px){main{grid-template-columns:1fr;min-height:0}#board{width:min(100%,620px)}.controls{order:1}#tournamentView{width:calc(100% - 12px);margin:6px auto 14px}#tournamentView .panel{padding:9px}#tournamentView .bracket{max-height:65vh;padding:6px}}
 </style>
 </head>
 <body>
