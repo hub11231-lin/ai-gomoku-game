@@ -20,13 +20,25 @@ main{max-width:1050px;margin:auto;padding:12px;display:grid;grid-template-column
 .match .eliminated{opacity:.48;text-decoration:line-through}
 .match .pending{color:#9b8b75;font-style:italic}
 .match.current{border:2px solid #c66b22;box-shadow:0 0 0 2px #f2d2a8}
-.bracketNote{font-size:12px;color:#765d3d;margin:6px 0}
+.bracketNote{font-size:13px;color:#765d3d;margin:10px 0}
+#tournamentView{width:min(1200px,calc(100% - 28px));margin:18px auto 40px;text-align:center}
+#tournamentView .panel{padding:22px;margin:auto}
+#tournamentView h2{margin:0 0 8px;font-size:clamp(22px,3vw,30px)}
+#tournamentView .status{max-width:760px;margin:12px auto}
+#tournamentView .bracket{max-height:none;overflow-x:auto;overflow-y:visible;margin:16px auto;padding:14px;max-width:100%;}
+#tournamentView .bracketTree{width:max-content;min-width:100%;grid-template-columns:repeat(5,minmax(150px,1fr));gap:14px;justify-content:center}
+#tournamentView .bracketRound{gap:10px}
+#tournamentView .match{min-height:62px}
+#tournamentView .row{justify-content:center;max-width:520px;margin:18px auto 0}
+#tournamentView .row button{flex:0 1 240px}
+@media(max-width:760px){#tournamentView{width:calc(100% - 16px);margin:8px auto 24px}#tournamentView .panel{padding:12px}#tournamentView .bracket{padding:8px}#tournamentView .bracketTree{min-width:850px}}
 @media(max-width:760px){main{grid-template-columns:1fr}#boardWrap{order:0}.controls{order:1}}
 </style>
 </head>
 <body>
 <header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽</div></header>
-<main>
+<section id="tournamentView" class="hidden"><div class="panel"><h2 id="tourHeading">🏆 32 強淘汰賽賽程</h2><div class="status" id="tourStatus">賽程準備中…</div><div id="bracket" class="bracket"></div><div class="row"><button id="tourAction">開始本輪比賽</button><button id="tourBack" class="secondary">返回主選單</button></div></div></section>
+<main id="gameMain">
 <section class="panel">
 <div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
 </section>
@@ -41,7 +53,7 @@ main{max-width:1050px;margin:auto;padding:12px;display:grid;grid-template-column
 <div class="row"><button class="secondary" id="undo">悔棋</button><button class="secondary" id="menu">回主選單</button></div>
 <div class="status" id="status">請選擇模式，按「開始新對局」。</div>
 <div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。</div>
-<div id="tourPanel" class="hidden"><b>32 強淘汰賽樹狀賽程</b><div id="bracket" class="bracket"></div></div>
+
 <div class="small">提示：第 8～10 級搜尋較深，電腦思考時間可能較長。此網頁版不需要安裝 Python。</div>
 </aside>
 </main>
@@ -57,7 +69,7 @@ const cfgs=[
 {noise:.15,top:3,block:.95,win:1},{noise:.08,top:2,block:1,win:1},
 {noise:.03,top:1,block:1,win:1},{noise:0,top:1,block:1,win:1}
 ];
-let board, history, last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null;
+let board, history, last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null, tournamentStage="bracket";
 const canvas=document.querySelector("#board"),ctx=canvas.getContext("2d"),statusEl=document.querySelector("#status");
 function fresh(){board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;turn=first;over=false;busy=false;draw();statusEl.textContent=turn===PLAYER?"輪到你了，請下黑棋。":"電腦先手，正在思考…";if(turn===AI)setTimeout(aiMove,250);}
 let flashCell=null,flashVisible=true,flashTimer=null;
@@ -127,7 +139,8 @@ function prepareTournamentRound(){
   t.currentMatch=playerMatch;t.waiting=true;
   const opp=playerMatch.a.player?playerMatch.b:playerMatch.a;
   level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
-  statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。請開始對局！`;
+  statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。`;
+  showTournamentBracket(`${roundLabels[ri]} 賽前賽程`, `你的對手：${opp.name}（電腦 Lv${level}）。確認賽程後，按「開始本輪比賽」。`, true);
  }else{t.waiting=false;completeTournamentRound();}
  renderBracket();
 }
@@ -143,28 +156,28 @@ function completeTournamentRound(){
   let rank=t.champion.player?1:t.runnerUp.player?2:t.thirdPlace.player?3:t.fourthPlace.player?4:null;
   const eliminatedText=t.playerEliminated?`你於${roundLabels[t.playerLostRound]}止步（第 ${[17,9,5,4,2][t.playerLostRound]}～${[32,16,8,4,2][t.playerLostRound]} 名區間）。`:"";
   statusEl.textContent=`賽事結束！冠軍：${t.champion.name}；亞軍：${t.runnerUp.name}；季軍：${t.thirdPlace.name}；殿軍：${t.fourthPlace.name}。${rank?`你的名次：第 ${rank} 名。`:eliminatedText}`;
-  renderBracket();return;
+  renderBracket();showTournamentBracket("🏆 淘汰賽最終賽程",`冠軍：${t.champion.name}｜亞軍：${t.runnerUp.name}｜季軍：${t.thirdPlace.name}｜殿軍：${t.fourthPlace.name}`,false);return;
  }
  const winners=round.map(m=>m.winner),next=[];
  for(let i=0;i<winners.length;i+=2)next.push({a:winners[i],b:winners[i+1],winner:null});
  t.round++;t.rounds.push(next);prepareTournamentRound();
- if(t.currentMatch){first=PLAYER;setTimeout(()=>{first=PLAYER;fresh();statusEl.textContent=`${roundLabels[t.round]}：輪到你對戰，請下黑棋。`;},0);}
 }
 function finishTournament(playerWon){
  const t=tournament;if(!t||!t.waiting||!t.currentMatch)return;
  const m=t.currentMatch;m.winner=playerWon?(m.a.player?m.a:m.b):(m.a.player?m.b:m.a);
  if(!playerWon){t.playerEliminated=true;t.playerLostRound=t.round;}
  t.waiting=false;t.currentMatch=null;
- renderBracket();
- if(playerWon){statusEl.textContent="恭喜晉級！準備下一輪…";}
+ tournamentStage="bracket";
+ if(playerWon){statusEl.textContent="恭喜晉級！本輪結果已更新。";}else{statusEl.textContent="本輪落敗；其餘賽事將由系統模擬完成。";}
  completeTournamentRound();
+ if(tournament && !tournament.champion){showTournamentBracket(playerWon?"本輪賽後賽程":"淘汰後完整賽程",playerWon?"你已晉級，查看更新後的樹狀圖，再開始下一輪。":"你已遭淘汰，系統已接續模擬其餘賽事。",!!tournament.currentMatch);}
+ else if(tournament){showTournamentBracket("🏆 淘汰賽最終賽程","全部賽事已完成，以下為完整賽程與最終名次。",false);}
 }
 function renderBracket(){
- const panel=document.querySelector("#tourPanel"),el=document.querySelector("#bracket");
- panel.classList.remove("hidden");
+ const el=document.querySelector("#bracket");
  let out='<div class="bracketNote">四組隨機編排；金色代表勝出者，橘框代表目前對戰。</div><div class="bracketTree">';
  for(let ri=0;ri<5;ri++){
-  const arr=tournament.rounds[ri]||[];
+  const arr=tournament.rounds[ri]||Array.from({length:16/Math.pow(2,ri)},()=>({a:null,b:null,winner:null}));
   out+=`<div class="bracketRound"><h4>${roundLabels[ri]}</h4>`;
   arr.forEach(m=>{
    const current=tournament.currentMatch===m;
@@ -178,13 +191,47 @@ function renderBracket(){
  if(tournament.champion)out+=`<div class="bracketNote"><b>最終名次：</b>冠軍 ${tournament.champion.name}｜亞軍 ${tournament.runnerUp.name}｜季軍 ${tournament.thirdPlace.name}｜殿軍 ${tournament.fourthPlace.name}</div>`;
  el.innerHTML=out;
 }
-function start(){mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;first=+document.querySelector("#first").value;predict=document.querySelector("#predict").checked;document.querySelector("#tourPanel").classList.toggle("hidden",mode!=="tournament");if(mode==="tournament"){first=PLAYER;newTournament();}fresh();}
+function showTournamentBracket(heading,message,canPlay){
+ tournamentStage="bracket";
+ document.querySelector("#gameMain").classList.add("hidden");
+ document.querySelector("#tournamentView").classList.remove("hidden");
+ document.querySelector("#tourHeading").textContent=heading;
+ document.querySelector("#tourStatus").textContent=message;
+ const btn=document.querySelector("#tourAction");
+ btn.classList.toggle("hidden",!canPlay);
+ btn.textContent=tournament && tournament.round===0?"開始 32 強比賽":"開始下一輪比賽";
+}
+function beginTournamentMatch(){
+ if(!tournament||!tournament.waiting||!tournament.currentMatch)return;
+ tournamentStage="game";
+ document.querySelector("#tournamentView").classList.add("hidden");
+ document.querySelector("#gameMain").classList.remove("hidden");
+ document.querySelector("#gameMain").style.gridTemplateColumns="minmax(300px,1fr)";
+ document.querySelector("#gameMain").style.maxWidth="760px";
+ first=PLAYER;fresh();
+ const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
+ statusEl.textContent=`${roundLabels[tournament.round]}：對戰 ${opp.name}。輪到你下黑棋！`;
+}
+function start(){
+ mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;first=+document.querySelector("#first").value;predict=document.querySelector("#predict").checked;
+ if(mode==="tournament"){
+  document.querySelector("#gameMain").classList.add("hidden");document.querySelector("#tournamentView").classList.remove("hidden");
+  document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");
+  first=PLAYER;newTournament();renderBracket();
+ }else{
+  document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");
+  document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");
+  fresh();
+ }
+}
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
 document.querySelector("#start").onclick=start;
-document.querySelector("#restart").onclick=()=>{if(mode==="tournament")start();else fresh();};
+document.querySelector("#tourAction").onclick=beginTournamentMatch;
+document.querySelector("#tourBack").onclick=()=>{over=true;document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="請選擇模式，按「開始新對局」。";};
+document.querySelector("#restart").onclick=()=>{if(mode==="tournament"){showTournamentBracket("淘汰賽賽程", "回到賽程後可重新開始目前輪次。",!!tournament?.waiting);}else fresh();};
 document.querySelector("#undo").onclick=()=>{if(over||busy||history.length===0)return;let n=mode==="practice"&&history.length>=2?2:1;while(n--&&history.length){let m=history.pop();board[m.r][m.c]=0;}last=history.length?[history.at(-1).r,history.at(-1).c]:null;turn=PLAYER;draw();statusEl.textContent="已悔棋，輪到你。";};
-document.querySelector("#menu").onclick=()=>{over=true;busy=false;statusEl.textContent="已回到主選單設定。選擇模式後按「開始新對局」。";};
+document.querySelector("#menu").onclick=()=>{over=true;busy=false;document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="已回到主選單設定。選擇模式後按「開始新對局」。";};
 draw();
 </script>
 </body></html>
