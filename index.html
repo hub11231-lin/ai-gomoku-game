@@ -188,11 +188,14 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 .battleActions button{flex:1;max-width:260px;min-height:48px;font-size:16px;}
 @media(max-width:760px){.battleActions{width:100%;margin:10px auto 2px;gap:8px}.battleActions button{max-width:none;min-height:46px}}
 
+.levelLine{margin-top:7px;color:#d5e7ff;font-size:13px;font-weight:700}
+.xpTrack{height:8px;margin-top:6px;border-radius:99px;background:#071329;border:1px solid #45638f;overflow:hidden}
+.xpTrack span{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#a78bfa);transition:width .35s ease}
 /* Peter_林 個人 LOGO：右上角小尺寸展示，不影響遊戲操作 */
 header{position:relative;min-height:92px}
-.brandLogo{position:absolute;top:8px;right:clamp(12px,2.4vw,34px);width:clamp(96px,9.5vw,126px);height:auto;max-height:78px;object-fit:contain;border-radius:10px;box-shadow:0 5px 18px #02061788,0 0 0 1px #d7c8a866;z-index:5}
-@media(max-width:760px){header{min-height:76px;padding:12px 96px 8px 10px}.brandLogo{top:8px;right:8px;width:70px;max-height:50px;border-radius:7px}}
-@media(max-width:380px){header{padding-right:84px}.brandLogo{width:62px}}
+.brandLogo{position:absolute;top:8px;right:clamp(12px,2.4vw,34px);width:clamp(86px,8.5vw,112px);height:auto;max-height:70px;object-fit:contain;border-radius:10px;box-shadow:0 5px 18px #02061788,0 0 0 1px #d7c8a866;z-index:5}
+@media(max-width:760px){header{min-height:76px;padding:12px 96px 8px 10px}.brandLogo{top:8px;right:8px;width:62px;max-height:44px;border-radius:7px}}
+@media(max-width:380px){header{padding-right:76px}.brandLogo{width:62px}}
 </style>
 </head>
 <body>
@@ -228,7 +231,9 @@ header{position:relative;min-height:92px}
 <div class="customizeRow"><label>頭像<select id="avatarChoice"><option value="🚀">🚀 太空人</option><option value="👨‍🚀">👨‍🚀 宇航員</option><option value="🦊">🦊 星際狐</option><option value="🐱">🐱 宇宙貓</option><option value="🐼">🐼 熊貓隊長</option><option value="🤖">🤖 機器人</option><option value="🐉">🐉 星龍</option><option value="👑">👑 王者</option></select></label><label>頭像框<select id="frameChoice"><option value="gold">金色榮耀</option><option value="cyan">星際藍光</option><option value="purple">紫晶星雲</option><option value="ruby">赤焰紅</option></select></label></div>
 <div class="customizeRow"><label>頭像裝飾<select id="accessoryChoice"><option value="">無裝飾</option></select></label><label>專屬寵物<select id="petChoice"><option value="">沒有寵物</option></select></label></div>
 <div class="walletLine"><span>🪙 我的金幣</span><strong id="coinBalance">0</strong><span>枚</span></div>
-<div class="titleLine">目前頭銜：<strong id="playerTitle">見習棋手</strong></div>
+<div class="titleLine">目前段位：<strong id="playerTitle">見習生</strong></div>
+<div class="levelLine" id="playerLevelLine">Lv.1 ・ 0 / 50 EXP</div>
+<div class="xpTrack"><span id="xpBar"></span></div>
 <div class="small">金幣為本機遊戲虛擬點數，沒有現金價值。</div>
 </div>
 <div class="group shopBox" id="shopBox">
@@ -270,8 +275,8 @@ const PROFILE_KEY="cosmic_gomoku_profile_v1";
 function loadProfile(){
  try{
   const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}");
-  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",accessory:typeof saved.accessory==="string"?saved.accessory:"",pet:typeof saved.pet==="string"?saved.pet:"",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
- }catch(e){return {name:"玩家",coins:0,title:"見習棋手",avatar:"🚀",frame:"gold",accessory:"",pet:"",owned:[]};}
+  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,xp:Number.isFinite(saved.xp)?Math.max(0,Math.floor(saved.xp)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",accessory:typeof saved.accessory==="string"?saved.accessory:"",pet:typeof saved.pet==="string"?saved.pet:"",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
+ }catch(e){return {name:"玩家",coins:0,xp:0,title:"見習棋手",avatar:"🚀",frame:"gold",accessory:"",pet:"",owned:[]};}
 }
 let profile=loadProfile(),gameRewardPaid=false;
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
@@ -333,18 +338,56 @@ function equipItem(item){
  }
 }
 
+// 玩家等級：累積經驗值制，越高等所需經驗越多（門檻為累積總 EXP）
+const LEVEL_XP=[0,50,120,210,330,480,670,900,1180,1520,1920,2390,2940,3580,4330,5200,6200,7400,8850,10600];
+function getPlayerLevel(){
+ let lv=1;
+ for(let i=1;i<LEVEL_XP.length;i++){if(profile.xp>=LEVEL_XP[i])lv=i+1;else break;}
+ return Math.min(20,lv);
+}
+function getPlayerRank(lv){
+ if(lv<=3)return "見習生";
+ if(lv<=6)return "入門棋手";
+ if(lv<=10)return "中階棋手";
+ if(lv<=14)return "高階棋手";
+ if(lv<=17)return "五子棋高手";
+ if(lv<=19)return "S級棋王";
+ return "SS棋神";
+}
+function getLevelProgress(){
+ const lv=getPlayerLevel();
+ if(lv>=20)return {lv,rank:getPlayerRank(lv),current:profile.xp-LEVEL_XP[19],need:0,pct:100};
+ const floor=LEVEL_XP[lv-1],next=LEVEL_XP[lv];
+ const current=profile.xp-floor,need=next-floor;
+ return {lv,rank:getPlayerRank(lv),current,need,pct:Math.max(0,Math.min(100,current/need*100))};
+}
+function awardExperience(amount,reason){
+ const before=getPlayerLevel();
+ profile.xp+=amount;
+ const after=getPlayerLevel();
+ saveProfile();updateProfileUI();
+ const extra=document.querySelector("#extra");
+ if(extra){
+  const gained=after>before?` 🎉 升級！Lv.${before} → Lv.${after}（${getPlayerRank(after)}）`:"";
+  extra.textContent=`✨ ${reason} +${amount} EXP！目前累積 ${profile.xp.toLocaleString("zh-TW")} EXP。${gained}`;
+ }
+}
 function updateProfileUI(){
  const nameInput=document.querySelector("#playerName");
  if(nameInput && nameInput.value!==profile.name)nameInput.value=profile.name;
  document.querySelector("#coinBalance").textContent=profile.coins.toLocaleString("zh-TW");
- document.querySelector("#playerTitle").textContent=profile.title;
+ const progress=getLevelProgress();
+ document.querySelector("#playerTitle").textContent=progress.rank;
+ const levelLine=document.querySelector("#playerLevelLine");
+ if(levelLine)levelLine.textContent=progress.lv>=20?`Lv.20 ・ SS棋神 MAX`:`Lv.${progress.lv} ・ ${progress.current.toLocaleString("zh-TW")} / ${progress.need.toLocaleString("zh-TW")} EXP`;
+ const xpBar=document.querySelector("#xpBar");if(xpBar)xpBar.style.width=progress.pct+"%";
  const avatar=document.querySelector("#avatarChoice"),frame=document.querySelector("#frameChoice");
  const selects={avatar,frame,accessory:document.querySelector("#accessoryChoice"),pet:document.querySelector("#petChoice")};
  for(const id of profile.owned){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const select=selects[item.type];if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":"無裝飾");select.appendChild(opt);}}
  if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
  if(selects.accessory)selects.accessory.value=profile.accessory||"";if(selects.pet)selects.pet.value=profile.pet||"";
  const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
- if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=profile.title;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar)cardAvatar.textContent=profile.avatar;if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!profile.pet);}const accessoryEl=document.querySelector("#playerAccessory"),petEl=document.querySelector("#playerPet");if(accessoryEl)accessoryEl.textContent=profile.accessory||"";if(petEl)petEl.textContent=profile.pet||"";
+ if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar)cardAvatar.textContent=profile.avatar;if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!profile.pet);}const accessoryEl=document.querySelector("#playerAccessory"),petEl=document.querySelector("#playerPet");if(accessoryEl)accessoryEl.textContent=profile.accessory||"";if(petEl)petEl.textContent=profile.pet||"";
  renderShop();
 }
 function setOpponentCard(name,title,avatar,detail,decor){
@@ -364,6 +407,7 @@ function settleMatchReward(playerWon){
  if(gameRewardPaid)return;
  gameRewardPaid=true;
  awardCoins(20+(playerWon?50:0),playerWon?"完成對局 + 獲勝獎勵":"完成對局獎勵");
+ awardExperience(playerWon?30:10,playerWon?"獲勝獎勵":"完成對局獎勵");
 }
 function awardTournamentTitle(rank){
  if(!tournament || tournament.placementRewardPaid)return;
