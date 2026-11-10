@@ -143,6 +143,20 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 @media(max-width:1050px){.battleArena{grid-template-columns:112px minmax(0,1fr) 112px;gap:7px}.fighterCard{padding:10px 5px;min-height:260px}.avatarFrame{width:72px;height:72px}.fighterAvatar{font-size:38px}.fighterName{font-size:15px}.fighterTitle{font-size:12px}.fighterSideLabel{font-size:11px}.fighterStats{font-size:11px;padding:6px 4px}}
 @media(max-width:760px){.battlePanel{padding:8px!important}.battleArena{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.battleArena #boardWrap{grid-column:1 / -1;grid-row:1}.fighterCard{grid-row:2;min-height:205px}.avatarFrame{width:64px;height:64px}.fighterAvatar{font-size:34px}.fighterDecor{font-size:9px}.customizeRow{grid-template-columns:1fr 1fr}}
 
+
+.avatarFrame.frame-nebula{background:conic-gradient(#f4baff,#7b32c9,#e9c7ff,#3b1c80,#f4baff);box-shadow:0 0 22px #b86bff99}
+.avatarFrame.frame-aurora{background:conic-gradient(#d6ffe9,#20b987,#c5fff1,#167a9a,#d6ffe9);box-shadow:0 0 22px #37e6bb88}
+.avatarFrame.frame-fire{background:conic-gradient(#fff0a6,#ff5a20,#fff0a6,#b71d35,#fff0a6);box-shadow:0 0 24px #ff572299}
+.avatarFrame.frame-prism{background:conic-gradient(#ff8bd1,#8d7bff,#72eaff,#9dffb7,#ffe68a,#ff8bd1);box-shadow:0 0 24px #9a8cffaa}
+
+/* v12：宇宙造型商店 */
+.shopBox{border:1px solid #5278b7;border-radius:13px;padding:11px;background:linear-gradient(145deg,#172b55,#101a3b)}
+.shopHead{display:flex;align-items:center;justify-content:space-between;color:#ffe39b;font-weight:900;font-size:16px;margin-bottom:8px}
+.shopGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.shopItem{min-width:0;border:1px solid #45699e;border-radius:10px;padding:8px 6px;background:#0d1a38;text-align:center;color:#eaf3ff;display:flex;flex-direction:column;align-items:center;gap:4px}
+.shopIcon{font-size:27px;line-height:1.2}.shopItem b{font-size:12px}.shopItem small{font-size:11px;color:#c5d9ff}.shopItem button{width:100%;font-size:12px;min-height:31px;padding:5px;background:linear-gradient(135deg,#2776c9,#5948bd)}.shopItem button.owned{background:#285b50}.shopItem button:disabled{opacity:.55}
+.shopNote{font-size:11px;color:#b9ccec;line-height:1.45;margin-top:7px}
+
 </style>
 </head>
 <body>
@@ -179,6 +193,11 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 <div class="titleLine">目前頭銜：<strong id="playerTitle">見習棋手</strong></div>
 <div class="small">金幣為本機遊戲虛擬點數，沒有現金價值。</div>
 </div>
+<div class="group shopBox">
+ <div class="shopHead"><span>🛍️ 宇宙造型商店</span><span>🪙 <b id="shopCoins">0</b></span></div>
+ <div class="shopGrid" id="shopGrid"></div>
+ <div class="shopNote">購買後永久解鎖並自動裝備；已解鎖的造型可免費切換。金幣僅保存在此瀏覽器。</div>
+</div>
 <div class="group"><label>遊戲模式</label><select id="mode"><option value="practice">單機練習</option><option value="tournament">32 強淘汰賽</option></select></div>
 <div id="practiceOpts">
 <div class="group"><label>電腦等級：<span id="levelText">5 - 中級</span></label><input id="level" type="range" min="1" max="10" value="5"></div>
@@ -210,20 +229,50 @@ const PROFILE_KEY="cosmic_gomoku_profile_v1";
 function loadProfile(){
  try{
   const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}");
-  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold"};
- }catch(e){return {name:"玩家",coins:0,title:"見習棋手",avatar:"🚀",frame:"gold"};}
+  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
+ }catch(e){return {name:"玩家",coins:0,title:"見習棋手",avatar:"🚀",frame:"gold",owned:[]};}
 }
 let profile=loadProfile(),gameRewardPaid=false;
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
+const SHOP_ITEMS=[
+ {id:"avatar_unicorn",type:"avatar",value:"🦄",name:"星雲獨角獸",cost:180,desc:"稀有頭像"},
+ {id:"avatar_alien",type:"avatar",value:"👽",name:"銀河訪客",cost:220,desc:"稀有頭像"},
+ {id:"avatar_lion",type:"avatar",value:"🦁",name:"星際獅王",cost:260,desc:"傳說頭像"},
+ {id:"frame_nebula",type:"frame",value:"nebula",name:"星雲紫焰框",cost:150,desc:"紫色光環"},
+ {id:"frame_aurora",type:"frame",value:"aurora",name:"極光綠光框",cost:180,desc:"極光流光"},
+ {id:"frame_fire",type:"frame",value:"fire",name:"超新星烈焰框",cost:250,desc:"赤焰光環"},
+ {id:"frame_prism",type:"frame",value:"prism",name:"銀河稜鏡框",cost:320,desc:"彩色星芒"}
+];
+function renderShop(){
+ const grid=document.querySelector("#shopGrid");if(!grid)return;
+ document.querySelector("#shopCoins").textContent=profile.coins.toLocaleString("zh-TW");
+ grid.innerHTML=SHOP_ITEMS.map(item=>{
+  const owned=profile.owned.includes(item.id);
+  const equipped=item.type==="avatar"?profile.avatar===item.value:profile.frame===item.value;
+  const label=equipped?"使用中":owned?"裝備":"購買";
+  const action=owned?`equipShopItem('${item.id}')`:`buyShopItem('${item.id}')`;
+  return `<div class="shopItem"><div class="shopIcon">${item.type==="avatar"?item.value:"✨"}</div><b>${item.name}</b><small>${item.desc}・${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div>`;
+ }).join("");
+}
+function buyShopItem(id){
+ const item=SHOP_ITEMS.find(x=>x.id===id);if(!item||profile.owned.includes(id))return;
+ if(profile.coins<item.cost){const extra=document.querySelector("#extra");if(extra)extra.textContent=`金幣不足！「${item.name}」需要 ${item.cost} 枚，目前只有 ${profile.coins} 枚。`;return;}
+ profile.coins-=item.cost;profile.owned.push(id);equipItem(item);saveProfile();updateProfileUI();renderShop();
+ const extra=document.querySelector("#extra");if(extra)extra.textContent=`🎉 已解鎖並裝備「${item.name}」！扣除 ${item.cost} 枚金幣。`;
+}
+function equipShopItem(id){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item||!profile.owned.includes(id))return;equipItem(item);saveProfile();updateProfileUI();renderShop();}
+function equipItem(item){if(item.type==="avatar"){profile.avatar=item.value;let opt=[...document.querySelector("#avatarChoice").options].find(o=>o.value===item.value);if(!opt){opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value+" "+item.name;document.querySelector("#avatarChoice").appendChild(opt);}}else{profile.frame=item.value;let opt=[...document.querySelector("#frameChoice").options].find(o=>o.value===item.value);if(!opt){opt=document.createElement("option");opt.value=item.value;opt.textContent=item.name;document.querySelector("#frameChoice").appendChild(opt);}}}
 function updateProfileUI(){
  const nameInput=document.querySelector("#playerName");
  if(nameInput && nameInput.value!==profile.name)nameInput.value=profile.name;
  document.querySelector("#coinBalance").textContent=profile.coins.toLocaleString("zh-TW");
  document.querySelector("#playerTitle").textContent=profile.title;
  const avatar=document.querySelector("#avatarChoice"),frame=document.querySelector("#frameChoice");
+ for(const id of profile.owned){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const select=item.type==="avatar"?avatar:frame;if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.type==="avatar"?item.value+" "+item.name:item.name;select.appendChild(opt);}}
  if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
  const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
  if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=profile.title;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar)cardAvatar.textContent=profile.avatar;if(cardFrame)cardFrame.className="avatarFrame frame-"+profile.frame;
+ renderShop();
 }
 function setOpponentCard(name,title,avatar,detail,decor){
  document.querySelector("#fighterOpponentName").textContent=name||"宇宙 AI";
