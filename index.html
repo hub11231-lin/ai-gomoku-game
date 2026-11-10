@@ -119,19 +119,62 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 .titleLine strong{color:#a9dcff}
 .profileBox .small{font-size:12px}
 
+
+/* v11：棋盤左右玩家個人資料卡 */
+.battlePanel{min-width:0;display:flex;align-items:center;justify-content:center;padding:14px!important}
+.battleArena{width:100%;display:grid;grid-template-columns:minmax(118px,160px) minmax(0,1fr) minmax(118px,160px);gap:12px;align-items:center}
+.battleArena #boardWrap{min-width:0}
+.battleArena #board{width:min(100%,760px,calc(100vh - 110px))}
+.fighterCard{min-width:0;min-height:300px;padding:14px 9px;border:1px solid #557bb8;border-radius:17px;background:radial-gradient(ellipse at 50% 0%,#294b83 0%,#17294f 55%,#101b39 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;box-shadow:0 8px 22px #02061788,0 0 18px #5da8ff22;position:relative;overflow:hidden}
+.fighterCard:before{content:"";position:absolute;inset:5px;border:1px solid #8db8ed55;border-radius:12px;pointer-events:none}
+.fighterSideLabel{font-size:13px;font-weight:900;color:#b9d8ff;letter-spacing:.04em}
+.avatarFrame{width:92px;height:92px;border-radius:50%;padding:5px;display:grid;place-items:center;background:conic-gradient(from 0deg,#fff0a6,#c18a2e,#fff0a6,#8c5b18,#fff0a6);box-shadow:0 0 18px #e7c35e66}
+.avatarFrame.frame-cyan{background:conic-gradient(#b5f5ff,#2687d7,#d4fbff,#2764b8,#b5f5ff);box-shadow:0 0 18px #56d5ff66}
+.avatarFrame.frame-purple{background:conic-gradient(#f2c5ff,#914bc7,#f6d8ff,#59318e,#f2c5ff);box-shadow:0 0 18px #b86bff66}
+.avatarFrame.frame-ruby{background:conic-gradient(#ffc0c0,#b72d53,#ffe0e0,#791e48,#ffc0c0);box-shadow:0 0 18px #ff587766}
+.fighterAvatar{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff,#b9d9ff 22%,#344e7e 72%);font-size:48px;line-height:1}
+.fighterName{max-width:100%;color:#fff;font-size:18px;font-weight:900;overflow-wrap:anywhere;text-shadow:0 0 10px #76baff88}
+.fighterTitle{max-width:100%;color:#ffe5a5;font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.fighterStats{width:100%;display:flex;justify-content:space-between;gap:4px;padding:7px 8px;border-radius:9px;background:#0b1733aa;color:#cce2ff;font-size:12px}
+.fighterStats b{color:#ffe28b;font-size:13px}
+.fighterDecor{color:#8fcfff;font-size:10px;font-weight:900;letter-spacing:.13em;text-shadow:0 0 8px #54aaff}
+.opponentFighter{border-color:#398eb2;background:radial-gradient(ellipse at 50% 0%,#1d5577 0%,#17294f 55%,#101b39 100%)}
+.customizeRow{display:grid;grid-template-columns:1fr 1fr;gap:7px}.customizeRow label{font-size:12px;color:#cfe2ff}.customizeRow select{width:100%;margin-top:4px;font-size:13px;padding:7px 5px;min-height:36px}
+@media(max-width:1050px){.battleArena{grid-template-columns:112px minmax(0,1fr) 112px;gap:7px}.fighterCard{padding:10px 5px;min-height:260px}.avatarFrame{width:72px;height:72px}.fighterAvatar{font-size:38px}.fighterName{font-size:15px}.fighterTitle{font-size:12px}.fighterSideLabel{font-size:11px}.fighterStats{font-size:11px;padding:6px 4px}}
+@media(max-width:760px){.battlePanel{padding:8px!important}.battleArena{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.battleArena #boardWrap{grid-column:1 / -1;grid-row:1}.fighterCard{grid-row:2;min-height:205px}.avatarFrame{width:64px;height:64px}.fighterAvatar{font-size:34px}.fighterDecor{font-size:9px}.customizeRow{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
 <header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽・金幣獎勵</div></header>
 <section id="tournamentView" class="hidden"><div class="panel"><h2 id="tourHeading">🏆 32 強淘汰賽賽程</h2><div class="status" id="tourStatus">賽程準備中…</div><div id="bracket" class="bracket"></div><div class="row"><button id="tourAction">開始本輪比賽</button><button id="tourBack" class="secondary">返回主選單</button></div></div></section>
 <main id="gameMain">
-<section class="panel">
-<div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
+<section class="panel battlePanel">
+<div class="battleArena">
+  <article class="fighterCard playerFighter" id="playerFighter">
+    <div class="fighterSideLabel">🧑‍🚀 玩家・黑棋</div>
+    <div class="avatarFrame frame-gold" id="playerAvatarFrame"><div class="fighterAvatar" id="playerAvatar">🚀</div></div>
+    <div class="fighterName" id="fighterPlayerName">玩家</div>
+    <div class="fighterTitle" id="fighterPlayerTitle">見習棋手</div>
+    <div class="fighterStats"><span>🪙 金幣</span><b id="fighterPlayerCoins">0</b></div>
+    <div class="fighterDecor" id="playerDecor">✦ STAR PILOT ✦</div>
+  </article>
+  <div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
+  <article class="fighterCard opponentFighter" id="opponentFighter">
+    <div class="fighterSideLabel">🤖 對手・白棋</div>
+    <div class="avatarFrame frame-cyan" id="opponentAvatarFrame"><div class="fighterAvatar" id="opponentAvatar">👾</div></div>
+    <div class="fighterName" id="fighterOpponentName">宇宙 AI</div>
+    <div class="fighterTitle" id="fighterOpponentTitle">星際挑戰者</div>
+    <div class="fighterStats"><span>⚔️ 戰力</span><b id="fighterOpponentLevel">AI Lv.5</b></div>
+    <div class="fighterDecor" id="opponentDecor">✦ RIVAL ✦</div>
+  </article>
+</div>
 </section>
 <aside class="panel controls">
 <div class="group profileBox">
 <label for="playerName">玩家名稱</label>
 <input id="playerName" type="text" maxlength="12" placeholder="輸入你的名字（最多 12 字）" autocomplete="nickname">
+<div class="customizeRow"><label>頭像<select id="avatarChoice"><option value="🚀">🚀 太空人</option><option value="👨‍🚀">👨‍🚀 宇航員</option><option value="🦊">🦊 星際狐</option><option value="🐱">🐱 宇宙貓</option><option value="🐼">🐼 熊貓隊長</option><option value="🤖">🤖 機器人</option><option value="🐉">🐉 星龍</option><option value="👑">👑 王者</option></select></label><label>頭像框<select id="frameChoice"><option value="gold">金色榮耀</option><option value="cyan">星際藍光</option><option value="purple">紫晶星雲</option><option value="ruby">赤焰紅</option></select></label></div>
 <div class="walletLine"><span>🪙 我的金幣</span><strong id="coinBalance">0</strong><span>枚</span></div>
 <div class="titleLine">目前頭銜：<strong id="playerTitle">見習棋手</strong></div>
 <div class="small">金幣為本機遊戲虛擬點數，沒有現金價值。</div>
@@ -167,8 +210,8 @@ const PROFILE_KEY="cosmic_gomoku_profile_v1";
 function loadProfile(){
  try{
   const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}");
-  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,title:typeof saved.title==="string"?saved.title:"見習棋手"};
- }catch(e){return {name:"玩家",coins:0,title:"見習棋手"};}
+  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold"};
+ }catch(e){return {name:"玩家",coins:0,title:"見習棋手",avatar:"🚀",frame:"gold"};}
 }
 let profile=loadProfile(),gameRewardPaid=false;
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
@@ -177,6 +220,17 @@ function updateProfileUI(){
  if(nameInput && nameInput.value!==profile.name)nameInput.value=profile.name;
  document.querySelector("#coinBalance").textContent=profile.coins.toLocaleString("zh-TW");
  document.querySelector("#playerTitle").textContent=profile.title;
+ const avatar=document.querySelector("#avatarChoice"),frame=document.querySelector("#frameChoice");
+ if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
+ const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
+ if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=profile.title;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar)cardAvatar.textContent=profile.avatar;if(cardFrame)cardFrame.className="avatarFrame frame-"+profile.frame;
+}
+function setOpponentCard(name,title,avatar,detail,decor){
+ document.querySelector("#fighterOpponentName").textContent=name||"宇宙 AI";
+ document.querySelector("#fighterOpponentTitle").textContent=title||"星際挑戰者";
+ document.querySelector("#opponentAvatar").textContent=avatar||"👾";
+ document.querySelector("#fighterOpponentLevel").textContent=detail||"AI Lv.5";
+ document.querySelector("#opponentDecor").textContent=decor||"✦ RIVAL ✦";
 }
 function awardCoins(amount,reason){
  if(!amount)return;
@@ -269,6 +323,7 @@ function prepareTournamentRound(){
   const opp=playerMatch.a.player?playerMatch.b:playerMatch.a;
   level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
   statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。`;
+  setOpponentCard(opp.name,"淘汰賽對手","👾",`AI Lv.${level}`,"✦ TOURNAMENT RIVAL ✦");
   showTournamentBracket(`${roundLabels[ri]} 賽前賽程`, `你的對手：${opp.name}（電腦 Lv${level}）。確認賽程後，按「開始本輪比賽」。`, true);
  }else{t.waiting=false;completeTournamentRound();}
  renderBracket();
@@ -291,6 +346,7 @@ function completeTournamentRound(){
    const opp=losers[0].player?losers[1]:losers[0];
    level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
    statusEl.textContent=`季軍賽：你的對手是 ${opp.name}（電腦 Lv${level}）。這場將決定季軍與殿軍！`;
+   setOpponentCard(opp.name,"季軍賽對手","👾",`AI Lv.${level}`,"✦ THIRD PLACE RIVAL ✦");
    renderBracket();
    showTournamentBracket('🥉 季軍爭奪戰',`準決賽惜敗後仍有機會爭奪季軍！你的對手是 ${opp.name}。按「開始季軍賽」繼續比賽。`,true);
    return;
@@ -437,6 +493,8 @@ function beginTournamentMatch(){
  document.querySelector("#gameMain").style.maxWidth="";
  first=PLAYER;fresh();
  const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
+ setOpponentCard(opp.name,tournament.isThirdPlaceMatch?"季軍賽對手":"淘汰賽對手","👾",`AI Lv.${level}`,tournament.isThirdPlaceMatch?"✦ THIRD PLACE RIVAL ✦":"✦ TOURNAMENT RIVAL ✦");
+ updateProfileUI();
  statusEl.textContent=`${tournament.isThirdPlaceMatch?"季軍賽":roundLabels[tournament.round]}：對戰 ${opp.name}。輪到你下黑棋！`;
 }
 function start(){
@@ -446,6 +504,7 @@ function start(){
   document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");
   first=PLAYER;newTournament();renderBracket();
  }else{
+  setOpponentCard("宇宙 AI","星際挑戰者","🤖",`AI Lv.${level}`,"✦ COSMIC AI ✦");
   document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");
   document.querySelector("#gameMain").querySelector("#practiceOpts").classList.remove("hidden");
   document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");
@@ -457,6 +516,8 @@ document.querySelector("#playerName").addEventListener("change",e=>{
  const clean=e.target.value.replace(/[<>]/g,"").trim().slice(0,12)||"玩家";
  profile.name=clean;saveProfile();e.target.value=clean;updateProfileUI();
 });
+document.querySelector("#avatarChoice").addEventListener("change",e=>{profile.avatar=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#frameChoice").addEventListener("change",e=>{profile.frame=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
 document.querySelector("#start").onclick=start;
@@ -466,6 +527,7 @@ document.querySelector("#restart").onclick=()=>{if(mode==="tournament"){showTour
 document.querySelector("#undo").onclick=()=>{if(over||busy||history.length===0)return;let n=mode==="practice"&&history.length>=2?2:1;while(n--&&history.length){let m=history.pop();board[m.r][m.c]=0;}last=history.length?[history.at(-1).r,history.at(-1).c]:null;turn=PLAYER;draw();statusEl.textContent="已悔棋，輪到你。";};
 document.querySelector("#menu").onclick=()=>{over=true;busy=false;document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="已回到主選單設定。選擇模式後按「開始新對局」。";};
 updateProfileUI();
+setOpponentCard("宇宙 AI","星際挑戰者","🤖","AI Lv.5","✦ COSMIC AI ✦");
 draw();
 </script>
 </body></html>
