@@ -109,16 +109,33 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 .podiumPlace.fourth b{color:#c8d5ea}
 @media(max-width:760px){.groupRegions{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.groupRegions span{font-size:15px;padding:8px 4px}.podiumPlaces{grid-template-columns:repeat(2,minmax(0,1fr))}.podiumPlace b,.podiumPlace span{font-size:15px}}
 
+
+/* v10：玩家暱稱、虛擬金幣與頭銜 */
+.profileBox{padding:12px;border:1px solid #5278b7;border-radius:13px;background:linear-gradient(145deg,#1b315c,#121e43)}
+.profileBox input{width:100%;padding:11px 12px;border:1px solid #7297ce;border-radius:9px;background:#eaf2ff;color:#17264b;font:inherit;font-size:16px}
+.walletLine{display:flex;align-items:center;gap:7px;color:#f8df8b;font-size:16px}
+.walletLine strong{margin-left:auto;color:#ffe28b;font-size:23px;text-shadow:0 0 10px #e5b95c66}
+.titleLine{color:#dceaff;font-size:15px}
+.titleLine strong{color:#a9dcff}
+.profileBox .small{font-size:12px}
+
 </style>
 </head>
 <body>
-<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽</div></header>
+<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽・金幣獎勵</div></header>
 <section id="tournamentView" class="hidden"><div class="panel"><h2 id="tourHeading">🏆 32 強淘汰賽賽程</h2><div class="status" id="tourStatus">賽程準備中…</div><div id="bracket" class="bracket"></div><div class="row"><button id="tourAction">開始本輪比賽</button><button id="tourBack" class="secondary">返回主選單</button></div></div></section>
 <main id="gameMain">
 <section class="panel">
 <div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
 </section>
 <aside class="panel controls">
+<div class="group profileBox">
+<label for="playerName">玩家名稱</label>
+<input id="playerName" type="text" maxlength="12" placeholder="輸入你的名字（最多 12 字）" autocomplete="nickname">
+<div class="walletLine"><span>🪙 我的金幣</span><strong id="coinBalance">0</strong><span>枚</span></div>
+<div class="titleLine">目前頭銜：<strong id="playerTitle">見習棋手</strong></div>
+<div class="small">金幣為本機遊戲虛擬點數，沒有現金價值。</div>
+</div>
 <div class="group"><label>遊戲模式</label><select id="mode"><option value="practice">單機練習</option><option value="tournament">32 強淘汰賽</option></select></div>
 <div id="practiceOpts">
 <div class="group"><label>電腦等級：<span id="levelText">5 - 中級</span></label><input id="level" type="range" min="1" max="10" value="5"></div>
@@ -146,8 +163,44 @@ const cfgs=[
 {noise:.03,top:1,block:1,win:1},{noise:0,top:1,block:1,win:1}
 ];
 let board, history, last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null, tournamentStage="bracket";
+const PROFILE_KEY="cosmic_gomoku_profile_v1";
+function loadProfile(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}");
+  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,title:typeof saved.title==="string"?saved.title:"見習棋手"};
+ }catch(e){return {name:"玩家",coins:0,title:"見習棋手"};}
+}
+let profile=loadProfile(),gameRewardPaid=false;
+function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
+function updateProfileUI(){
+ const nameInput=document.querySelector("#playerName");
+ if(nameInput && nameInput.value!==profile.name)nameInput.value=profile.name;
+ document.querySelector("#coinBalance").textContent=profile.coins.toLocaleString("zh-TW");
+ document.querySelector("#playerTitle").textContent=profile.title;
+}
+function awardCoins(amount,reason){
+ if(!amount)return;
+ profile.coins+=amount;saveProfile();updateProfileUI();
+ const extra=document.querySelector("#extra");
+ if(extra)extra.textContent=`🪙 ${reason} +${amount} 枚金幣！目前餘額：${profile.coins} 枚。`;
+}
+function settleMatchReward(playerWon){
+ if(gameRewardPaid)return;
+ gameRewardPaid=true;
+ awardCoins(20+(playerWon?50:0),playerWon?"完成對局 + 獲勝獎勵":"完成對局獎勵");
+}
+function awardTournamentTitle(rank){
+ if(!tournament || tournament.placementRewardPaid)return;
+ tournament.placementRewardPaid=true;
+ const prizes={1:500,2:300,3:200,4:100};
+ const titles={1:"🌌 宇宙棋王",2:"🚀 星際亞軍",3:"🌟 星際季軍",4:"🛡️ 星際殿軍"};
+ if(rank && prizes[rank]){
+  profile.title=titles[rank];saveProfile();updateProfileUI();
+  awardCoins(prizes[rank],`${titles[rank]} 名次獎勵`);
+ }
+}
 const canvas=document.querySelector("#board"),ctx=canvas.getContext("2d"),statusEl=document.querySelector("#status");
-function fresh(){board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;turn=first;over=false;busy=false;draw();statusEl.textContent=turn===PLAYER?"輪到你了，請下黑棋。":"電腦先手，正在思考…";if(turn===AI)setTimeout(aiMove,250);}
+function fresh(){board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;turn=first;over=false;busy=false;gameRewardPaid=false;draw();statusEl.textContent=turn===PLAYER?"輪到你了，請下黑棋。":"電腦先手，正在思考…";if(turn===AI)setTimeout(aiMove,250);}
 let flashCell=null,flashVisible=true,flashTimer=null;
 function startFlash(r,c){
  if(flashTimer)clearTimeout(flashTimer);
@@ -189,13 +242,13 @@ function chooseAI(){
  if(level>=7&&predict){let best=null,bv=-Infinity;for(const item of ranked.slice(0,level>=10?14:8)){let [r,c]=item.m;board[r][c]=AI;let reply=0;for(const [rr,cc] of candidateMoves())reply=Math.max(reply,score(rr,cc,PLAYER));board[r][c]=0;let v=item.s-reply*(level>=9?.42:.25);if(v>bv){bv=v;best=item.m;}}return best||ranked[0].m;}
  return ranked[0].m;
 }
-function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;history.push({r,c,p});last=[r,c];draw();startFlash(r,c);if(won(r,c,p)){over=true;statusEl.textContent=(p===PLAYER?"恭喜！你獲勝！":"電腦獲勝！")+(mode==="tournament"?" 淘汰賽結果已更新。":"");if(mode==="tournament")finishTournament(p===PLAYER);return true;}if(history.length===N*N){over=true;statusEl.textContent="平手！";return true;}return true;}
+function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;history.push({r,c,p});last=[r,c];draw();startFlash(r,c);if(won(r,c,p)){over=true;statusEl.textContent=(p===PLAYER?"恭喜！你獲勝！":"電腦獲勝！")+(mode==="tournament"?" 淘汰賽結果已更新。":"");if(mode==="tournament")finishTournament(p===PLAYER);else settleMatchReward(p===PLAYER);return true;}if(history.length===N*N){over=true;statusEl.textContent="平手！";if(mode==="practice")settleMatchReward(false);return true;}return true;}
 function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請下黑棋。";}},30);}
 canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect=canvas.getBoundingClientRect(),scale=canvas.width/rect.width,x=(e.clientX-rect.left)*scale,y=(e.clientY-rect.top)*scale,c=Math.round((x-40)/40),r=Math.round((y-40)/40);if(!inside(r,c)||Math.hypot(x-(40+c*40),y-(40+r*40))>19)return;if(place(r,c,PLAYER)&&!over){turn=AI;aiMove();}});
 const roundLabels=["32強","16強","8強","4強","決賽"];
 function newTournament(){
  let pool=names.map((name,i)=>({name,rank:i+1,group:"ABCD"[Math.floor(i/8)]}));
- pool.push({name:"玩家",rank:0,player:true,group:""});
+ pool.push({name:profile.name.trim()||"玩家",rank:0,player:true,group:""});
  pool.sort(()=>Math.random()-.5);
  // 重新分配四組標籤，每組 8 位；淘汰賽籤位仍採隨機排列
  pool.forEach((p,i)=>{if(!p.player)p.group="ABCD"[Math.floor(i/8)];});
@@ -252,6 +305,7 @@ function completeTournamentRound(){
   t.third={a:losers[0],b:losers[1],winner:simulatedWinner(losers[0],losers[1])};
   t.thirdPlace=t.third.winner;t.fourthPlace=t.third.a===t.thirdPlace?t.third.b:t.third.a;
   let rank=t.champion.player?1:t.runnerUp.player?2:t.thirdPlace.player?3:t.fourthPlace.player?4:null;
+  awardTournamentTitle(rank);
   const eliminatedText=t.playerEliminated?`你於${roundLabels[t.playerLostRound]}止步（第 ${[17,9,5,4,2][t.playerLostRound]}～${[32,16,8,4,2][t.playerLostRound]} 名區間）。`:"";
   statusEl.textContent=`賽事結束！冠軍：${t.champion.name}；亞軍：${t.runnerUp.name}；季軍：${t.thirdPlace.name}；殿軍：${t.fourthPlace.name}。${rank?`你的名次：第 ${rank} 名。`:eliminatedText}`;
   renderBracket();showTournamentBracket("🏆 淘汰賽最終賽程",`冠軍：${t.champion.name}｜亞軍：${t.runnerUp.name}｜季軍：${t.thirdPlace.name}｜殿軍：${t.fourthPlace.name}`,false);return;
@@ -262,6 +316,7 @@ function completeTournamentRound(){
 }
 function finishTournament(playerWon){
  const t=tournament;if(!t||!t.waiting||!t.currentMatch)return;
+ settleMatchReward(playerWon);
  const m=t.currentMatch;m.winner=playerWon?(m.a.player?m.a:m.b):(m.a.player?m.b:m.a);
  t.waiting=false;t.currentMatch=null;
  tournamentStage="bracket";
@@ -270,6 +325,7 @@ function finishTournament(playerWon){
   t.fourthPlace=m.a===m.winner?m.b:m.a;
   t.isThirdPlaceMatch=false;
   const rank=t.thirdPlace.player?3:4;
+  awardTournamentTitle(t.thirdPlace.player?3:(t.fourthPlace.player?4:null));
   const rankText=t.thirdPlace.player?'恭喜你拿下季軍！':'本場惜敗，你獲得殿軍。';
   statusEl.textContent=`季軍賽結束！${rankText}冠軍：${t.champion.name}；亞軍：${t.runnerUp.name}；季軍：${t.thirdPlace.name}；殿軍：${t.fourthPlace.name}。你的名次：第 ${rank} 名。`;
   renderBracket();
@@ -313,10 +369,12 @@ function renderBracket(){
    }
  }
  out+=`<svg aria-hidden="true" class="bracketLines" viewBox="0 0 1062 704" preserveAspectRatio="none"><path d="${paths}" fill="none" stroke="#a98b62" stroke-width="1.5"/></svg>`;
+ const escapeHTML=(value)=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
  const teamLabel=(x)=>{
    if(!x)return '<div class="team pending">待定</div>';
    const cls=x.player?' player':'';
-   return `<div class="team${cls}" title="${x.name}">${x.player?'★ ':''}${x.name}</div>`;
+   const safeName=escapeHTML(x.name);
+   return `<div class="team${cls}" title="${safeName}">${x.player?'★ ':''}${safeName}</div>`;
  };
  // 32強到準決賽：左半邊與右半邊分別朝中央推進。
  for(let ri=0;ri<4;ri++){
@@ -394,6 +452,11 @@ function start(){
   fresh();
  }
 }
+document.querySelector("#playerName").value=profile.name;
+document.querySelector("#playerName").addEventListener("change",e=>{
+ const clean=e.target.value.replace(/[<>]/g,"").trim().slice(0,12)||"玩家";
+ profile.name=clean;saveProfile();e.target.value=clean;updateProfileUI();
+});
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
 document.querySelector("#start").onclick=start;
@@ -402,6 +465,7 @@ document.querySelector("#tourBack").onclick=()=>{over=true;document.querySelecto
 document.querySelector("#restart").onclick=()=>{if(mode==="tournament"){showTournamentBracket("淘汰賽賽程", "回到賽程後可重新開始目前輪次。",!!tournament?.waiting);}else fresh();};
 document.querySelector("#undo").onclick=()=>{if(over||busy||history.length===0)return;let n=mode==="practice"&&history.length>=2?2:1;while(n--&&history.length){let m=history.pop();board[m.r][m.c]=0;}last=history.length?[history.at(-1).r,history.at(-1).c]:null;turn=PLAYER;draw();statusEl.textContent="已悔棋，輪到你。";};
 document.querySelector("#menu").onclick=()=>{over=true;busy=false;document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="已回到主選單設定。選擇模式後按「開始新對局」。";};
+updateProfileUI();
 draw();
 </script>
 </body></html>
