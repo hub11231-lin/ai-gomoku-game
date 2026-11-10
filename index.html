@@ -92,6 +92,23 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 #tournamentView .row button{font-size:16px;min-height:44px}
 @media(max-width:760px){main{grid-template-columns:1fr;max-width:100%;gap:10px}#board{width:min(100%,680px)}.controls{order:1}.bracketBoard{min-width:1260px}.bracketMatch .team{font-size:16px}}
 
+
+/* v8：分區標示與中央頒獎名次 */
+.groupRegions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px auto 12px;max-width:980px}
+.groupRegions span{display:block;padding:10px 6px;border:1px solid #5278b7;border-radius:10px;background:linear-gradient(135deg,#1d3767,#28245d);color:#eaf3ff;font-size:17px;font-weight:900;letter-spacing:.04em;text-align:center;box-shadow:0 3px 10px #02061766}
+.podiumBoard{max-width:980px;margin:18px auto 8px;padding:16px;border:1px solid #6386c1;border-radius:16px;background:radial-gradient(ellipse at 50% 0%,#354d88 0%,#15264d 58%,#101b3b 100%);box-shadow:0 8px 24px #02061788,0 0 20px #6a8fff22}
+.podiumTitle{margin-bottom:12px;color:#ffe6a6;font-size:22px;font-weight:900;text-align:center;text-shadow:0 0 12px #e5b95c88}
+.podiumPlaces{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.podiumPlace{min-width:0;padding:12px 7px;border:1px solid #5475aa;border-radius:11px;background:#14264b;text-align:center}
+.podiumPlace b{display:block;margin-bottom:7px;color:#dceaff;font-size:17px}
+.podiumPlace span{display:block;color:#fff;font-size:17px;font-weight:800;overflow-wrap:anywhere}
+.podiumPlace.first{background:linear-gradient(145deg,#5b4820,#25365e);border:2px solid #e7c35e}
+.podiumPlace.first b{color:#ffe28b;font-size:19px}
+.podiumPlace.second b{color:#dce8fa}
+.podiumPlace.third b{color:#f2bd91}
+.podiumPlace.fourth b{color:#c8d5ea}
+@media(max-width:760px){.groupRegions{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.groupRegions span{font-size:15px;padding:8px 4px}.podiumPlaces{grid-template-columns:repeat(2,minmax(0,1fr))}.podiumPlace b,.podiumPlace span{font-size:15px}}
+
 </style>
 </head>
 <body>
@@ -206,6 +223,28 @@ function prepareTournamentRound(){
 function completeTournamentRound(){
  const t=tournament,ri=t.round,round=t.rounds[ri];
  if(round.some(m=>!m.winner))return;
+ // 準決賽結束：先建立冠軍決賽，再讓準決賽落敗的玩家親自參加季軍賽。
+ if(ri===3){
+  const winners=round.map(m=>m.winner);
+  const losers=round.map(m=>m.a===m.winner?m.b:m.a);
+  const finalMatch={a:winners[0],b:winners[1],winner:null};
+  t.round=4;t.rounds.push([finalMatch]);
+  if(t.playerEliminated && t.playerLostRound===3){
+   finalMatch.winner=simulatedWinner(finalMatch.a,finalMatch.b);
+   t.champion=finalMatch.winner;
+   t.runnerUp=finalMatch.a===t.champion?finalMatch.b:finalMatch.a;
+   t.third={a:losers[0],b:losers[1],winner:null};
+   t.thirdMatch=t.third;t.currentMatch=t.third;t.waiting=true;t.isThirdPlaceMatch=true;
+   const opp=losers[0].player?losers[1]:losers[0];
+   level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
+   statusEl.textContent=`季軍賽：你的對手是 ${opp.name}（電腦 Lv${level}）。這場將決定季軍與殿軍！`;
+   renderBracket();
+   showTournamentBracket('🥉 季軍爭奪戰',`準決賽惜敗後仍有機會爭奪季軍！你的對手是 ${opp.name}。按「開始季軍賽」繼續比賽。`,true);
+   return;
+  }
+  prepareTournamentRound();
+  return;
+ }
  if(ri===4){
   t.champion=round[0].winner;
   t.runnerUp=round[0].a===t.champion?round[0].b:round[0].a;
@@ -224,12 +263,27 @@ function completeTournamentRound(){
 function finishTournament(playerWon){
  const t=tournament;if(!t||!t.waiting||!t.currentMatch)return;
  const m=t.currentMatch;m.winner=playerWon?(m.a.player?m.a:m.b):(m.a.player?m.b:m.a);
- if(!playerWon){t.playerEliminated=true;t.playerLostRound=t.round;}
  t.waiting=false;t.currentMatch=null;
  tournamentStage="bracket";
- if(playerWon){statusEl.textContent="恭喜晉級！本輪結果已更新。";}else{statusEl.textContent="本輪落敗；其餘賽事將由系統模擬完成。";}
+ if(t.isThirdPlaceMatch){
+  t.thirdPlace=m.winner;
+  t.fourthPlace=m.a===m.winner?m.b:m.a;
+  t.isThirdPlaceMatch=false;
+  const rank=t.thirdPlace.player?3:4;
+  const rankText=t.thirdPlace.player?'恭喜你拿下季軍！':'本場惜敗，你獲得殿軍。';
+  statusEl.textContent=`季軍賽結束！${rankText}冠軍：${t.champion.name}；亞軍：${t.runnerUp.name}；季軍：${t.thirdPlace.name}；殿軍：${t.fourthPlace.name}。你的名次：第 ${rank} 名。`;
+  renderBracket();
+  showTournamentBracket('🏆 淘汰賽最終頒獎','季軍賽已完成！四強名次全部確定。',false);
+  return;
+ }
+ if(!playerWon){t.playerEliminated=true;t.playerLostRound=t.round;}
+ if(playerWon){statusEl.textContent="恭喜晉級！本輪結果已更新。";}else{statusEl.textContent="本輪落敗；系統將依賽制安排後續賽事。";}
  completeTournamentRound();
- if(tournament && !tournament.champion){showTournamentBracket(playerWon?"本輪賽後賽程":"淘汰後完整賽程",playerWon?"你已晉級，查看更新後的樹狀圖，再開始下一輪。":"你已遭淘汰，系統已接續模擬其餘賽事。",!!tournament.currentMatch);}
+ if(tournament?.isThirdPlaceMatch){
+  showTournamentBracket("🥉 季軍爭奪戰","準決賽落敗後仍可爭奪季軍！按「開始季軍賽」繼續比賽。",true);
+  return;
+ }
+ if(tournament && !tournament.champion){showTournamentBracket(playerWon?"本輪賽後賽程":"後續賽程",playerWon?"你已晉級，查看更新後的樹狀圖，再開始下一輪。":"系統正在安排後續賽事。",!!tournament.currentMatch);}
  else if(tournament){showTournamentBracket("🏆 淘汰賽最終賽程","全部賽事已完成，以下為完整賽程與最終名次。",false);}
 }
 function renderBracket(){
@@ -239,6 +293,7 @@ function renderBracket(){
  const roundCols=[1,2,3,4,5,6,7,8,9];
  let out='<div class="bracketNote">世界盃式左右對稱淘汰賽：由兩側逐輪晉級中央決賽。橘色醒目框為玩家所在對戰，金色為勝出者。</div>';
  out+='<div class="bracketLegend"><span><i class="legendDot" style="background:#ffe2a1;border:1px solid #e08a18"></i>玩家</span><span><i class="legendDot" style="background:#e7d6a8"></i>勝出</span><span><i class="legendDot" style="background:#fffaf0;border:1px solid #c6a77a"></i>尚未完成</span></div>';
+ out+='<div class="groupRegions"><span>Ａ區・左上</span><span>Ｂ區・左下</span><span>Ｃ區・右上</span><span>Ｄ區・右下</span></div>';
  out+='<div class="bracketBoard"><div class="bracketHeaders">'+labels.map(x=>`<span>${x}</span>`).join('')+'</div><div class="bracketGrid">';
  // 連接線：每一輪兩場對戰匯入下一輪，左右兩側朝中央決賽會合。
  let paths='';
@@ -261,8 +316,7 @@ function renderBracket(){
  const teamLabel=(x)=>{
    if(!x)return '<div class="team pending">待定</div>';
    const cls=x.player?' player':'';
-   const group=x.group?`・${x.group}組`:'';
-   return `<div class="team${cls}" title="${x.name}${group}">${x.player?'★ ':''}${x.name}${group}</div>`;
+   return `<div class="team${cls}" title="${x.name}">${x.player?'★ ':''}${x.name}</div>`;
  };
  // 32強到準決賽：左半邊與右半邊分別朝中央推進。
  for(let ri=0;ri<4;ri++){
@@ -289,12 +343,19 @@ function renderBracket(){
    out+=`<div class="${classes}" style="grid-column:5;grid-row:1/span 32">${teamLabel(m.a,m)}${teamLabel(m.b,m)}</div>`;
  }
  out+='</div></div>';
+ const championName=t.champion?t.champion.name:'決賽勝者（待定）';
+ const runnerName=t.runnerUp?t.runnerUp.name:'決賽敗者（待定）';
+ const thirdName=t.thirdPlace?t.thirdPlace.name:'季軍賽勝者（待定）';
+ const fourthName=t.fourthPlace?t.fourthPlace.name:'季軍賽敗者（待定）';
+ out+=`<div class="podiumBoard"><div class="podiumTitle">🏆 冠軍榮耀榜</div><div class="podiumPlaces">
+   <div class="podiumPlace first"><b>🏆 冠軍</b><span>${championName}</span></div>
+   <div class="podiumPlace second"><b>🥈 亞軍</b><span>${runnerName}</span></div>
+   <div class="podiumPlace third"><b>🥉 季軍</b><span>${thirdName}</span></div>
+   <div class="podiumPlace fourth"><b>🏅 殿軍</b><span>${fourthName}</span></div>
+ </div></div>`;
  if(t.third){
-   out+=`<div class="bracketNote"><b>季軍賽：</b>${t.third.a.name} vs ${t.third.b.name} → <b>${t.thirdPlace.name}</b>（季軍）</div>`;
- }
- if(t.champion){
-   const rank=t.champion.player?1:t.runnerUp.player?2:t.thirdPlace.player?3:t.fourthPlace.player?4:null;
-   out+=`<div class="bracketNote"><b>最終名次：</b>冠軍 ${t.champion.name}｜亞軍 ${t.runnerUp.name}｜季軍 ${t.thirdPlace.name}｜殿軍 ${t.fourthPlace.name}${rank?`｜<b>玩家第 ${rank} 名</b>`:''}</div>`;
+   const thirdStatus=t.thirdPlace?`勝者：<b>${t.thirdPlace.name}</b>（季軍）；另一位：<b>${t.fourthPlace.name}</b>（殿軍）`:(t.isThirdPlaceMatch?'玩家即將親自出賽，爭奪季軍！':'賽事待進行');
+   out+=`<div class="bracketNote"><b>季軍賽：</b>${t.third.a.name} vs ${t.third.b.name}｜${thirdStatus}</div>`;
  }
  el.innerHTML=out;
 }
@@ -306,7 +367,7 @@ function showTournamentBracket(heading,message,canPlay){
  document.querySelector("#tourStatus").textContent=message;
  const btn=document.querySelector("#tourAction");
  btn.classList.toggle("hidden",!canPlay);
- btn.textContent=tournament && tournament.round===0?"開始 32 強比賽":"開始下一輪比賽";
+ btn.textContent=tournament?.isThirdPlaceMatch?"開始季軍賽":(tournament && tournament.round===0?"開始 32 強比賽":"開始下一輪比賽");
 }
 function beginTournamentMatch(){
  if(!tournament||!tournament.waiting||!tournament.currentMatch)return;
@@ -318,7 +379,7 @@ function beginTournamentMatch(){
  document.querySelector("#gameMain").style.maxWidth="";
  first=PLAYER;fresh();
  const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
- statusEl.textContent=`${roundLabels[tournament.round]}：對戰 ${opp.name}。輪到你下黑棋！`;
+ statusEl.textContent=`${tournament.isThirdPlaceMatch?"季軍賽":roundLabels[tournament.round]}：對戰 ${opp.name}。輪到你下黑棋！`;
 }
 function start(){
  mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;first=+document.querySelector("#first").value;predict=document.querySelector("#predict").checked;
