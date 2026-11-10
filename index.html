@@ -187,10 +187,16 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 .battleActions{width:min(100%,760px);display:flex;justify-content:center;align-self:center;margin:14px auto 2px;gap:12px;}
 .battleActions button{flex:1;max-width:260px;min-height:48px;font-size:16px;}
 @media(max-width:760px){.battleActions{width:100%;margin:10px auto 2px;gap:8px}.battleActions button{max-width:none;min-height:46px}}
+
+/* Peter_林 個人 LOGO：右上角小尺寸展示，不影響遊戲操作 */
+header{position:relative;min-height:92px}
+.brandLogo{position:absolute;top:8px;right:clamp(12px,2.4vw,34px);width:clamp(112px,11vw,148px);height:auto;max-height:92px;object-fit:contain;border-radius:10px;box-shadow:0 5px 18px #02061788,0 0 0 1px #d7c8a866;z-index:5}
+@media(max-width:760px){header{min-height:76px;padding:12px 96px 8px 10px}.brandLogo{top:8px;right:8px;width:82px;max-height:58px;border-radius:7px}}
+@media(max-width:380px){header{padding-right:84px}.brandLogo{width:72px}}
 </style>
 </head>
 <body>
-<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽・金幣獎勵</div></header>
+<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽・金幣獎勵</div><img class="brandLogo" src="peter-lin-logo.png" alt="Peter_林 水墨風個人 LOGO"></header>
 <section id="tournamentView" class="hidden"><div class="panel"><h2 id="tourHeading">🏆 32 強淘汰賽賽程</h2><div class="status" id="tourStatus">賽程準備中…</div><div id="bracket" class="bracket"></div><div class="row"><button id="tourAction">開始本輪比賽</button><button id="tourBack" class="secondary">返回主選單</button></div></div></section>
 <main id="gameMain">
 <section class="panel battlePanel">
