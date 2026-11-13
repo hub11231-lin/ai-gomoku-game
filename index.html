@@ -208,6 +208,32 @@ header{position:relative;min-height:92px}
 .brandLogo{position:absolute;top:8px;right:clamp(12px,2.4vw,34px);width:clamp(86px,8.5vw,112px);height:auto;max-height:70px;object-fit:contain;border-radius:10px;box-shadow:0 5px 18px #02061788,0 0 0 1px #d7c8a866;z-index:5}
 @media(max-width:760px){header{min-height:76px;padding:12px 96px 8px 10px}.brandLogo{top:8px;right:8px;width:62px;max-height:44px;border-radius:7px}}
 @media(max-width:380px){header{padding-right:76px}.brandLogo{width:62px}}
+
+/* v23：底座留言板與六款實體風格預覽 */
+.floorTrim{display:flex;align-items:center;justify-content:center;min-height:30px;letter-spacing:normal;font-size:12px;line-height:1.25;overflow-wrap:anywhere;white-space:normal}
+.floorTrim:empty{min-height:24px}
+.floorMessageLabel{display:block;margin-top:8px;font-size:12px;color:#cfe2ff}
+#floorMessageInput{width:100%;margin-top:4px;min-height:36px}
+.floorPreview{width:100%;height:43px;border-radius:8px;position:relative;overflow:hidden;border:2px solid #8ab8e8;box-shadow:inset 0 0 10px #fff4,0 2px 8px #0008}
+.floorPreview:before,.floorPreview:after{content:"";position:absolute;top:0;bottom:0;width:18%;opacity:.9}
+.floorPreview:before{left:0}.floorPreview:after{right:0}
+.floorPreview span{position:absolute;left:22%;right:22%;top:9px;height:21px;border-radius:5px;background:#07162c66;border:1px solid #ffffff66}
+.floorPreview i{position:absolute;left:30%;right:30%;top:16px;height:5px;border-radius:8px;background:#fff9;box-shadow:0 0 8px #fff}
+.floorPreview b{position:absolute;left:46%;top:3px;width:8%;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff}
+.floorPreview.floor-cute{background:linear-gradient(135deg,#f8b7dc,#9d4c91,#ffd5ed);border-color:#ffd8ef}
+.floorPreview.floor-cute:before,.floorPreview.floor-cute:after{background:radial-gradient(circle,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 70%,#ffeb9c 0 3px,transparent 4px)}
+.floorPreview.floor-funny{background:repeating-linear-gradient(135deg,#e4b62f 0 9px,#342b20 9px 18px);border-color:#ffe08a}
+.floorPreview.floor-funny span{background:#fff2;border:2px dashed #fff}
+.floorPreview.floor-tech{background:linear-gradient(90deg,#061d3c,#00a6b8,#10265a);border-color:#70f4ff}
+.floorPreview.floor-tech:before,.floorPreview.floor-tech:after{background:repeating-linear-gradient(0deg,transparent 0 6px,#8affff 7px 8px,transparent 9px 13px)}
+.floorPreview.floor-luxe{background:linear-gradient(90deg,#4b260d,#f5d276 28%,#8c571d 50%,#f9df91 72%,#4b260d);border-color:#ffe7a0}
+.floorPreview.floor-luxe span{border:2px solid #ffe8a0;background:#8b5c2366}
+.floorPreview.floor-nature{background:linear-gradient(90deg,#123b24,#69b45e,#1b5732);border-color:#b8f3a4}
+.floorPreview.floor-nature:before,.floorPreview.floor-nature:after{background:radial-gradient(ellipse at 50% 50%,#b9f58d 0 25%,transparent 28%),linear-gradient(45deg,transparent 40%,#d6ffc0 42% 47%,transparent 49%)}
+.floorPreview.floor-dark{background:linear-gradient(90deg,#10091f,#67318a,#10091f);border-color:#d6a0ff}
+.floorPreview.floor-dark:before,.floorPreview.floor-dark:after{background:radial-gradient(circle,#e2a7ff 0 2px,transparent 3px),linear-gradient(135deg,transparent 35%,#b36aff 38% 42%,transparent 45%)}
+.shopItem .floorPreview{margin:1px 0 3px}
+
 </style>
 </head>
 <body>
@@ -242,6 +268,7 @@ header{position:relative;min-height:92px}
 <input id="playerName" type="text" maxlength="12" placeholder="輸入你的名字（最多 12 字）" autocomplete="nickname">
 <div class="customizeRow"><label>頭像<select id="avatarChoice"><option value="🚀">🚀 太空人</option><option value="👨‍🚀">👨‍🚀 宇航員</option><option value="🦊">🦊 星際狐</option><option value="🐱">🐱 宇宙貓</option><option value="🐼">🐼 熊貓隊長</option><option value="🤖">🤖 機器人</option><option value="🐉">🐉 星龍</option><option value="👑">👑 王者</option></select></label><label>頭像框<select id="frameChoice"><option value="gold">金色榮耀</option><option value="cyan">星際藍光</option><option value="purple">紫晶星雲</option><option value="ruby">赤焰紅</option></select></label></div>
 <div class="customizeRow"><label>頭像背景<select id="backgroundChoice"><option value="space">深空星河</option></select></label><label>底座裝飾<select id="floorChoice"><option value="default">星際標準底座</option></select></label></div>
+<label for="floorMessageInput" class="floorMessageLabel">底座留言板（最多 10 字）</label><input id="floorMessageInput" type="text" maxlength="10" placeholder="輸入想顯示的留言（最多10字）">
 <div class="customizeRow"><label>左側頭頂裝飾<select id="accessoryLeftChoice"><option value="">無裝飾</option></select></label><label>右側頭頂裝飾<select id="accessoryRightChoice"><option value="">無裝飾</option></select></label></div>
 <div class="customizeRow"><label>左側寵物<select id="petLeftChoice"><option value="">沒有寵物</option></select></label><label>右側寵物<select id="petRightChoice"><option value="">沒有寵物</option></select></label></div><div class="small">裝飾購買後依左、右順序自動裝備；卸下時請先將左側設為「無裝飾」，右側會自動補到左側。寵物可分別選擇左右位置。</div>
 <div class="walletLine"><span>🪙 我的金幣</span><strong id="coinBalance">0</strong><span>枚</span></div>
@@ -297,8 +324,8 @@ const PROFILE_KEY="cosmic_gomoku_profile_v1";
 function loadProfile(){
  try{
   const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}");
-  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,xp:Number.isFinite(saved.xp)?Math.max(0,Math.floor(saved.xp)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",accessoryLeft:typeof saved.accessoryLeft==="string"?saved.accessoryLeft:(typeof saved.accessory==="string"?saved.accessory:""),accessoryRight:typeof saved.accessoryRight==="string"?saved.accessoryRight:"",petLeft:typeof saved.petLeft==="string"?saved.petLeft:(typeof saved.pet==="string"?saved.pet:""),petRight:typeof saved.petRight==="string"?saved.petRight:"",floor:typeof saved.floor==="string"?saved.floor:"default",background:typeof saved.background==="string"?saved.background:"space",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
- }catch(e){return {name:"玩家",coins:0,xp:0,title:"見習棋手",avatar:"🚀",frame:"gold",accessoryLeft:"",accessoryRight:"",petLeft:"",petRight:"",floor:"default",background:"space",owned:[]};}
+  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,xp:Number.isFinite(saved.xp)?Math.max(0,Math.floor(saved.xp)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",accessoryLeft:typeof saved.accessoryLeft==="string"?saved.accessoryLeft:(typeof saved.accessory==="string"?saved.accessory:""),accessoryRight:typeof saved.accessoryRight==="string"?saved.accessoryRight:"",petLeft:typeof saved.petLeft==="string"?saved.petLeft:(typeof saved.pet==="string"?saved.pet:""),petRight:typeof saved.petRight==="string"?saved.petRight:"",floor:typeof saved.floor==="string"?saved.floor:"default",floorMessage:typeof saved.floorMessage==="string"?Array.from(saved.floorMessage).slice(0,10).join(""):"",background:typeof saved.background==="string"?saved.background:"space",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
+ }catch(e){return {name:"玩家",coins:0,xp:0,title:"見習棋手",avatar:"🚀",frame:"gold",accessoryLeft:"",accessoryRight:"",petLeft:"",petRight:"",floor:"default",floorMessage:"",background:"space",owned:[]};}
 }
 let profile=loadProfile(),gameRewardPaid=false; if(!profile.background)profile.background="space";
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
@@ -319,6 +346,10 @@ const SHOP_ITEMS=[
  {id:"pet_bunny",type:"pet",value:"🐰",name:"月兔寵物",cost:1800,desc:"溫柔可愛的夥伴"},
  {id:"pet_cat",type:"pet",value:"🐈",name:"星際貓咪",cost:2200,desc:"慵懶的宇宙旅伴"},
  {id:"pet_dragon",type:"pet",value:"🐲",name:"迷你龍寵物",cost:3000,desc:"威風的守護夥伴"},
+ {id:"pet_cactus",type:"pet",value:"🌵👾",name:"仙人掌小怪獸",cost:2400,desc:"帶刺又淘氣的小怪獸"},
+ {id:"pet_stickman",type:"pet",value:"🕴️",name:"火柴人夥伴",cost:1600,desc:"簡單俐落的搞怪夥伴"},
+ {id:"pet_fairy_sun",type:"pet",value:"🧚‍♀️",name:"晨光小精靈",cost:2600,desc:"閃耀暖光的森林精靈"},
+ {id:"pet_fairy_moon",type:"pet",value:"🧚‍♂️",name:"月影小精靈",cost:2800,desc:"守護夜空的神秘精靈"},
  {id:"bg_space",type:"background",value:"space",name:"深空星河背景",cost:120,desc:"藍紫星雲環繞頭像"},
  {id:"bg_sunset",type:"background",value:"sunset",name:"夕陽熔金背景",cost:160,desc:"橘紅夕陽漸層"},
  {id:"bg_ocean",type:"background",value:"ocean",name:"深海極光背景",cost:190,desc:"青藍極光效果"},
@@ -354,7 +385,7 @@ function renderShop(){
   const equipped=item.type==="accessory"?[profile.accessoryLeft,profile.accessoryRight].includes(item.value):item.type==="pet"?[profile.petLeft,profile.petRight].includes(item.value):profile[item.type]===item.value;
   const label=equipped?"使用中":owned?"裝備":"購買";
   const action=owned?`equipShopItem('${item.id}')`:`buyShopItem('${item.id}')`;
-  return `<div class="shopItem"><div class="shopIcon">${item.type==="frame"?"✨":item.type==="background"?"🌌":item.value}</div><b>${item.name}</b><small>${item.desc}・${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div>`;
+  return `<div class="shopItem"><div class="shopIcon">${item.type==="frame"?"✨":item.type==="background"?"🌌":item.type==="floor"?`<div class="floorPreview floor-${item.value}"><span></span><i></i><b></b></div>`:item.value}</div><b>${item.name}</b>${item.type==="floor"?`<small>底座風格預覽</small>`:`<small>${item.desc}</small>`}<small>${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div>`;
  }).join("");
 }
 function buyShopItem(id){
@@ -429,7 +460,7 @@ function updateProfileUI(){
  if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
  if(selects.accessory[0])selects.accessory[0].value=profile.accessoryLeft||"";if(selects.accessory[1])selects.accessory[1].value=profile.accessoryRight||"";if(selects.pet[0])selects.pet[0].value=profile.petLeft||"";if(selects.pet[1])selects.pet[1].value=profile.petRight||"";if(selects.background)selects.background.value=profile.background||"space";if(selects.floor)selects.floor.value=profile.floor||"default";
  const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
- if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){const floorNames={default:"✦ STAR PILOT ✦",cute:"♡ SWEET STAR ♡",funny:"☻ FUNNY ZONE ☻",tech:"⌁ CYBER DRIVE ⌁",luxe:"♛ ROYAL LEGEND ♛",nature:"❀ FOREST SPIRIT ❀",dark:"☾ DARK NEBULA ☾"};floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent=floorNames[profile.floor]||floorNames.default;}
+ if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent=(profile.floorMessage||"").slice(0,10);floor.setAttribute("aria-label",profile.floorMessage?"留言板："+profile.floorMessage:"底座裝飾");}const floorMessageInput=document.querySelector("#floorMessageInput");if(floorMessageInput&&floorMessageInput.value!==profile.floorMessage)floorMessageInput.value=profile.floorMessage||"";
  renderShop();
 }
 function setOpponentCard(name,title,avatar,detail,decor){
@@ -750,7 +781,8 @@ document.querySelector("#accessoryLeftChoice").addEventListener("change",e=>{pro
 document.querySelector("#accessoryRightChoice").addEventListener("change",e=>{profile.accessoryRight=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#petLeftChoice").addEventListener("change",e=>{profile.petLeft=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#petRightChoice").addEventListener("change",e=>{profile.petRight=e.target.value;saveProfile();updateProfileUI();});
-document.querySelector("#floorChoice").addEventListener("change",e=>{profile.floor=e.target.value;saveProfile();updateProfileUI();}); document.querySelector("#backgroundChoice").addEventListener("change",e=>{profile.background=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#floorChoice").addEventListener("change",e=>{profile.floor=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#floorMessageInput").addEventListener("input",e=>{profile.floorMessage=Array.from(e.target.value).slice(0,10).join("");if(e.target.value!==profile.floorMessage)e.target.value=profile.floorMessage;saveProfile();updateProfileUI();}); document.querySelector("#backgroundChoice").addEventListener("change",e=>{profile.background=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
 document.querySelector("#start").onclick=start;
