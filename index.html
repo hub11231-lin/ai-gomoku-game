@@ -162,11 +162,20 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 @keyframes toastIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 /* v14：頭像裝飾閃耀、寵物動態跟隨 */
 .avatarFrame{position:relative;isolation:isolate}
-.avatarAccessory{position:absolute;top:-13px;left:-5px;z-index:3;font-size:27px;line-height:1;filter:drop-shadow(0 2px 3px #000b);pointer-events:none;transform-origin:70% 80%;animation:accessoryShine 2.4s ease-in-out infinite}
-.avatarPet{position:absolute;right:-14px;bottom:-8px;z-index:4;font-size:29px;line-height:1;filter:drop-shadow(0 2px 3px #000b);pointer-events:none;transform-origin:50% 90%;animation:petBuddy 1.65s ease-in-out infinite}
+.avatarAccessory{position:absolute;top:-17px;z-index:5;font-size:25px;line-height:1;filter:drop-shadow(0 2px 3px #000b);pointer-events:none;transform-origin:70% 80%;animation:accessoryShine 2.4s ease-in-out infinite}
+.avatarAccessory.left{left:-9px}.avatarAccessory.right{right:-9px}
+.avatarPet{position:absolute;bottom:-13px;z-index:5;font-size:26px;line-height:1;filter:drop-shadow(0 2px 3px #000b);pointer-events:none;transform-origin:50% 90%;animation:petBuddy 1.65s ease-in-out infinite}
+.avatarPet.left{left:-13px}.avatarPet.right{right:-13px}
 .avatarPet:not(:empty)::after{content:"✦";position:absolute;right:-5px;top:-8px;font-size:11px;color:#fff2a8;text-shadow:0 0 7px #ffe27a;animation:petSparkle 1.4s ease-in-out infinite}
-.avatarFrame.has-pet{animation:petAura 2.8s ease-in-out infinite}
 .avatarAccessory:empty,.avatarPet:empty{display:none}
+.floorTrim{width:100%;min-height:25px;margin-top:2px;padding:4px 5px;border-radius:8px;font-size:11px;font-weight:900;letter-spacing:.08em;text-align:center;color:#eaf5ff;background:linear-gradient(90deg,#1b3158,#4779a8,#1b3158);border:1px solid #8ab8e8;box-shadow:0 0 12px #65baff55}
+.floorTrim.floor-cute{background:linear-gradient(90deg,#743b76,#ed9ac9,#743b76);border-color:#ffc7e9;color:#fff4fb;box-shadow:0 0 13px #ff9bd966}
+.floorTrim.floor-funny{background:repeating-linear-gradient(135deg,#5b4a1b 0 10px,#d69a25 10px 20px);border-color:#ffe08a;color:#fff8cf}
+.floorTrim.floor-tech{background:linear-gradient(90deg,#092c4c,#00a6b8,#092c4c);border-color:#70f4ff;color:#e0ffff;box-shadow:0 0 14px #00d9ff66}
+.floorTrim.floor-luxe{background:linear-gradient(90deg,#5b3612,#f0cb68,#704018);border-color:#ffe7a0;color:#fff8d9;box-shadow:0 0 14px #ffd66a77}
+.floorTrim.floor-nature{background:linear-gradient(90deg,#17482e,#65a95d,#17482e);border-color:#b8f3a4;color:#f0ffe8}
+.floorTrim.floor-dark{background:linear-gradient(90deg,#160d2c,#61317c,#160d2c);border-color:#d6a0ff;color:#f7e6ff;box-shadow:0 0 14px #a85cff66}
+.avatarFrame.has-pet{animation:petAura 2.8s ease-in-out infinite}
 @keyframes petBuddy{0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}28%{transform:translateY(-7px) rotate(7deg) scale(1.06)}52%{transform:translateY(-2px) rotate(-3deg) scale(1.02)}76%{transform:translateY(-5px) rotate(5deg) scale(1.04)}}
 @keyframes petSparkle{0%,100%{opacity:.2;transform:scale(.65) rotate(0deg)}50%{opacity:1;transform:scale(1.2) rotate(45deg)}}
 @keyframes accessoryShine{0%,100%{transform:rotate(-7deg) scale(1);filter:drop-shadow(0 2px 3px #000b)}50%{transform:rotate(8deg) scale(1.12);filter:drop-shadow(0 0 7px #ffe58a)}}
@@ -202,18 +211,18 @@ header{position:relative;min-height:92px}
 </style>
 </head>
 <body>
-<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽・金幣獎勵</div><img class="brandLogo" src="peter-lin-logo.png" alt="Peter_林 水墨風個人 LOGO"></header>
+<header><h1>♟ AI 五子棋</h1><div class="sub">15 × 15 棋盤・單機練習・32 強淘汰賽・金幣獎勵</div><img class="brandLogo" src="peter_lin_ink_logo.png" alt="Peter_林 水墨風個人 LOGO"></header>
 <section id="tournamentView" class="hidden"><div class="panel"><h2 id="tourHeading">🏆 32 強淘汰賽賽程</h2><div class="status" id="tourStatus">賽程準備中…</div><div id="bracket" class="bracket"></div><div class="row"><button id="tourAction">開始本輪比賽</button><button id="tourBack" class="secondary">返回主選單</button></div></div></section>
 <main id="gameMain">
 <section class="panel battlePanel">
 <div class="battleArena">
   <article class="fighterCard playerFighter" id="playerFighter">
     <div class="fighterSideLabel">🧑‍🚀 玩家・黑棋</div>
-    <div class="avatarFrame frame-gold" id="playerAvatarFrame"><div class="fighterAvatar" id="playerAvatar">🚀</div><span class="avatarAccessory" id="playerAccessory" aria-hidden="true"></span><span class="avatarPet" id="playerPet" aria-hidden="true"></span></div>
+    <div class="avatarFrame frame-gold" id="playerAvatarFrame"><div class="fighterAvatar" id="playerAvatar">🚀</div><span class="avatarAccessory left" id="playerAccessoryLeft" aria-hidden="true"></span><span class="avatarAccessory right" id="playerAccessoryRight" aria-hidden="true"></span><span class="avatarPet left" id="playerPetLeft" aria-hidden="true"></span><span class="avatarPet right" id="playerPetRight" aria-hidden="true"></span></div>
     <div class="fighterName" id="fighterPlayerName">玩家</div>
     <div class="fighterTitle" id="fighterPlayerTitle">見習棋手</div>
     <div class="fighterStats"><span>🪙 金幣</span><b id="fighterPlayerCoins">0</b></div>
-    <div class="fighterDecor" id="playerDecor">✦ STAR PILOT ✦</div>
+    <div class="fighterDecor" id="playerDecor">✦ STAR PILOT ✦</div><div class="floorTrim floor-default" id="playerFloorTrim">✦ STAR PILOT ✦</div>
   </article>
   <div id="boardWrap"><div id="resultBanner" class="resultBanner" role="status" aria-live="assertive"></div><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
   <article class="fighterCard opponentFighter" id="opponentFighter">
@@ -232,7 +241,9 @@ header{position:relative;min-height:92px}
 <label for="playerName">玩家名稱</label>
 <input id="playerName" type="text" maxlength="12" placeholder="輸入你的名字（最多 12 字）" autocomplete="nickname">
 <div class="customizeRow"><label>頭像<select id="avatarChoice"><option value="🚀">🚀 太空人</option><option value="👨‍🚀">👨‍🚀 宇航員</option><option value="🦊">🦊 星際狐</option><option value="🐱">🐱 宇宙貓</option><option value="🐼">🐼 熊貓隊長</option><option value="🤖">🤖 機器人</option><option value="🐉">🐉 星龍</option><option value="👑">👑 王者</option></select></label><label>頭像框<select id="frameChoice"><option value="gold">金色榮耀</option><option value="cyan">星際藍光</option><option value="purple">紫晶星雲</option><option value="ruby">赤焰紅</option></select></label></div>
-<div class="customizeRow"><label>頭像背景<select id="backgroundChoice"><option value="space">深空星河</option></select></label><label>頭像裝飾<select id="accessoryChoice"><option value="">無裝飾</option></select></label><label>專屬寵物<select id="petChoice"><option value="">沒有寵物</option></select></label></div>
+<div class="customizeRow"><label>頭像背景<select id="backgroundChoice"><option value="space">深空星河</option></select></label><label>底座裝飾<select id="floorChoice"><option value="default">星際標準底座</option></select></label></div>
+<div class="customizeRow"><label>左側頭頂裝飾<select id="accessoryLeftChoice"><option value="">無裝飾</option></select></label><label>右側頭頂裝飾<select id="accessoryRightChoice"><option value="">無裝飾</option></select></label></div>
+<div class="customizeRow"><label>左側寵物<select id="petLeftChoice"><option value="">沒有寵物</option></select></label><label>右側寵物<select id="petRightChoice"><option value="">沒有寵物</option></select></label></div><div class="small">裝飾購買後依左、右順序自動裝備；卸下時請先將左側設為「無裝飾」，右側會自動補到左側。寵物可分別選擇左右位置。</div>
 <div class="walletLine"><span>🪙 我的金幣</span><strong id="coinBalance">0</strong><span>枚</span></div>
 <div class="titleLine">目前段位：<strong id="playerTitle">見習生</strong></div>
 <div class="levelLine" id="playerLevelLine">Lv.1 ・ 0 / 50 EXP</div>
@@ -252,9 +263,10 @@ header{position:relative;min-height:92px}
    <button type="button" class="shopCategory" data-category="avatar" onclick="setShopCategory('avatar')">🧑 頭像</button>
    <button type="button" class="shopCategory" data-category="pet" onclick="setShopCategory('pet')">🐾 寵物</button>
    <button type="button" class="shopCategory" data-category="background" onclick="setShopCategory('background')">🌌 頭像背景</button>
+   <button type="button" class="shopCategory" data-category="floor" onclick="setShopCategory('floor')">🪄 底座裝飾</button>
   </div>
   <div class="shopGrid" id="shopGrid"></div>
-  <div class="shopNote">購買後永久解鎖並自動裝備；可切換頭像、頭像框、裝飾、寵物及頭像背景。金幣僅保存在此瀏覽器。</div>
+  <div class="shopNote">購買後永久解鎖並自動裝備；頭頂裝飾依左至右順序裝備，寵物可左右各一隻，並可更換六種底座風格。金幣僅保存在此瀏覽器。</div>
  </div>
 </div>
 <div class="group"><label>遊戲模式</label><select id="mode"><option value="practice">單機練習</option><option value="tournament">32 強淘汰賽</option></select></div>
@@ -285,8 +297,8 @@ const PROFILE_KEY="cosmic_gomoku_profile_v1";
 function loadProfile(){
  try{
   const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}");
-  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,xp:Number.isFinite(saved.xp)?Math.max(0,Math.floor(saved.xp)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",accessory:typeof saved.accessory==="string"?saved.accessory:"",pet:typeof saved.pet==="string"?saved.pet:"",background:typeof saved.background==="string"?saved.background:"space",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
- }catch(e){return {name:"玩家",coins:0,xp:0,title:"見習棋手",avatar:"🚀",frame:"gold",accessory:"",pet:"",background:"space",owned:[]};}
+  return {name:typeof saved.name==="string"?saved.name:"玩家",coins:Number.isFinite(saved.coins)?Math.max(0,Math.floor(saved.coins)):0,xp:Number.isFinite(saved.xp)?Math.max(0,Math.floor(saved.xp)):0,title:typeof saved.title==="string"?saved.title:"見習棋手",avatar:typeof saved.avatar==="string"?saved.avatar:"🚀",frame:typeof saved.frame==="string"?saved.frame:"gold",accessoryLeft:typeof saved.accessoryLeft==="string"?saved.accessoryLeft:(typeof saved.accessory==="string"?saved.accessory:""),accessoryRight:typeof saved.accessoryRight==="string"?saved.accessoryRight:"",petLeft:typeof saved.petLeft==="string"?saved.petLeft:(typeof saved.pet==="string"?saved.pet:""),petRight:typeof saved.petRight==="string"?saved.petRight:"",floor:typeof saved.floor==="string"?saved.floor:"default",background:typeof saved.background==="string"?saved.background:"space",owned:Array.isArray(saved.owned)?saved.owned.filter(x=>typeof x==="string"):[]};
+ }catch(e){return {name:"玩家",coins:0,xp:0,title:"見習棋手",avatar:"🚀",frame:"gold",accessoryLeft:"",accessoryRight:"",petLeft:"",petRight:"",floor:"default",background:"space",owned:[]};}
 }
 let profile=loadProfile(),gameRewardPaid=false; if(!profile.background)profile.background="space";
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
@@ -311,7 +323,13 @@ const SHOP_ITEMS=[
  {id:"bg_sunset",type:"background",value:"sunset",name:"夕陽熔金背景",cost:160,desc:"橘紅夕陽漸層"},
  {id:"bg_ocean",type:"background",value:"ocean",name:"深海極光背景",cost:190,desc:"青藍極光效果"},
  {id:"bg_nebula",type:"background",value:"nebula",name:"夢幻星雲背景",cost:240,desc:"紫粉星雲光暈"},
- {id:"bg_galaxy",type:"background",value:"galaxy",name:"銀河傳說背景",cost:320,desc:"金紫銀河限定背景"}
+ {id:"bg_galaxy",type:"background",value:"galaxy",name:"銀河傳說背景",cost:320,desc:"金紫銀河限定背景"},
+ {id:"floor_cute",type:"floor",value:"cute",name:"甜心可愛底座",cost:180,desc:"粉彩蝴蝶結與柔和星光"},
+ {id:"floor_funny",type:"floor",value:"funny",name:"搞怪派對底座",cost:160,desc:"亮黃警示條與俏皮表情"},
+ {id:"floor_tech",type:"floor",value:"tech",name:"未來科技底座",cost:220,desc:"霓虹電路與青藍光條"},
+ {id:"floor_luxe",type:"floor",value:"luxe",name:"皇家華麗底座",cost:280,desc:"金色雕紋與寶石光澤"},
+ {id:"floor_nature",type:"floor",value:"nature",name:"森林自然底座",cost:190,desc:"綠葉藤蔓與自然色彩"},
+ {id:"floor_dark",type:"floor",value:"dark",name:"暗黑幻影底座",cost:300,desc:"紫黑能量與神秘光芒"}
 ];
 let shopToastTimer=null,shopToastToken=0,shopCategory="all";
 function setShopCategory(category){shopCategory=category;document.querySelectorAll(".shopCategory").forEach(b=>b.classList.toggle("active",b.dataset.category===category));renderShop();}
@@ -333,7 +351,7 @@ function renderShop(){
  document.querySelector("#shopCoins").textContent=profile.coins.toLocaleString("zh-TW");
  grid.innerHTML=SHOP_ITEMS.filter(item=>shopCategory==="all"||(shopCategory==="decoration"?(["accessory","frame"].includes(item.type)):item.type===shopCategory)).map(item=>{
   const owned=profile.owned.includes(item.id);
-  const equipped=profile[item.type]===item.value;
+  const equipped=item.type==="accessory"?[profile.accessoryLeft,profile.accessoryRight].includes(item.value):item.type==="pet"?[profile.petLeft,profile.petRight].includes(item.value):profile[item.type]===item.value;
   const label=equipped?"使用中":owned?"裝備":"購買";
   const action=owned?`equipShopItem('${item.id}')`:`buyShopItem('${item.id}')`;
   return `<div class="shopItem"><div class="shopIcon">${item.type==="frame"?"✨":item.type==="background"?"🌌":item.value}</div><b>${item.name}</b><small>${item.desc}・${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div>`;
@@ -347,11 +365,19 @@ function buyShopItem(id){
 }
 function equipShopItem(id){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item||!profile.owned.includes(id))return;equipItem(item);saveProfile();updateProfileUI();renderShop();}
 function equipItem(item){
- profile[item.type]=item.value;
- const selectId={avatar:"avatarChoice",frame:"frameChoice",accessory:"accessoryChoice",pet:"petChoice",background:"backgroundChoice"}[item.type];
- const select=document.querySelector("#"+selectId);if(select&&!Array.from(select.options).some(o=>o.value===item.value)){
-  const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":item.type==="background"?"深空星河":"無裝飾");select.appendChild(opt);
- }
+ if(item.type==="accessory"){
+  if(profile.accessoryLeft===item.value||profile.accessoryRight===item.value)return;
+  if(!profile.accessoryLeft)profile.accessoryLeft=item.value;
+  else if(!profile.accessoryRight)profile.accessoryRight=item.value;
+  else {showShopToast("左右裝飾位置已滿，請先從左側開始卸下，再重新裝備。");return;}
+ }else if(item.type==="pet"){
+  if(profile.petLeft===item.value||profile.petRight===item.value)return;
+  if(!profile.petLeft)profile.petLeft=item.value;
+  else if(!profile.petRight)profile.petRight=item.value;
+  else {showShopToast("左右寵物位置已滿，請先卸下一隻寵物。");return;}
+ }else profile[item.type]=item.value;
+ const selectIds={avatar:["avatarChoice"],frame:["frameChoice"],accessory:["accessoryLeftChoice","accessoryRightChoice"],pet:["petLeftChoice","petRightChoice"],background:["backgroundChoice"],floor:["floorChoice"]}[item.type]||[];
+ for(const selectId of selectIds){const select=document.querySelector("#"+selectId);if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":"無裝飾");select.appendChild(opt);}}
 }
 
 // 玩家等級：累積經驗值制，越高等所需經驗越多（門檻為累積總 EXP）
@@ -398,12 +424,12 @@ function updateProfileUI(){
  if(levelLine)levelLine.textContent=progress.lv>=20?`Lv.20 ・ SS棋神 MAX`:`Lv.${progress.lv} ・ ${progress.current.toLocaleString("zh-TW")} / ${progress.need.toLocaleString("zh-TW")} EXP`;
  const xpBar=document.querySelector("#xpBar");if(xpBar)xpBar.style.width=progress.pct+"%";
  const avatar=document.querySelector("#avatarChoice"),frame=document.querySelector("#frameChoice");
- const selects={avatar,frame,accessory:document.querySelector("#accessoryChoice"),pet:document.querySelector("#petChoice"),background:document.querySelector("#backgroundChoice")};
- for(const id of profile.owned){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const select=selects[item.type];if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":item.type==="background"?"深空星河":"無裝飾");select.appendChild(opt);}}
+ const selects={avatar,frame,accessory:[document.querySelector("#accessoryLeftChoice"),document.querySelector("#accessoryRightChoice")],pet:[document.querySelector("#petLeftChoice"),document.querySelector("#petRightChoice")],background:document.querySelector("#backgroundChoice"),floor:document.querySelector("#floorChoice")};
+ for(const id of profile.owned){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const targets=Array.isArray(selects[item.type])?selects[item.type]:[selects[item.type]];for(const select of targets){if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":item.type==="background"?"深空星河":"無裝飾");select.appendChild(opt);}}}
  if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
- if(selects.accessory)selects.accessory.value=profile.accessory||"";if(selects.pet)selects.pet.value=profile.pet||"";if(selects.background)selects.background.value=profile.background||"space";
+ if(selects.accessory[0])selects.accessory[0].value=profile.accessoryLeft||"";if(selects.accessory[1])selects.accessory[1].value=profile.accessoryRight||"";if(selects.pet[0])selects.pet[0].value=profile.petLeft||"";if(selects.pet[1])selects.pet[1].value=profile.petRight||"";if(selects.background)selects.background.value=profile.background||"space";if(selects.floor)selects.floor.value=profile.floor||"default";
  const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
- if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!profile.pet);}const accessoryEl=document.querySelector("#playerAccessory"),petEl=document.querySelector("#playerPet");if(accessoryEl)accessoryEl.textContent=profile.accessory||"";if(petEl)petEl.textContent=profile.pet||"";
+ if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){const floorNames={default:"✦ STAR PILOT ✦",cute:"♡ SWEET STAR ♡",funny:"☻ FUNNY ZONE ☻",tech:"⌁ CYBER DRIVE ⌁",luxe:"♛ ROYAL LEGEND ♛",nature:"❀ FOREST SPIRIT ❀",dark:"☾ DARK NEBULA ☾"};floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent=floorNames[profile.floor]||floorNames.default;}
  renderShop();
 }
 function setOpponentCard(name,title,avatar,detail,decor){
@@ -720,8 +746,11 @@ document.querySelector("#playerName").addEventListener("change",e=>{
 });
 document.querySelector("#avatarChoice").addEventListener("change",e=>{profile.avatar=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#frameChoice").addEventListener("change",e=>{profile.frame=e.target.value;saveProfile();updateProfileUI();});
-document.querySelector("#accessoryChoice").addEventListener("change",e=>{profile.accessory=e.target.value;saveProfile();updateProfileUI();});
-document.querySelector("#petChoice").addEventListener("change",e=>{profile.pet=e.target.value;saveProfile();updateProfileUI();}); document.querySelector("#backgroundChoice").addEventListener("change",e=>{profile.background=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#accessoryLeftChoice").addEventListener("change",e=>{profile.accessoryLeft=e.target.value;if(!profile.accessoryLeft&&profile.accessoryRight){profile.accessoryLeft=profile.accessoryRight;profile.accessoryRight="";}saveProfile();updateProfileUI();});
+document.querySelector("#accessoryRightChoice").addEventListener("change",e=>{profile.accessoryRight=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#petLeftChoice").addEventListener("change",e=>{profile.petLeft=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#petRightChoice").addEventListener("change",e=>{profile.petRight=e.target.value;saveProfile();updateProfileUI();});
+document.querySelector("#floorChoice").addEventListener("change",e=>{profile.floor=e.target.value;saveProfile();updateProfileUI();}); document.querySelector("#backgroundChoice").addEventListener("change",e=>{profile.background=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
 document.querySelector("#start").onclick=start;
