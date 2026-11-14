@@ -281,6 +281,63 @@ main{align-items:start}
 .floorTrim.floor-luxe .floorStripe{background:#ffe8a0aa;box-shadow:0 0 9px #ffd66a}
 .floorTrim.floor-nature:before,.floorTrim.floor-nature:after{background:radial-gradient(ellipse at 50% 50%,#b9f58d 0 25%,transparent 28%),linear-gradient(45deg,transparent 40%,#d6ffc0 42% 47%,transparent 49%)}
 .floorTrim.floor-dark:before,.floorTrim.floor-dark:after{background:radial-gradient(circle,#e2a7ff 0 2px,transparent 3px),linear-gradient(135deg,transparent 35%,#b36aff 38% 42%,transparent 45%)}
+
+/* v26：頭像框特效、動態頭像 */
+.avSvg{width:100%;height:100%;display:block}
+.fighterAvatar.hasSvg{overflow:hidden}
+.avatarMini{width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid #9bbcf0;background:radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c);box-shadow:0 0 10px #5da8ff66}
+.av-eye1,.av-eye2,.av-eye3,.av-hair,.av-visor,.av-gem{paint-order:stroke fill;stroke-opacity:.4;stroke-width:2.6}
+.av-eye1{animation:avEye1 3.2s linear infinite}
+.av-eye2{animation:avEye2 2.4s ease-in-out infinite}
+.av-eye3{animation:avEye3 3s linear infinite}
+.av-hair{stroke:none;animation:avHair 4s linear infinite}
+.av-visor{animation:avVisor 3s linear infinite}
+.av-gem{animation:avGem 2.4s linear infinite}
+.av-gem2{animation-delay:-1.2s}
+.av-halo{opacity:.28;transform-box:fill-box;transform-origin:center;animation:avGem 2.4s linear infinite,avTwinkle 1.6s ease-in-out infinite}
+.av-blink{transform-box:fill-box;transform-origin:center;animation:avBlink 4.6s infinite}
+.av-twinkle{transform-box:fill-box;transform-origin:center;animation:avTwinkle 1.8s ease-in-out infinite}
+.av-scan{animation:avScan 1.9s ease-in-out infinite alternate}
+@keyframes avEye1{0%,100%{fill:#ff3b5c;stroke:#ff3b5c}34%{fill:#b05bff;stroke:#b05bff}67%{fill:#35e8ff;stroke:#35e8ff}}
+@keyframes avEye2{0%,100%{fill:#ffe03a;stroke:#ffe03a}50%{fill:#ff3b2e;stroke:#ff3b2e}}
+@keyframes avEye3{0%,100%{fill:#33e0d0;stroke:#33e0d0}34%{fill:#ffd84a;stroke:#ffd84a}67%{fill:#ff6fd0;stroke:#ff6fd0}}
+@keyframes avHair{0%,100%{fill:#ff8a1f}25%{fill:#ffd93b}50%{fill:#38d9ff}75%{fill:#e04dff}}
+@keyframes avVisor{0%,100%{fill:#38f0ff}33%{fill:#ff4fd8}66%{fill:#7dff6a}}
+@keyframes avGem{0%,100%{fill:#ff5ad1;stroke:#ff5ad1}33%{fill:#59f0ff;stroke:#59f0ff}66%{fill:#ffe45a;stroke:#ffe45a}}
+@keyframes avBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes avTwinkle{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+@keyframes avScan{from{transform:translateX(0)}to{transform:translateX(29px)}}
+@media(prefers-reduced-motion:reduce){.avSvg *,.avatarFrame:before,.avatarFrame:after{animation:none!important}}
+
+.avatarFrame.frame-nebula,.avatarFrame.frame-aurora,.avatarFrame.frame-fire,.avatarFrame.frame-prism,.avatarFrame.frame-thunder,.avatarFrame.frame-royal{padding:7px;background:#070a1c;animation:frameGlow 2s ease-in-out infinite alternate}
+.avatarFrame.frame-nebula:before,.avatarFrame.frame-aurora:before,.avatarFrame.frame-fire:before,.avatarFrame.frame-prism:before,.avatarFrame.frame-thunder:before,.avatarFrame.frame-royal:before{content:"";position:absolute;inset:0;border-radius:50%;z-index:-1;animation:frameSpin 3.4s linear infinite}
+.avatarFrame.frame-nebula:after,.avatarFrame.frame-aurora:after,.avatarFrame.frame-fire:after,.avatarFrame.frame-prism:after,.avatarFrame.frame-thunder:after,.avatarFrame.frame-royal:after{content:"";position:absolute;inset:-4px;border-radius:50%;z-index:4;pointer-events:none;background:radial-gradient(circle at 50% 4px,var(--dot,#fff) 0 2.6px,transparent 5px);animation:frameSpin 2.2s linear infinite}
+.avatarFrame.frame-nebula .fighterAvatar,.avatarFrame.frame-aurora .fighterAvatar,.avatarFrame.frame-fire .fighterAvatar,.avatarFrame.frame-prism .fighterAvatar,.avatarFrame.frame-thunder .fighterAvatar,.avatarFrame.frame-royal .fighterAvatar{box-shadow:0 0 0 2px #04061a,inset 0 0 12px #000b}
+@keyframes frameSpin{to{transform:rotate(360deg)}}
+@keyframes frameHue{to{filter:hue-rotate(360deg)}}
+@keyframes frameGlow{from{box-shadow:0 0 10px var(--fc),0 0 2px var(--fc)}to{box-shadow:0 0 26px var(--fc),0 0 7px #fff5}}
+.avatarFrame.frame-nebula{--fc:#b052ff;--dot:#ffd6ff}
+.avatarFrame.frame-nebula:before{background:conic-gradient(#ff6bf0 0%,#3b0f6e 22%,#9a4dff 40%,#fff 46%,#9a4dff 52%,#22083f 72%,#ff6bf0 100%)}
+.avatarFrame.frame-aurora{--fc:#2dffb0;--dot:#eafff6}
+.avatarFrame.frame-aurora:before{background:conic-gradient(#3dffb0 0%,#04281f 24%,#19d3c5 42%,#e9fff6 48%,#19d3c5 54%,#06303a 74%,#3dffb0 100%);animation-duration:4.2s}
+.avatarFrame.frame-fire{--fc:#ff6a1a;--dot:#ffef9a;animation-name:frameGlow;animation-duration:.9s}
+.avatarFrame.frame-fire:before{background:conic-gradient(#ffe45a 0%,#ff7a1a 18%,#7a0f0f 40%,#150303 52%,#ff3b1a 70%,#ffd23c 88%,#ffe45a 100%);animation-duration:2.2s}
+.avatarFrame.frame-prism{--fc:#8d7bff;--dot:#fff}
+.avatarFrame.frame-prism:before{background:conic-gradient(#ff4d6d,#ffb84d,#f3ff5a,#4dff9a,#4de3ff,#6a6bff,#e04dff,#ff4d6d);animation:frameSpin 3s linear infinite,frameHue 5s linear infinite}
+.avatarFrame.frame-thunder{--fc:#19c8ff;--dot:#fff;animation-duration:.45s}
+.avatarFrame.frame-thunder:before{background:conic-gradient(#e8ffff 0%,#00c8ff 8%,#031a33 20%,#031a33 40%,#00e5ff 50%,#fff 53%,#00a2ff 58%,#031a33 70%,#031a33 90%,#e8ffff 100%);animation-duration:1.6s}
+.avatarFrame.frame-royal{--fc:#f0b92e;--dot:#fff4c2}
+.avatarFrame.frame-royal:before{background:conic-gradient(#ffe9a0 0%,#7a5200 14%,#0a0a0a 30%,#d4a017 48%,#fff4c2 52%,#d4a017 56%,#0a0a0a 72%,#7a5200 86%,#ffe9a0 100%);animation-duration:5s}
+
+.shopItem.frameItem{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;padding:10px 12px;text-align:left}
+.frameItem .framePrev{flex:0 0 88px;height:96px;display:grid;place-items:center;border-radius:12px;background:radial-gradient(circle at 50% 40%,#1b2b55,#080e22);border:1px solid #2d4a82}
+.frameItem .avatarFrame{width:76px;height:76px}
+.frameItem .fighterAvatar{font-size:36px}
+.frameBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left}
+.frameBody b{font-size:15px;color:#fff}
+.frameBody small{font-size:12.5px;color:#d3e4ff;line-height:1.35}
+.frameBody .floorPrice{color:#ffe28b;font-weight:800}
+.frameBody button{width:100%;margin-top:4px;min-height:34px;font-size:13px}
 </style>
 </head>
 <body>
@@ -351,7 +408,7 @@ main{align-items:start}
 <div class="group"><label><input id="predict" type="checkbox" checked> 啟用預判模式</label></div>
 </div>
 <div class="status" id="status">請選擇模式，按「開始遊戲」。</div>
-<div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。<br>每手限時 6 秒，超時由系統代為落子。</div>
+<div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。<br>每手限時 9 秒，超時由系統代為落子。</div>
 
 <div class="small">提示：第 8～10 級搜尋較深，電腦思考時間可能較長。此網頁版不需要安裝 Python。</div>
 </aside>
@@ -378,14 +435,32 @@ function loadProfile(){
 }
 let profile=loadProfile(),gameRewardPaid=false; if(!profile.background)profile.background="space";
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
+const ANIM_AVATARS={
+ ninja:`<svg class="avSvg" viewBox="0 0 100 100" aria-hidden="true"><path d="M6 100Q10 74 50 72Q90 74 94 100Z" fill="#232d52"/><path d="M36 72L50 90L64 72Z" fill="#0d1229"/><path d="M80 36L95 27L91 40L101 45L80 44Z" fill="#2c3d86"/><circle cx="50" cy="46" r="31" fill="#1a2242"/><rect x="25" y="39" width="50" height="17" rx="8.5" fill="#f3d0ae"/><path d="M19 33Q50 24 81 33L81 42Q50 33 19 42Z" fill="#2c3d86"/><rect x="39" y="27" width="22" height="14" rx="3" fill="#b9c4e0"/><path class="av-twinkle" d="M50 29.5l1.9 3.8 4.2.6-3 3 .7 4.2-3.8-2-3.8 2 .7-4.2-3-3 4.2-.6z" fill="#3a4770"/><path d="M30 63Q50 71 70 63" fill="none" stroke="#2c3868" stroke-width="1.5"/><g class="av-blink"><ellipse class="av-eye1" cx="38" cy="48" rx="5.5" ry="3.4"/><ellipse class="av-eye1" cx="62" cy="48" rx="5.5" ry="3.4"/></g><path d="M30 43L45 46M70 43L55 46" stroke="#3b2a22" stroke-width="2" stroke-linecap="round"/></svg>`,
+ mecha:`<svg class="avSvg" viewBox="0 0 100 100" aria-hidden="true"><path d="M4 100Q8 78 50 76Q92 78 96 100Z" fill="#46556f"/><path d="M18 92Q26 80 40 80L40 100L14 100Z" fill="#5d6f91"/><path d="M82 92Q74 80 60 80L60 100L86 100Z" fill="#5d6f91"/><rect x="42" y="64" width="16" height="16" fill="#2b3548"/><path d="M21 58Q21 20 50 18Q79 20 79 58L79 68Q50 84 21 68Z" fill="#7487ae"/><path d="M21 58Q21 20 50 18Q79 20 79 58" fill="none" stroke="#aebde0" stroke-width="2"/><path d="M45 19L50 6L55 19Z" fill="#d0d8ee"/><rect x="27" y="38" width="46" height="19" rx="8" fill="#070d1f"/><rect class="av-visor" x="30.5" y="43" width="39" height="9" rx="4.5"/><rect class="av-scan" x="31" y="43" width="9" height="9" rx="4.5" fill="#fff" opacity=".7"/><rect x="36" y="63" width="28" height="7" rx="2" fill="#2b3548"/><path d="M40 63v7M46 63v7M52 63v7M58 63v7" stroke="#7487ae" stroke-width="1.4"/><circle class="av-gem" cx="27" cy="29" r="3.2"/><circle class="av-gem av-gem2" cx="73" cy="29" r="3.2"/></svg>`,
+ blade:`<svg class="avSvg" viewBox="0 0 100 100" aria-hidden="true"><g transform="rotate(-18 24 78)"><rect x="21" y="56" width="6" height="42" fill="#cfd8ea"/><rect x="13" y="51" width="22" height="5.5" rx="2" fill="#d9a638"/><rect x="21.5" y="30" width="5" height="22" rx="2" fill="#5a2f1a"/><circle class="av-gem" cx="24" cy="28" r="4.4"/></g><path d="M10 100Q14 76 50 74Q86 76 90 100Z" fill="#c23b2a"/><path d="M38 74L50 90L62 74Z" fill="#1b1b2b"/><rect x="43" y="62" width="14" height="14" fill="#e8bd98"/><ellipse cx="50" cy="51" rx="20" ry="23" fill="#f3d0ae"/><path class="av-hair" d="M24 50L19 30L28 32L26 14L38 24L42 5L50 20L58 5L62 24L74 14L72 32L81 30L76 50Q70 38 62 36L58 44L52 34L46 44L42 34L36 40Q30 38 24 50Z"/><g class="av-blink"><ellipse cx="41" cy="52" rx="3" ry="4" fill="#1b1b2b"/><ellipse cx="59" cy="52" rx="3" ry="4" fill="#1b1b2b"/><circle cx="42" cy="50.5" r="1.1" fill="#fff"/><circle cx="60" cy="50.5" r="1.1" fill="#fff"/></g><path d="M35 45L46 47M65 45L54 47" stroke="#3b2a22" stroke-width="2" stroke-linecap="round"/><path d="M44 62Q50 66 56 62" stroke="#a24b3a" fill="none" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+ mage:`<svg class="avSvg" viewBox="0 0 100 100" aria-hidden="true"><line x1="85" y1="30" x2="85" y2="100" stroke="#7a4b24" stroke-width="4.5" stroke-linecap="round"/><circle class="av-gem av-halo" cx="85" cy="24" r="11"/><circle class="av-gem" cx="85" cy="24" r="7"/><path d="M8 100Q12 76 50 74Q88 76 92 100Z" fill="#4a2a8c"/><path d="M36 74L50 94L64 74Z" fill="#e8c35a"/><rect x="44" y="64" width="12" height="12" fill="#e8bd98"/><path d="M31 52Q25 80 33 88L41 62ZM69 52Q75 80 67 88L59 62Z" fill="#e9e4ff"/><ellipse cx="50" cy="56" rx="17" ry="19" fill="#f3d0ae"/><g class="av-blink"><ellipse class="av-eye3" cx="43" cy="57" rx="3.2" ry="3.6"/><ellipse class="av-eye3" cx="57" cy="57" rx="3.2" ry="3.6"/></g><path d="M45 66Q50 69 55 66" stroke="#a24b3a" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M30 40Q40 22 58 3Q62 22 70 40Z" fill="#6b43c8"/><ellipse cx="50" cy="40" rx="33" ry="9" fill="#5b36b0"/><path d="M17 41Q50 52 83 41L82 37Q50 47 18 37Z" fill="#e8c35a"/><path class="av-twinkle" d="M52 20l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#ffe66d"/></svg>`,
+ wolf:`<svg class="avSvg" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 100Q20 80 50 78Q80 80 86 100Z" fill="#4c566e"/><path d="M22 46L19 10L43 27Z" fill="#6a768f"/><path d="M78 46L81 10L57 27Z" fill="#6a768f"/><path d="M26 38L26 19L38 28Z" fill="#2f3649"/><path d="M74 38L74 19L62 28Z" fill="#2f3649"/><path d="M18 54Q18 30 34 26Q50 22 66 26Q82 30 82 54Q82 80 50 92Q18 80 18 54Z" fill="#7b88a3"/><path d="M18 60L31 67L22 76ZM82 60L69 67L78 76Z" fill="#9aa6bd"/><path d="M34 62Q50 54 66 62Q64 84 50 88Q36 84 34 62Z" fill="#cfd6e4"/><path d="M43 64Q50 60 57 64Q54 71 50 72Q46 71 43 64Z" fill="#10131c"/><path d="M50 72V78M42 80Q50 84 58 80" stroke="#10131c" stroke-width="1.6" fill="none" stroke-linecap="round"/><g class="av-blink"><path class="av-eye2" d="M27 46Q36 42 45 49Q36 53 27 46Z"/><path class="av-eye2" d="M73 46Q64 42 55 49Q64 53 73 46Z"/><ellipse cx="37" cy="47.5" rx="1.6" ry="3" fill="#0a0a12"/><ellipse cx="63" cy="47.5" rx="1.6" ry="3" fill="#0a0a12"/></g></svg>`
+};
+function avatarMarkup(v){return (typeof v==="string"&&v.startsWith("anim:")&&ANIM_AVATARS[v.slice(5)])||null;}
+function escHTML(v){return String(v).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function setAvatar(el,v){const m=avatarMarkup(v);if(m){el.innerHTML=m;el.classList.add("hasSvg");}else{el.textContent=v;el.classList.remove("hasSvg");}}
+function optLabel(item){return ["frame","floor","background"].includes(item.type)?item.name:String(item.value).startsWith("anim:")?"✨ "+item.name:(item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":"無裝飾"));}
 const SHOP_ITEMS=[
  {id:"avatar_unicorn",type:"avatar",value:"🦄",name:"星雲獨角獸",cost:180,desc:"稀有頭像"},
  {id:"avatar_alien",type:"avatar",value:"👽",name:"銀河訪客",cost:220,desc:"稀有頭像"},
  {id:"avatar_lion",type:"avatar",value:"🦁",name:"星際獅王",cost:260,desc:"傳說頭像"},
- {id:"frame_nebula",type:"frame",value:"nebula",name:"星雲紫焰框",cost:150,desc:"紫色光環"},
- {id:"frame_aurora",type:"frame",value:"aurora",name:"極光綠光框",cost:180,desc:"極光流光"},
- {id:"frame_fire",type:"frame",value:"fire",name:"超新星烈焰框",cost:250,desc:"赤焰光環"},
- {id:"frame_prism",type:"frame",value:"prism",name:"銀河稜鏡框",cost:320,desc:"彩色星芒"},
+ {id:"avatar_ninja",type:"avatar",value:"anim:ninja",name:"幻瞳忍者",cost:360,desc:"動態頭像・眼睛會變色"},
+ {id:"avatar_mecha",type:"avatar",value:"anim:mecha",name:"霓虹機甲",cost:420,desc:"動態頭像・面罩光幕變色掃描"},
+ {id:"avatar_blade",type:"avatar",value:"anim:blade",name:"彩焰劍士",cost:480,desc:"動態頭像・髮色與劍柄寶石變色"},
+ {id:"avatar_mage",type:"avatar",value:"anim:mage",name:"星光法師",cost:520,desc:"動態頭像・帽星閃爍、法杖寶石變色"},
+ {id:"avatar_wolf",type:"avatar",value:"anim:wolf",name:"暗影狼王",cost:560,desc:"動態頭像・狼眼閃爍變色"},
+ {id:"frame_nebula",type:"frame",value:"nebula",name:"星雲紫焰框",cost:150,desc:"紫焰繞圈旋轉・暗紫與亮白高對比光環"},
+ {id:"frame_aurora",type:"frame",value:"aurora",name:"極光綠光框",cost:180,desc:"翠綠青光循環流動・極光閃耀"},
+ {id:"frame_fire",type:"frame",value:"fire",name:"超新星烈焰框",cost:250,desc:"橘紅烈焰高速旋轉・黑色漩渦襯底"},
+ {id:"frame_prism",type:"frame",value:"prism",name:"銀河稜鏡框",cost:320,desc:"七彩稜鏡色相不斷流轉・星芒環繞"},
+ {id:"frame_thunder",type:"frame",value:"thunder",name:"雷霆電漿框",cost:380,desc:"青白雷弧閃爍・深藍底高亮對比"},
+ {id:"frame_royal",type:"frame",value:"royal",name:"黑金霸王框",cost:450,desc:"純黑鑲金・金光緩緩流動的帥氣王者框"},
  {id:"acc_sun",type:"accessory",value:"☀️",name:"耀日光環",cost:90,desc:"陽光般的頭頂裝飾"},
  {id:"acc_moon",type:"accessory",value:"🌙",name:"月影彎月",cost:110,desc:"優雅月牙點綴"},
  {id:"acc_crown",type:"accessory",value:"👑",name:"時尚皇冠",cost:160,desc:"閃耀王者風格"},
@@ -435,6 +510,8 @@ function renderShop(){
   const label=equipped?"使用中":owned?"裝備":"購買";
   const action=owned?`equipShopItem('${item.id}')`:`buyShopItem('${item.id}')`;
   if(item.type==="floor"){return `<div class="shopItem floorItem"><div class="floorPreview floor-${item.value}"><span>留言板範例</span><i></i><b></b></div><div class="floorRow"><div class="floorInfo"><b>${item.name}</b><small>${item.desc}</small><small class="floorPrice">🪙 ${item.cost} 金幣</small></div><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div></div>`;}
+  if(item.type==="frame"){const pv=avatarMarkup(profile.avatar)||escHTML(profile.avatar);return `<div class="shopItem frameItem"><div class="framePrev"><div class="avatarFrame frame-${item.value}"><div class="fighterAvatar${avatarMarkup(profile.avatar)?' hasSvg':''}">${pv}</div></div></div><div class="frameBody"><b>${item.name}</b><small>${item.desc}</small><small class="floorPrice">🪙 ${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div></div>`;}
+  if(item.type==="avatar"&&avatarMarkup(item.value)){return `<div class="shopItem"><div class="shopIcon"><div class="avatarMini">${avatarMarkup(item.value)}</div></div><b>${item.name}</b><small>${item.desc}</small><small>${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div>`;}
   return `<div class="shopItem"><div class="shopIcon">${item.type==="frame"?"✨":item.type==="background"?"🌌":item.type==="floor"?`<div class="floorPreview floor-${item.value}"><span></span><i></i><b></b></div>`:item.value}</div><b>${item.name}</b>${item.type==="floor"?`<small>底座風格預覽</small>`:`<small>${item.desc}</small>`}<small>${item.cost} 金幣</small><button class="${owned?'owned':''}" ${equipped?'disabled':''} onclick="${action}">${label}</button></div>`;
  }).join("");
 }
@@ -458,7 +535,7 @@ function equipItem(item){
   else {showShopToast("左右寵物位置已滿，請先卸下一隻寵物。");return;}
  }else profile[item.type]=item.value;
  const selectIds={avatar:["avatarChoice"],frame:["frameChoice"],accessory:["accessoryLeftChoice","accessoryRightChoice"],pet:["petLeftChoice","petRightChoice"],background:["backgroundChoice"],floor:["floorChoice"]}[item.type]||[];
- for(const selectId of selectIds){const select=document.querySelector("#"+selectId);if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":"無裝飾");select.appendChild(opt);}}
+ for(const selectId of selectIds){const select=document.querySelector("#"+selectId);if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=optLabel(item);select.appendChild(opt);}}
 }
 
 // 玩家等級：累積經驗值制，越高等所需經驗越多（門檻為累積總 EXP）
@@ -506,11 +583,11 @@ function updateProfileUI(){
  const xpBar=document.querySelector("#xpBar");if(xpBar)xpBar.style.width=progress.pct+"%";
  const avatar=document.querySelector("#avatarChoice"),frame=document.querySelector("#frameChoice");
  const selects={avatar,frame,accessory:[document.querySelector("#accessoryLeftChoice"),document.querySelector("#accessoryRightChoice")],pet:[document.querySelector("#petLeftChoice"),document.querySelector("#petRightChoice")],background:document.querySelector("#backgroundChoice"),floor:document.querySelector("#floorChoice")};
- for(const id of profile.owned){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const targets=Array.isArray(selects[item.type])?selects[item.type]:[selects[item.type]];for(const select of targets){if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=item.value?item.value+" "+item.name:(item.type==="pet"?"沒有寵物":item.type==="background"?"深空星河":"無裝飾");select.appendChild(opt);}}}
+ for(const id of profile.owned){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const targets=Array.isArray(selects[item.type])?selects[item.type]:[selects[item.type]];for(const select of targets){if(select&&!Array.from(select.options).some(o=>o.value===item.value)){const opt=document.createElement("option");opt.value=item.value;opt.textContent=optLabel(item);select.appendChild(opt);}}}
  if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
  if(selects.accessory[0])selects.accessory[0].value=profile.accessoryLeft||"";if(selects.accessory[1])selects.accessory[1].value=profile.accessoryRight||"";if(selects.pet[0])selects.pet[0].value=profile.petLeft||"";if(selects.pet[1])selects.pet[1].value=profile.petRight||"";if(selects.background)selects.background.value=profile.background||"space";if(selects.floor)selects.floor.value=profile.floor||"default";
  const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
- if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent="";{const fs=document.createElement("i");fs.className="floorStripe";const ft=document.createElement("span");ft.className="floorText";ft.textContent=(profile.floorMessage||"").slice(0,10);floor.append(fs,ft);}floor.setAttribute("aria-label",profile.floorMessage?"留言板："+profile.floorMessage:"底座裝飾");}const floorMessageInput=document.querySelector("#floorMessageInput");if(floorMessageInput&&floorMessageInput.value!==profile.floorMessage)floorMessageInput.value=profile.floorMessage||"";
+ if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){if(cardAvatar.dataset.v!==profile.avatar){cardAvatar.dataset.v=profile.avatar;setAvatar(cardAvatar,profile.avatar);}const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent="";{const fs=document.createElement("i");fs.className="floorStripe";const ft=document.createElement("span");ft.className="floorText";ft.textContent=(profile.floorMessage||"").slice(0,10);floor.append(fs,ft);}floor.setAttribute("aria-label",profile.floorMessage?"留言板："+profile.floorMessage:"底座裝飾");}const floorMessageInput=document.querySelector("#floorMessageInput");if(floorMessageInput&&floorMessageInput.value!==profile.floorMessage)floorMessageInput.value=profile.floorMessage||"";
  renderShop();
 }
 function setOpponentCard(name,title,avatar,detail,decor){
@@ -552,7 +629,7 @@ function playGameSound(kind){
   p.notes.forEach((freq,i)=>{const t=now+i*p.gap,osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=p.type;osc.frequency.setValueAtTime(freq,t);gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(p.vol,t+.015);gain.gain.exponentialRampToValueAtTime(.0001,t+p.dur);osc.connect(gain);gain.connect(audioContext.destination);osc.start(t);osc.stop(t+p.dur+.02);});
  }catch(e){}
 }
-const MOVE_TIME=6;
+const MOVE_TIME=9;
 let moveTimer=null,moveDeadline=0,moveLastTick=0,moveLastShown=-1;
 function stopMoveTimer(){
  clearInterval(moveTimer);moveTimer=null;
@@ -572,7 +649,7 @@ function tickMoveTimer(){
  if(document.hidden){moveDeadline+=now-moveLastTick;moveLastTick=now;return;}
  moveLastTick=now;
  const left=Math.max(0,moveDeadline-now),sec=Math.ceil(left/1000);
- el.classList.add("show");el.classList.toggle("warn",sec<=3&&sec>2);el.classList.toggle("danger",sec<=2);
+ el.classList.add("show");el.classList.toggle("warn",sec<=5&&sec>3);el.classList.toggle("danger",sec<=3);
  if(sec!==moveLastShown){
   moveLastShown=sec;el.textContent="⏱ "+sec;
   if(sec>0&&sec<=3)playGameSound(sec===1?"tickLast":"tick");
