@@ -338,6 +338,28 @@ main{align-items:start}
 .frameBody small{font-size:12.5px;color:#d3e4ff;line-height:1.35}
 .frameBody .floorPrice{color:#ffe28b;font-weight:800}
 .frameBody button{width:100%;margin-top:4px;min-height:34px;font-size:13px}
+
+/* v27：對手留言板／裝飾、樹狀圖中央獎盃與獎牌 */
+#opponentFloorTrim.off{display:none!important}
+.bracketCenter{grid-column:5;grid-row:1/span 32;align-self:center;position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.bracketCenter .bracketMatch{width:100%;align-self:auto}
+.trophyBox{width:100%;text-align:center}
+.trophyBox .trophySvg{width:86px;height:auto;filter:drop-shadow(0 0 8px #ffcf4a88);animation:trophyGlow 2.4s ease-in-out infinite alternate}
+.trophyBox .cupLabel{margin-top:2px;color:#ffe28b;font-size:16px;font-weight:900;letter-spacing:.3em;text-indent:.3em}
+.trophyBox .cupName{max-width:100%;color:#fff;font-size:15px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trophyBox.pending .trophySvg,.medalBox.pending .medalSvg{filter:grayscale(.7) brightness(.75);animation:none}
+.trophyBox.pending .cupName,.medalBox.pending .medalName{color:#9db0d0;font-weight:700}
+@keyframes trophyGlow{from{filter:drop-shadow(0 0 5px #ffcf4a55)}to{filter:drop-shadow(0 0 16px #ffd96aee)}}
+.medalBox{display:flex;align-items:center;gap:8px;width:100%;min-width:0;padding:6px 8px;border-radius:11px;background:linear-gradient(145deg,#1b315c,#101b3b);border:1px solid #4d74b0}
+.medalBox.silver:not(.pending){border-color:#cfd6e2;box-shadow:0 0 10px #cfd6e244}
+.medalBox.bronze:not(.pending){border-color:#d98b4a;box-shadow:0 0 10px #d98b4a44}
+.medalBox .medalSvg{flex:0 0 32px;width:32px;height:auto}
+.medalText{min-width:0;display:flex;flex-direction:column}
+.medalLabel{font-size:12px;font-weight:900}
+.medalBox.silver .medalLabel{color:#e4eaf5}
+.medalBox.bronze .medalLabel{color:#f2bd91}
+.medalName{font-size:14px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.trophyBox .trophySvg{animation:none}}
 </style>
 </head>
 <body>
@@ -359,11 +381,12 @@ main{align-items:start}
   <div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
   <article class="fighterCard opponentFighter" id="opponentFighter">
     <div class="fighterSideLabel">🤖 對手・白棋</div>
-    <div class="avatarFrame frame-cyan" id="opponentAvatarFrame"><div class="fighterAvatar" id="opponentAvatar">👾</div></div>
+    <div class="avatarFrame frame-cyan" id="opponentAvatarFrame"><div class="fighterAvatar" id="opponentAvatar">👾</div><span class="avatarAccessory left" id="opponentAccessoryLeft" aria-hidden="true"></span><span class="avatarAccessory right" id="opponentAccessoryRight" aria-hidden="true"></span><span class="avatarPet left" id="opponentPetLeft" aria-hidden="true"></span><span class="avatarPet right" id="opponentPetRight" aria-hidden="true"></span></div>
     <div class="fighterName" id="fighterOpponentName">宇宙 AI</div>
     <div class="fighterTitle" id="fighterOpponentTitle">星際挑戰者</div>
     <div class="fighterStats"><span>⚔️ 戰力</span><b id="fighterOpponentLevel">AI Lv.5</b></div>
     <div class="fighterDecor" id="opponentDecor">✦ RIVAL ✦</div>
+    <div class="floorTrim floor-default off" id="opponentFloorTrim"></div>
   </article>
 </div>
 <div class="row battleActions"><button id="start">▶ 開始遊戲</button><button class="secondary" id="menu">主選單</button></div>
@@ -590,12 +613,43 @@ function updateProfileUI(){
  if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){if(cardAvatar.dataset.v!==profile.avatar){cardAvatar.dataset.v=profile.avatar;setAvatar(cardAvatar,profile.avatar);}const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent="";{const fs=document.createElement("i");fs.className="floorStripe";const ft=document.createElement("span");ft.className="floorText";ft.textContent=(profile.floorMessage||"").slice(0,10);floor.append(fs,ft);}floor.setAttribute("aria-label",profile.floorMessage?"留言板："+profile.floorMessage:"底座裝飾");}const floorMessageInput=document.querySelector("#floorMessageInput");if(floorMessageInput&&floorMessageInput.value!==profile.floorMessage)floorMessageInput.value=profile.floorMessage||"";
  renderShop();
 }
-function setOpponentCard(name,title,avatar,detail,decor){
+const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
+const OPP_MESSAGES=["來戰吧！","棋逢對手","不會輸的","小心了喔","五子連珠！","星際棋王","別眨眼喔","我先下囉","宇宙最強","認真點喔","交給我吧","穩紮穩打","看我的！","棋盤見真章"];
+function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
+function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
+function makeOpponentLook(){
+ const by=t=>SHOP_ITEMS.filter(i=>i.type===t);
+ const pets=by("pet"),accs=by("accessory").slice().sort(()=>Math.random()-.5);
+ const look={avatar:pickOne(by("avatar")).value,frame:pickOne(by("frame")).value,background:pickOne(by("background")).value,floor:pickOne(by("floor")).value,floorMessage:Array.from(pickOne(OPP_MESSAGES)).slice(0,10).join(""),petLeft:pickOne(pets).value,petRight:"",accessoryLeft:"",accessoryRight:""};
+ if(Math.random()<.5)look.petRight=pickOne(pets.filter(p=>p.value!==look.petLeft)).value;
+ if(Math.random()<.75){look.accessoryLeft=accs[0].value;if(Math.random()<.4)look.accessoryRight=accs[1].value;}
+ return look;
+}
+function fillFloorTrim(el,floorValue,msg){
+ el.className="floorTrim floor-"+floorValue;el.textContent="";
+ const fs=document.createElement("i");fs.className="floorStripe";
+ const ft=document.createElement("span");ft.className="floorText";ft.textContent=msg||"";
+ el.append(fs,ft);
+}
+function setOpponentCard(name,title,avatar,detail,decor,look){
  document.querySelector("#fighterOpponentName").textContent=name||"宇宙 AI";
  document.querySelector("#fighterOpponentTitle").textContent=title||"星際挑戰者";
- document.querySelector("#opponentAvatar").textContent=avatar||"👾";
  document.querySelector("#fighterOpponentLevel").textContent=detail||"AI Lv.5";
  document.querySelector("#opponentDecor").textContent=decor||"✦ RIVAL ✦";
+ const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame"),ft=document.querySelector("#opponentFloorTrim");
+ const set=(id,v)=>{const e=document.querySelector(id);if(e)e.textContent=v||"";};
+ if(look){
+  setAvatar(av,look.avatar);av.style.background=AVATAR_BGS[look.background]||AVATAR_BGS.space;
+  fr.className="avatarFrame frame-"+look.frame+((look.petLeft||look.petRight)?" has-pet":"");
+  set("#opponentAccessoryLeft",look.accessoryLeft);set("#opponentAccessoryRight",look.accessoryRight);
+  set("#opponentPetLeft",look.petLeft);set("#opponentPetRight",look.petRight);
+  fillFloorTrim(ft,look.floor,look.floorMessage);ft.setAttribute("aria-label","對手留言板："+look.floorMessage);
+ }else{
+  av.classList.remove("hasSvg");av.textContent=avatar||"👾";av.style.background="";
+  fr.className="avatarFrame frame-cyan";
+  set("#opponentAccessoryLeft","");set("#opponentAccessoryRight","");set("#opponentPetLeft","");set("#opponentPetRight","");
+  ft.className="floorTrim floor-default off";ft.textContent="";
+ }
 }
 function awardCoins(amount,reason){
  if(!amount)return;
@@ -755,6 +809,7 @@ function newTournament(){
  pool.sort(()=>Math.random()-.5);
  // 重新分配四組標籤，每組 8 位；淘汰賽籤位仍採隨機排列
  pool.forEach((p,i)=>{if(!p.player)p.group="ABCD"[Math.floor(i/8)];});
+ pool.forEach(p=>{if(!p.player&&levelForRank(p.rank)>=5)p.look=makeOpponentLook();});
  tournament={round:0,rounds:[],third:null,champion:null,runnerUp:null,thirdPlace:null,fourthPlace:null,playerEliminated:false,playerLostRound:null};
  let firstRound=[];for(let i=0;i<32;i+=2)firstRound.push({a:pool[i],b:pool[i+1],winner:null});
  tournament.rounds.push(firstRound);prepareTournamentRound();
@@ -772,7 +827,7 @@ function prepareTournamentRound(){
   const opp=playerMatch.a.player?playerMatch.b:playerMatch.a;
   level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
   statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。`;
-  setOpponentCard(opp.name,"淘汰賽對手","👾",`AI Lv.${level}`,"✦ TOURNAMENT RIVAL ✦");
+  setOpponentCard(opp.name,"淘汰賽對手","👾",`AI Lv.${level}`,"✦ TOURNAMENT RIVAL ✦",opp.look);
   showTournamentBracket(`${roundLabels[ri]} 賽前賽程`, `你的對手：${opp.name}（電腦 Lv${level}）。確認賽程後，按「開始本輪比賽」。`, true);
  }else{t.waiting=false;completeTournamentRound();}
  renderBracket();
@@ -795,7 +850,7 @@ function completeTournamentRound(){
    const opp=losers[0].player?losers[1]:losers[0];
    level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
    statusEl.textContent=`季軍賽：你的對手是 ${opp.name}（電腦 Lv${level}）。這場將決定季軍與殿軍！`;
-   setOpponentCard(opp.name,"季軍賽對手","👾",`AI Lv.${level}`,"✦ THIRD PLACE RIVAL ✦");
+   setOpponentCard(opp.name,"季軍賽對手","👾",`AI Lv.${level}`,"✦ THIRD PLACE RIVAL ✦",opp.look);
    renderBracket();
    showTournamentBracket('🥉 季軍爭奪戰',`準決賽惜敗後仍有機會爭奪季軍！你的對手是 ${opp.name}。按「開始季軍賽」繼續比賽。`,true);
    return;
@@ -847,6 +902,10 @@ function finishTournament(playerWon){
  if(tournament && !tournament.champion){showTournamentBracket(playerWon?"本輪賽後賽程":"後續賽程",playerWon?"你已晉級，查看更新後的樹狀圖，再開始下一輪。":"系統正在安排後續賽事。",!!tournament.currentMatch);}
  else if(tournament){showTournamentBracket("🏆 淘汰賽最終賽程","全部賽事已完成，以下為完整賽程與最終名次。",false);}
 }
+const TROPHY_SVG=`<svg viewBox="0 0 100 118" class="trophySvg" aria-hidden="true"><defs><linearGradient id="gTrophy" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3a6"/><stop offset=".5" stop-color="#f2b61f"/><stop offset="1" stop-color="#a86b05"/></linearGradient></defs><path d="M22 22H8Q5 50 30 56" fill="none" stroke="#d9a21a" stroke-width="6.5" stroke-linecap="round"/><path d="M78 22H92Q95 50 70 56" fill="none" stroke="#d9a21a" stroke-width="6.5" stroke-linecap="round"/><path d="M22 12H78V44Q78 72 50 76Q22 72 22 44Z" fill="url(#gTrophy)" stroke="#8a5a05" stroke-width="2"/><rect x="43" y="76" width="14" height="16" fill="url(#gTrophy)" stroke="#8a5a05" stroke-width="1.5"/><path d="M29 92H71L76 106H24Z" fill="url(#gTrophy)" stroke="#8a5a05" stroke-width="2"/><rect x="20" y="106" width="60" height="9" rx="2.5" fill="#6d3f05"/><path d="M50 24l4.6 9.4 10.3 1.3-7.5 7.1 2 10.2-9.4-5.2-9.4 5.2 2-10.2-7.5-7.1 10.3-1.3z" fill="#fff8cc" opacity=".92"/><path d="M30 18Q29 46 38 60" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45" fill="none"/></svg>`;
+const MEDAL_SVG=(id,c1,c2,c3,rib1,rib2,num)=>`<svg viewBox="0 0 80 104" class="medalSvg" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset=".55" stop-color="${c2}"/><stop offset="1" stop-color="${c3}"/></linearGradient></defs><path d="M16 0H34L47 38H29Z" fill="${rib1}"/><path d="M64 0H46L33 38H51Z" fill="${rib2}"/><circle cx="40" cy="66" r="28" fill="url(#${id})" stroke="${c3}" stroke-width="3"/><circle cx="40" cy="66" r="20.5" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><text x="40" y="76" text-anchor="middle" font-size="28" font-weight="900" fill="${c3}" font-family="Arial,sans-serif">${num}</text></svg>`;
+const SILVER_SVG=MEDAL_SVG("gSilver","#ffffff","#cfd6e2","#6f7a8c","#2f6fd8","#1f4aa0","2");
+const BRONZE_SVG=MEDAL_SVG("gBronze","#ffd9b0","#d98b4a","#8a4a1c","#c0392b","#8e2a20","3");
 function renderBracket(){
  const el=document.querySelector("#bracket");
  const t=tournament;
@@ -898,14 +957,19 @@ function renderBracket(){
      out+=`<div class="${classes}" style="grid-column:${col};grid-row:${rowStart}/span ${span}" title="${labels[left?ri:8-ri]} 第 ${idx+1} 場">${teamLabel(m.a,m)}${teamLabel(m.b,m)}</div>`;
    }
  }
- // 決賽置中
- const finalRound=t.rounds[4]||[];
- if(finalRound.length){
-   const m=finalRound[0],isPlayer=!!(m.a?.player||m.b?.player),isCurrent=t.currentMatch===m;
-   const classes=['bracketMatch','finalMatch',isPlayer?'playerMatch':'',isCurrent?'currentMatch':''].filter(Boolean).join(' ');
-   out+=`<div class="${classes}" style="grid-column:5;grid-row:1/span 32">${teamLabel(m.a,m)}${teamLabel(m.b,m)}</div>`;
- }
- out+='</div></div>';
+  // 決賽置中：冠軍杯、決賽對戰、亞軍與季軍獎牌
+  {
+    const fm=(t.rounds[4]||[])[0];
+    let finalHTML;
+    if(fm){
+      const isPlayer=!!(fm.a?.player||fm.b?.player),isCurrent=t.currentMatch===fm;
+      const classes=['bracketMatch','finalMatch',isPlayer?'playerMatch':'',isCurrent?'currentMatch':''].filter(Boolean).join(' ');
+      finalHTML=`<div class="${classes}">${teamLabel(fm.a,fm)}${teamLabel(fm.b,fm)}</div>`;
+    }else finalHTML=`<div class="bracketMatch finalMatch">${teamLabel(null)}${teamLabel(null)}</div>`;
+    const nm=(x,fb)=>x?`${x.player?'★ ':''}${escapeHTML(x.name)}`:fb;
+    out+=`<div class="bracketCenter"><div class="trophyBox${t.champion?'':' pending'}">${TROPHY_SVG}<div class="cupLabel">冠軍</div><div class="cupName" title="${t.champion?escapeHTML(t.champion.name):''}">${nm(t.champion,'待定')}</div></div>${finalHTML}<div class="medalBox silver${t.runnerUp?'':' pending'}">${SILVER_SVG}<div class="medalText"><span class="medalLabel">亞軍獎牌</span><span class="medalName" title="${t.runnerUp?escapeHTML(t.runnerUp.name):''}">${nm(t.runnerUp,'待定')}</span></div></div><div class="medalBox bronze${t.thirdPlace?'':' pending'}">${BRONZE_SVG}<div class="medalText"><span class="medalLabel">季軍獎牌</span><span class="medalName" title="${t.thirdPlace?escapeHTML(t.thirdPlace.name):''}">${nm(t.thirdPlace,'待定')}</span></div></div></div>`;
+  }
+  out+='</div></div>';
  const championName=t.champion?t.champion.name:'決賽勝者（待定）';
  const runnerName=t.runnerUp?t.runnerUp.name:'決賽敗者（待定）';
  const thirdName=t.thirdPlace?t.thirdPlace.name:'季軍賽勝者（待定）';
@@ -942,7 +1006,7 @@ function beginTournamentMatch(){
  document.querySelector("#gameMain").style.maxWidth="";
  first=PLAYER;fresh();
  const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
- setOpponentCard(opp.name,tournament.isThirdPlaceMatch?"季軍賽對手":"淘汰賽對手","👾",`AI Lv.${level}`,tournament.isThirdPlaceMatch?"✦ THIRD PLACE RIVAL ✦":"✦ TOURNAMENT RIVAL ✦");
+ setOpponentCard(opp.name,tournament.isThirdPlaceMatch?"季軍賽對手":"淘汰賽對手","👾",`AI Lv.${level}`,tournament.isThirdPlaceMatch?"✦ THIRD PLACE RIVAL ✦":"✦ TOURNAMENT RIVAL ✦",opp.look);
  updateProfileUI();
  statusEl.textContent=`${tournament.isThirdPlaceMatch?"季軍賽":roundLabels[tournament.round]}：對戰 ${opp.name}。${turn===PLAYER?"你是先手，請落子。":"電腦先手，正在思考…"}`;
 }
