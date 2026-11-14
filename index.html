@@ -254,6 +254,33 @@ main{align-items:start}
 .floorInfo small{font-size:12.5px;color:#d3e4ff;line-height:1.35}
 .floorInfo .floorPrice{color:#ffe28b;font-weight:800}
 .shopItem.floorItem .floorRow button{width:auto;flex:0 0 78px;min-height:38px;font-size:14px}
+
+/* v25：結果橫幅移到棋盤上方、底座條紋、6 秒倒數 */
+.battlePanel{padding-top:8px!important}
+.resultSlot{width:100%;min-height:50px;display:flex;align-items:center;justify-content:center;margin:0 0 8px}
+.resultBanner{position:relative;left:auto;top:auto;transform:none;padding:7px 28px;font-size:clamp(20px,3.2vw,30px);animation:resultDrop .35s ease-out}
+@keyframes resultDrop{from{opacity:0;transform:translateY(-14px) scale(.85)}to{opacity:1;transform:none}}
+.battleArena #board{width:min(100%,760px,calc(100vh - 170px))}
+.fighterCard{padding-top:38px}
+.turnTimer{display:none;position:absolute;top:8px;left:8px;z-index:6;min-width:58px;padding:3px 9px;border-radius:999px;border:1px solid #7fb6ff;background:#0b1733ee;color:#bfe3ff;font-size:15px;font-weight:900;text-align:center;box-shadow:0 2px 8px #0008}
+.turnTimer.show{display:block}
+.turnTimer.warn{color:#ffd36a;border-color:#ffd36a}
+.turnTimer.danger{color:#fff;background:#b3263e;border-color:#ff9aae;animation:timerPulse .45s ease-in-out infinite alternate}
+@keyframes timerPulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+@media(prefers-reduced-motion:reduce){.turnTimer.danger,.resultBanner{animation:none!important}}
+.floorTrim{position:relative;overflow:hidden;isolation:isolate;min-height:42px;padding:6px 8px}
+.floorTrim:before,.floorTrim:after{content:"";position:absolute;top:0;bottom:0;width:16%;opacity:.9;z-index:0;pointer-events:none}
+.floorTrim:before{left:0}.floorTrim:after{right:0}
+.floorStripe{position:absolute;left:20%;right:20%;top:50%;height:6px;transform:translateY(-50%);border-radius:8px;background:#ffffff59;box-shadow:0 0 9px #ffffffaa;z-index:1;pointer-events:none}
+.floorText{position:relative;z-index:3;display:block;width:100%;text-align:center;color:#fff;font-size:13px;font-weight:900;line-height:1.25;overflow-wrap:anywhere;text-shadow:0 1px 3px #000,0 0 7px #000c}
+.floorText:empty{display:none}
+.floorTrim.floor-default .floorStripe{opacity:.6}
+.floorTrim.floor-cute:before,.floorTrim.floor-cute:after{background:radial-gradient(circle,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 70%,#ffeb9c 0 3px,transparent 4px)}
+.floorTrim.floor-funny .floorStripe{background:#fff4;border:2px dashed #fff}
+.floorTrim.floor-tech:before,.floorTrim.floor-tech:after{background:repeating-linear-gradient(0deg,transparent 0 5px,#8affff 6px 7px,transparent 8px 12px)}
+.floorTrim.floor-luxe .floorStripe{background:#ffe8a0aa;box-shadow:0 0 9px #ffd66a}
+.floorTrim.floor-nature:before,.floorTrim.floor-nature:after{background:radial-gradient(ellipse at 50% 50%,#b9f58d 0 25%,transparent 28%),linear-gradient(45deg,transparent 40%,#d6ffc0 42% 47%,transparent 49%)}
+.floorTrim.floor-dark:before,.floorTrim.floor-dark:after{background:radial-gradient(circle,#e2a7ff 0 2px,transparent 3px),linear-gradient(135deg,transparent 35%,#b36aff 38% 42%,transparent 45%)}
 </style>
 </head>
 <body>
@@ -261,8 +288,10 @@ main{align-items:start}
 <section id="tournamentView" class="hidden"><div class="panel"><h2 id="tourHeading">🏆 32 強淘汰賽賽程</h2><div class="status" id="tourStatus">賽程準備中…</div><div id="bracket" class="bracket"></div><div class="row"><button id="tourAction">開始本輪比賽</button><button id="tourBack" class="secondary">返回主選單</button></div></div></section>
 <main id="gameMain">
 <section class="panel battlePanel">
+<div class="resultSlot"><div id="resultBanner" class="resultBanner" role="status" aria-live="assertive"></div></div>
 <div class="battleArena">
   <article class="fighterCard playerFighter" id="playerFighter">
+    <div class="turnTimer" id="playerTimer" role="timer" aria-label="剩餘下棋時間"></div>
     <div class="fighterSideLabel">🧑‍🚀 玩家・黑棋</div>
     <div class="avatarFrame frame-gold" id="playerAvatarFrame"><div class="fighterAvatar" id="playerAvatar">🚀</div><span class="avatarAccessory left" id="playerAccessoryLeft" aria-hidden="true"></span><span class="avatarAccessory right" id="playerAccessoryRight" aria-hidden="true"></span><span class="avatarPet left" id="playerPetLeft" aria-hidden="true"></span><span class="avatarPet right" id="playerPetRight" aria-hidden="true"></span></div>
     <div class="fighterName" id="fighterPlayerName">玩家</div>
@@ -270,7 +299,7 @@ main{align-items:start}
     <div class="fighterStats"><span>🪙 金幣</span><b id="fighterPlayerCoins">0</b></div>
     <div class="floorTrim floor-default" id="playerFloorTrim"></div>
   </article>
-  <div id="boardWrap"><div id="resultBanner" class="resultBanner" role="status" aria-live="assertive"></div><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
+  <div id="boardWrap"><canvas id="board" width="640" height="640" aria-label="五子棋棋盤"></canvas></div>
   <article class="fighterCard opponentFighter" id="opponentFighter">
     <div class="fighterSideLabel">🤖 對手・白棋</div>
     <div class="avatarFrame frame-cyan" id="opponentAvatarFrame"><div class="fighterAvatar" id="opponentAvatar">👾</div></div>
@@ -297,6 +326,7 @@ main{align-items:start}
 <div class="xpTrack"><span id="xpBar"></span></div>
 <div class="small">金幣為本機遊戲虛擬點數，沒有現金價值；單機每場最多獲得 10 枚，淘汰賽獎勵另計。</div>
 </div>
+<div class="group"><label>遊戲模式</label><select id="mode"><option value="practice">單機練習</option><option value="tournament">32 強淘汰賽</option></select></div>
 <div class="group shopBox" id="shopBox">
  <div class="shopHead">
   <span>🛍️ 宇宙造型商店</span>
@@ -316,13 +346,12 @@ main{align-items:start}
   <div class="shopNote">購買後永久解鎖並自動裝備；頭頂裝飾依左至右順序裝備，寵物可左右各一隻，並可更換六種底座風格。金幣僅保存在此瀏覽器。</div>
  </div>
 </div>
-<div class="group"><label>遊戲模式</label><select id="mode"><option value="practice">單機練習</option><option value="tournament">32 強淘汰賽</option></select></div>
 <div id="practiceOpts">
 <div class="group"><label>電腦等級：<span id="levelText">5 - 中級</span></label><input id="level" type="range" min="1" max="10" value="5"></div>
 <div class="group"><label><input id="predict" type="checkbox" checked> 啟用預判模式</label></div>
 </div>
 <div class="status" id="status">請選擇模式，按「開始遊戲」。</div>
-<div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。</div>
+<div class="small" id="extra">黑棋：玩家　白棋：電腦<br>點擊棋盤交叉點即可落子。<br>每手限時 6 秒，超時由系統代為落子。</div>
 
 <div class="small">提示：第 8～10 級搜尋較深，電腦思考時間可能較長。此網頁版不需要安裝 Python。</div>
 </aside>
@@ -339,7 +368,7 @@ const cfgs=[
 {noise:.15,top:3,block:.95,win:1},{noise:.08,top:2,block:1,win:1},
 {noise:.03,top:1,block:1,win:1},{noise:0,top:1,block:1,win:1}
 ];
-let board, history, last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null, tournamentStage="bracket";
+let board=Array.from({length:N},()=>Array(N).fill(0)), history=[], last, turn, over, busy, mode="practice", level=5, first=1, predict=true, tournament=null, tournamentStage="bracket";
 const PROFILE_KEY="cosmic_gomoku_profile_v1";
 function loadProfile(){
  try{
@@ -411,11 +440,11 @@ function renderShop(){
 }
 function buyShopItem(id){
  const item=SHOP_ITEMS.find(x=>x.id===id);if(!item||profile.owned.includes(id))return;
- if(profile.coins<item.cost){showShopToast(`🪙 金額不足！「${item.name}」需要 ${item.cost} 枚，目前只有 ${profile.coins} 枚。`);return;}
- profile.coins-=item.cost;profile.owned.push(id);equipItem(item);saveProfile();updateProfileUI();renderShop();
+ if(profile.coins<item.cost){playGameSound("error");showShopToast(`🪙 金額不足！「${item.name}」需要 ${item.cost} 枚，目前只有 ${profile.coins} 枚。`);return;}
+ playGameSound("buy");profile.coins-=item.cost;profile.owned.push(id);equipItem(item);saveProfile();updateProfileUI();renderShop();
  showShopToast(`🎉 已解鎖「${item.name}」！扣除 ${item.cost} 枚金幣。`);
 }
-function equipShopItem(id){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item||!profile.owned.includes(id))return;equipItem(item);saveProfile();updateProfileUI();renderShop();}
+function equipShopItem(id){const item=SHOP_ITEMS.find(x=>x.id===id);if(!item||!profile.owned.includes(id))return;playGameSound("equip");equipItem(item);saveProfile();updateProfileUI();renderShop();}
 function equipItem(item){
  if(item.type==="accessory"){
   if(profile.accessoryLeft===item.value||profile.accessoryRight===item.value)return;
@@ -481,7 +510,7 @@ function updateProfileUI(){
  if(avatar)avatar.value=profile.avatar;if(frame)frame.value=profile.frame;
  if(selects.accessory[0])selects.accessory[0].value=profile.accessoryLeft||"";if(selects.accessory[1])selects.accessory[1].value=profile.accessoryRight||"";if(selects.pet[0])selects.pet[0].value=profile.petLeft||"";if(selects.pet[1])selects.pet[1].value=profile.petRight||"";if(selects.background)selects.background.value=profile.background||"space";if(selects.floor)selects.floor.value=profile.floor||"default";
  const cardName=document.querySelector("#fighterPlayerName"),cardTitle=document.querySelector("#fighterPlayerTitle"),cardCoins=document.querySelector("#fighterPlayerCoins"),cardAvatar=document.querySelector("#playerAvatar"),cardFrame=document.querySelector("#playerAvatarFrame");
- if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent=(profile.floorMessage||"").slice(0,10);floor.setAttribute("aria-label",profile.floorMessage?"留言板："+profile.floorMessage:"底座裝飾");}const floorMessageInput=document.querySelector("#floorMessageInput");if(floorMessageInput&&floorMessageInput.value!==profile.floorMessage)floorMessageInput.value=profile.floorMessage||"";
+ if(cardName)cardName.textContent=profile.name||"玩家";if(cardTitle)cardTitle.textContent=`Lv.${progress.lv} ${progress.rank}`;if(cardCoins)cardCoins.textContent=profile.coins.toLocaleString("zh-TW");if(cardAvatar){cardAvatar.textContent=profile.avatar;const bgs={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};cardAvatar.style.background=bgs[profile.background]||bgs.space;}if(cardFrame){cardFrame.className="avatarFrame frame-"+profile.frame;cardFrame.classList.toggle("has-pet",!!(profile.petLeft||profile.petRight));}const accessoryLeft=document.querySelector("#playerAccessoryLeft"),accessoryRight=document.querySelector("#playerAccessoryRight"),petLeft=document.querySelector("#playerPetLeft"),petRight=document.querySelector("#playerPetRight");if(accessoryLeft)accessoryLeft.textContent=profile.accessoryLeft||"";if(accessoryRight)accessoryRight.textContent=profile.accessoryRight||"";if(petLeft)petLeft.textContent=profile.petLeft||"";if(petRight)petRight.textContent=profile.petRight||"";const floor=document.querySelector("#playerFloorTrim");if(floor){floor.className="floorTrim floor-"+(profile.floor||"default");floor.textContent="";{const fs=document.createElement("i");fs.className="floorStripe";const ft=document.createElement("span");ft.className="floorText";ft.textContent=(profile.floorMessage||"").slice(0,10);floor.append(fs,ft);}floor.setAttribute("aria-label",profile.floorMessage?"留言板："+profile.floorMessage:"底座裝飾");}const floorMessageInput=document.querySelector("#floorMessageInput");if(floorMessageInput&&floorMessageInput.value!==profile.floorMessage)floorMessageInput.value=profile.floorMessage||"";
  renderShop();
 }
 function setOpponentCard(name,title,avatar,detail,decor){
@@ -493,20 +522,81 @@ function setOpponentCard(name,title,avatar,detail,decor){
 }
 function awardCoins(amount,reason){
  if(!amount)return;
- profile.coins+=amount;saveProfile();updateProfileUI();
+ profile.coins+=amount;saveProfile();updateProfileUI();setTimeout(()=>playGameSound("coin"),700);
  const extra=document.querySelector("#extra");
  if(extra)extra.textContent=`🪙 ${reason} +${amount} 枚金幣！目前餘額：${profile.coins} 枚。`;
 }
 
 let audioContext=null;
+const SOUND_PRESETS={
+ move:{notes:[520],type:"sine",gap:.13,dur:.11,vol:.10},
+ win:{notes:[523,659,784,1047],type:"triangle",gap:.13,dur:.22,vol:.12},
+ lose:{notes:[392,330,262],type:"triangle",gap:.13,dur:.22,vol:.12},
+ draw:{notes:[440,392],type:"triangle",gap:.13,dur:.22,vol:.12},
+ click:{notes:[700],type:"sine",gap:.06,dur:.06,vol:.07},
+ start:{notes:[392,523,659,784],type:"triangle",gap:.08,dur:.14,vol:.11},
+ tick:{notes:[880],type:"square",gap:.1,dur:.05,vol:.045},
+ tickLast:{notes:[1175],type:"square",gap:.1,dur:.09,vol:.065},
+ timeout:{notes:[330,247,185],type:"sawtooth",gap:.11,dur:.16,vol:.08},
+ buy:{notes:[988,1319],type:"triangle",gap:.08,dur:.14,vol:.10},
+ equip:{notes:[660,880],type:"sine",gap:.07,dur:.12,vol:.09},
+ error:{notes:[220,175],type:"square",gap:.12,dur:.12,vol:.06},
+ coin:{notes:[1319,1760],type:"triangle",gap:.07,dur:.12,vol:.09}
+};
 function playGameSound(kind){
  try{
+  const p=SOUND_PRESETS[kind];if(!p)return;
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   audioContext=audioContext||new AC();if(audioContext.state==="suspended")audioContext.resume();
   const now=audioContext.currentTime;
-  const notes=kind==="move"?[520]:kind==="win"?[523,659,784,1047]:kind==="lose"?[392,330,262]:[440,392];
-  notes.forEach((freq,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=kind==="move"?"sine":"triangle";osc.frequency.setValueAtTime(freq,now+i*.13);gain.gain.setValueAtTime(.0001,now+i*.13);gain.gain.exponentialRampToValueAtTime(kind==="move"?.10:.12,now+i*.13+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+i*.13+(kind==="move"?.11:.22));osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+i*.13);osc.stop(now+i*.13+(kind==="move"?.12:.24));});
+  p.notes.forEach((freq,i)=>{const t=now+i*p.gap,osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=p.type;osc.frequency.setValueAtTime(freq,t);gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(p.vol,t+.015);gain.gain.exponentialRampToValueAtTime(.0001,t+p.dur);osc.connect(gain);gain.connect(audioContext.destination);osc.start(t);osc.stop(t+p.dur+.02);});
  }catch(e){}
+}
+const MOVE_TIME=6;
+let moveTimer=null,moveDeadline=0,moveLastTick=0,moveLastShown=-1;
+function stopMoveTimer(){
+ clearInterval(moveTimer);moveTimer=null;
+ const el=document.querySelector("#playerTimer");
+ if(el){el.classList.remove("show","warn","danger");el.textContent="";}
+}
+function startMoveTimer(){
+ stopMoveTimer();if(over)return;
+ moveDeadline=Date.now()+MOVE_TIME*1000;moveLastTick=Date.now();moveLastShown=-1;
+ tickMoveTimer();
+ if(moveTimer===null&&!over)moveTimer=setInterval(tickMoveTimer,100);
+}
+function tickMoveTimer(){
+ const el=document.querySelector("#playerTimer");if(!el)return;
+ if(over||turn!==PLAYER){stopMoveTimer();return;}
+ const now=Date.now();
+ if(document.hidden){moveDeadline+=now-moveLastTick;moveLastTick=now;return;}
+ moveLastTick=now;
+ const left=Math.max(0,moveDeadline-now),sec=Math.ceil(left/1000);
+ el.classList.add("show");el.classList.toggle("warn",sec<=3&&sec>2);el.classList.toggle("danger",sec<=2);
+ if(sec!==moveLastShown){
+  moveLastShown=sec;el.textContent="⏱ "+sec;
+  if(sec>0&&sec<=3)playGameSound(sec===1?"tickLast":"tick");
+ }
+ if(left<=0){stopMoveTimer();onMoveTimeout();}
+}
+function pickTimeoutMove(){
+ const near=[],all=[];
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+  if(board[r][c])continue;all.push([r,c]);
+  let close=false;
+  for(let dr=-1;dr<=1&&!close;dr++)for(let dc=-1;dc<=1;dc++){const rr=r+dr,cc=c+dc;if((dr||dc)&&inside(rr,cc)&&board[rr][cc]){close=true;break;}}
+  if(close)near.push([r,c]);
+ }
+ if(!history.length)return [7,7];
+ const pool=near.length?near:all;
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+function onMoveTimeout(){
+ if(over||busy||turn!==PLAYER)return;
+ const mv=pickTimeoutMove();if(!mv)return;
+ playGameSound("timeout");
+ if(place(mv[0],mv[1],PLAYER)&&!over){turn=AI;aiMove();statusEl.textContent="⏰ 時間到！系統已代為落子，電腦思考中…";}
+ else if(over){statusEl.textContent="⏰ 時間到！系統已代為落子。"+statusEl.textContent;}
 }
 function showResultBanner(text,kind){const el=document.querySelector("#resultBanner");if(!el)return;el.textContent=text;el.style.display="block";el.dataset.kind=kind;}
 let resultTimer=null;const RESULT_DELAY=2400;
@@ -536,7 +626,7 @@ function updateSideLabels(){
  document.querySelector("#playerFighter .fighterSideLabel").textContent=playerBlack?"🧑‍🚀 玩家・黑棋":"🧑‍🚀 玩家・白棋";
  document.querySelector("#opponentFighter .fighterSideLabel").textContent=playerBlack?"🤖 對手・白棋":"🤖 對手・黑棋";
 }
-function fresh(){clearTimeout(resultTimer);resultTimer=null;lockResultButtons(false);hideResultBanner();board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;first=Math.random()<0.5?PLAYER:AI;turn=first;over=false;busy=false;gameRewardPaid=false;updateSideLabels();draw();statusEl.textContent=turn===PLAYER?"🎲 隨機先手：你先下，請落子。":"🎲 隨機先手：電腦先下，正在思考…";if(turn===AI)setTimeout(aiMove,250);}
+function fresh(){clearTimeout(resultTimer);resultTimer=null;lockResultButtons(false);hideResultBanner();board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;first=Math.random()<0.5?PLAYER:AI;turn=first;over=false;busy=false;gameRewardPaid=false;updateSideLabels();draw();statusEl.textContent=turn===PLAYER?"🎲 隨機先手：你先下，請落子。":"🎲 隨機先手：電腦先下，正在思考…";if(turn===AI)setTimeout(aiMove,250);else startMoveTimer();}
 let flashCell=null,flashVisible=true,flashTimer=null;
 function startFlash(r,c){
  if(flashTimer)clearTimeout(flashTimer);
@@ -578,8 +668,8 @@ function chooseAI(){
  if(level>=7&&predict){let best=null,bv=-Infinity;for(const item of ranked.slice(0,level>=10?14:8)){let [r,c]=item.m;board[r][c]=AI;let reply=0;for(const [rr,cc] of candidateMoves())reply=Math.max(reply,score(rr,cc,PLAYER));board[r][c]=0;let v=item.s-reply*(level>=9?.42:.25);if(v>bv){bv=v;best=item.m;}}return best||ranked[0].m;}
  return ranked[0].m;
 }
-function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;history.push({r,c,p});last=[r,c];draw();startFlash(r,c);playGameSound("move");if(won(r,c,p)){over=true;const playerWon=p===PLAYER;showResultBanner(playerWon?"🎉 你贏了！":"😢 你輸了！",playerWon?"win":"lose");playGameSound(playerWon?"win":"lose");statusEl.textContent=(playerWon?"🎉 你贏了！":"😢 你輸了！")+(mode==="tournament"?" 即將前往賽程畫面…":"");if(mode==="tournament"){lockResultButtons(true);clearTimeout(resultTimer);resultTimer=setTimeout(()=>{resultTimer=null;lockResultButtons(false);finishTournament(playerWon);},RESULT_DELAY);}else settleMatchReward(playerWon);return true;}if(history.length===N*N){over=true;showResultBanner("🤝 平手！","draw");playGameSound("draw");statusEl.textContent="🤝 平手！";if(mode==="practice")settleMatchReward(false);return true;}return true;}
-function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請落子。";}},30);}
+function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;stopMoveTimer();history.push({r,c,p});last=[r,c];draw();startFlash(r,c);playGameSound("move");if(won(r,c,p)){over=true;const playerWon=p===PLAYER;showResultBanner(playerWon?"🎉 你贏了！":"😢 你輸了！",playerWon?"win":"lose");playGameSound(playerWon?"win":"lose");statusEl.textContent=(playerWon?"🎉 你贏了！":"😢 你輸了！")+(mode==="tournament"?" 即將前往賽程畫面…":"");if(mode==="tournament"){lockResultButtons(true);clearTimeout(resultTimer);resultTimer=setTimeout(()=>{resultTimer=null;lockResultButtons(false);finishTournament(playerWon);},RESULT_DELAY);}else settleMatchReward(playerWon);return true;}if(history.length===N*N){over=true;showResultBanner("🤝 平手！","draw");playGameSound("draw");statusEl.textContent="🤝 平手！";if(mode==="practice")settleMatchReward(false);return true;}return true;}
+function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請落子。";startMoveTimer();}},30);}
 canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect=canvas.getBoundingClientRect(),scale=canvas.width/rect.width,x=(e.clientX-rect.left)*scale,y=(e.clientY-rect.top)*scale,c=Math.round((x-40)/40),r=Math.round((y-40)/40);if(!inside(r,c)||Math.hypot(x-(40+c*40),y-(40+r*40))>19)return;if(place(r,c,PLAYER)&&!over){turn=AI;aiMove();}});
 const roundLabels=["32強","16強","8強","4強","決賽"];
 function newTournament(){
@@ -780,6 +870,7 @@ function beginTournamentMatch(){
  statusEl.textContent=`${tournament.isThirdPlaceMatch?"季軍賽":roundLabels[tournament.round]}：對戰 ${opp.name}。${turn===PLAYER?"你是先手，請落子。":"電腦先手，正在思考…"}`;
 }
 function start(){
+ stopMoveTimer();
  mode=document.querySelector("#mode").value;level=+document.querySelector("#level").value;predict=document.querySelector("#predict").checked;
  if(mode==="tournament"){
   document.querySelector("#gameMain").classList.add("hidden");document.querySelector("#tournamentView").classList.remove("hidden");
@@ -808,10 +899,11 @@ document.querySelector("#floorChoice").addEventListener("change",e=>{profile.flo
 document.querySelector("#floorMessageInput").addEventListener("input",e=>{profile.floorMessage=Array.from(e.target.value).slice(0,10).join("");if(e.target.value!==profile.floorMessage)e.target.value=profile.floorMessage;saveProfile();updateProfileUI();}); document.querySelector("#backgroundChoice").addEventListener("change",e=>{profile.background=e.target.value;saveProfile();updateProfileUI();});
 document.querySelector("#level").addEventListener("input",e=>{document.querySelector("#levelText").textContent=e.target.value+" - "+levelNames[+e.target.value]});
 document.querySelector("#mode").addEventListener("change",e=>document.querySelector("#practiceOpts").classList.toggle("hidden",e.target.value==="tournament"));
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("button");if(!b||b.disabled)return;if(b.matches("#start,#tourAction"))playGameSound("start");else if(!b.matches(".shopItem button"))playGameSound("click");},true);
 document.querySelector("#start").onclick=start;
 document.querySelector("#tourAction").onclick=beginTournamentMatch;
-document.querySelector("#tourBack").onclick=()=>{over=true;document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="請選擇模式，按「開始遊戲」。";};
-document.querySelector("#menu").onclick=()=>{over=true;busy=false;document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="已回到主選單設定。選擇模式後按「開始遊戲」。";};
+document.querySelector("#tourBack").onclick=()=>{over=true;stopMoveTimer();document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="請選擇模式，按「開始遊戲」。";};
+document.querySelector("#menu").onclick=()=>{over=true;busy=false;stopMoveTimer();document.querySelector("#gameMain").style.gridTemplateColumns="";document.querySelector("#gameMain").style.maxWidth="";document.querySelector("#gameMain").querySelector("aside").classList.remove("hidden");statusEl.textContent="已回到主選單設定。選擇模式後按「開始遊戲」。";};
 updateProfileUI();
 setOpponentCard("宇宙 AI","星際挑戰者","🤖","AI Lv.5","✦ COSMIC AI ✦");
 draw();
