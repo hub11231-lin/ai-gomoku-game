@@ -119,10 +119,8 @@ main{max-width:1450px;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
 .titleLine strong{color:#a9dcff}
 .profileBox .small{font-size:12px}
 .nameRow{display:flex;gap:6px;align-items:stretch}.profileBox .nameRow input{flex:1 1 auto;width:auto;min-width:0}.nameRow button{flex:0 0 auto;padding:0 10px;font-size:13px;white-space:nowrap}
-#boardWrap{flex-direction:column}
-.checkHint{box-sizing:border-box;width:100%;max-width:640px;min-height:44px;display:flex;align-items:center;justify-content:center;margin:0 0 8px;padding:6px 12px;border-radius:10px;background:linear-gradient(90deg,#7a1020,#c4203a,#7a1020);border:2px solid #ff9aa8;color:#fff;font-weight:900;font-size:15px;text-align:center;letter-spacing:.04em;box-shadow:0 0 16px #ff3b5c99;animation:checkPulse .8s ease-in-out infinite alternate}
-.checkHint.idle{visibility:hidden;animation:none}
-@keyframes checkPulse{from{box-shadow:0 0 6px #ff3b5c66}to{box-shadow:0 0 20px #ff3b5ccc}}
+.checkHint{position:absolute;z-index:6;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:0 6px;border-radius:6px;background:linear-gradient(90deg,#8a1226,#d0223c,#8a1226);border:1px solid #ffb3bd;color:#fff;font-weight:900;white-space:nowrap;overflow:hidden;letter-spacing:.03em;line-height:1;pointer-events:none;animation:checkPulse .8s ease-in-out infinite alternate}
+@keyframes checkPulse{from{opacity:.82}to{opacity:1}}
 .nameHint{margin-top:5px;font-size:11px;line-height:1.45;color:#b9ccec}
 .profileBox input:disabled,.profileBox input[readonly]{background:#9aa9c6;color:#2a3558;cursor:not-allowed}
 
@@ -385,7 +383,6 @@ main{align-items:start}
  .profileBox .nameRow input{flex:1 1 0}
  .customizeRow label{min-width:0}
  .customizeRow select{width:100%}
- .checkHint{font-size:13px;min-height:40px;padding:5px 8px}
  .battleArena{align-items:stretch}
  .fighterCard{justify-content:center}
 }
@@ -472,9 +469,9 @@ const N=15, EMPTY=0, PLAYER=1, AI=2, FIVE=1e6, OPEN4=1e5, DANGER=5e4;
 const names=["斷水流大師兄","ψ 猗窩座-","嘴平伊之助","東尼東尼喬巴","娜美Nami","野原新之助","竈門彌豆子","綠巨人浩克","羅羅亞索隆","竈門炭治郎","怪獸8號","我妻善逸","派大星","海綿寶寶","美國隊長","間諜家家酒","蒙奇D魯夫","妮可羅賓","黑寡婦","第一神拳一步","林雷雅","火影忍者","蜘蛛人","阿甘妙世界","少年悍將","小小兵","鋼鐵人","雷神索爾","浪子踢球","騙人布","哆啦A夢"];
 const levelNames=["","新手","入門","初級","進階","中級","中高級","高級","專家","大師","棋神"];
 const cfgs=[
-{}, {noise:.96,top:16,block:.35,open:.25,win:.48},{noise:.90,top:13,block:.45,open:.35,win:.58},
-{noise:.80,top:11,block:.58,open:.48,win:.68},{noise:.68,top:9,block:.70,open:.62,win:.78},
-{noise:.55,top:8,block:.80,open:.75,win:.85},{noise:.30,top:5,block:.92,win:.95},
+{}, {noise:.86,top:12,block:.45,win:.55},{noise:.75,top:10,block:.55,win:.65},
+{noise:.60,top:8,block:.65,win:.75},{noise:.50,top:7,block:.75,win:.82},
+{noise:.40,top:6,block:.85,win:.90},{noise:.30,top:5,block:.92,win:.95},
 {noise:.15,top:3,block:.95,win:1},{noise:.08,top:2,block:1,win:1},
 {noise:.03,top:1,block:1,win:1},{noise:0,top:1,block:1,win:1}
 ];
@@ -515,7 +512,7 @@ const SHOP_ITEMS=[
  {id:"frame_thunder",type:"frame",value:"thunder",name:"雷霆電漿框",cost:380,desc:"青白雷弧閃爍・深藍底高亮對比"},
  {id:"frame_royal",type:"frame",value:"royal",name:"黑金霸王框",cost:450,desc:"純黑鑲金・金光緩緩流動的帥氣王者框"},
  {id:"special_rename",type:"special",value:"rename",name:"改名卡",cost:500,desc:"可重複購買・每張可修改玩家名稱一次"},
- {id:"special_checkhint",type:"special",value:"checkhint",name:"被將軍提示詞",cost:350,desc:"一次購買永久使用・對手連成四子或活三（被將軍）時，棋盤上方會顯示「對手快連五子!請快阻擋!!」"},
+ {id:"special_checkhint",type:"special",value:"checkhint",name:"被將軍提示詞",cost:350,desc:"一次購買永久使用・對手下一手就能連成五子（被將軍）時，棋盤內最上方會顯示「對手快連五子!請快阻擋!!」"},
  {id:"acc_sun",type:"accessory",value:"☀️",name:"耀日光環",cost:90,desc:"陽光般的頭頂裝飾"},
  {id:"acc_moon",type:"accessory",value:"🌙",name:"月影彎月",cost:110,desc:"優雅月牙點綴"},
  {id:"acc_crown",type:"accessory",value:"👑",name:"時尚皇冠",cost:160,desc:"閃耀王者風格"},
@@ -857,28 +854,34 @@ function winning(p){let out=[];for(const [r,c] of candidateMoves())if(score(r,c,
 function chooseAI(){
  let moves=candidateMoves();if(history.length===0)return [7,7];
  let att=moves.map(m=>score(...m,AI)),def=moves.map(m=>score(...m,PLAYER));
- let wins=moves.filter((m,i)=>att[i]>=FIVE);if(wins.length)return wins[Math.floor(Math.random()*wins.length)]; // 能直接連五時一律優先落子
- if(level>=6){let blocks=moves.filter((m,i)=>def[i]>=OPEN4);if(blocks.length)return blocks[0];}
- else{ // Lv1~5：不一定每次都會擋，較容易失誤
-  let five=moves.filter((m,i)=>def[i]>=FIVE);if(five.length&&Math.random()<cfgs[level].block)return five[0];
-  let open=moves.filter((m,i)=>def[i]>=OPEN4&&def[i]<FIVE);if(open.length&&Math.random()<cfgs[level].open)return open[0];
- }
+ let wins=moves.filter((m,i)=>att[i]>=FIVE);if(wins.length)return wins[Math.floor(Math.random()*wins.length)]; // 1. 自己能連五：一律先贏
+ let five=moves.filter((m,i)=>def[i]>=FIVE);if(five.length)return five[0]; // 2. 玩家下一手能連五：一律先擋
+ let blocks=moves.filter((m,i)=>def[i]>=OPEN4);if(blocks.length)return blocks[0]; // 3. 玩家活四／雙重威脅：擋
  const cfg=cfgs[level];let ranked=moves.map((m,i)=>({m,s:att[i]+def[i]*.95})).sort((a,b)=>b.s-a.s);
  if(Math.random()<cfg.noise)return ranked[Math.floor(Math.random()*Math.min(cfg.top,ranked.length))].m;
  // Higher levels use a shallow reply evaluation to avoid obvious traps.
  if(level>=7&&predict){let best=null,bv=-Infinity;for(const item of ranked.slice(0,level>=10?14:8)){let [r,c]=item.m;board[r][c]=AI;let reply=0;for(const [rr,cc] of candidateMoves())reply=Math.max(reply,score(rr,cc,PLAYER));board[r][c]=0;let v=item.s-reply*(level>=9?.42:.25);if(v>bv){bv=v;best=item.m;}}return best||ranked[0].m;}
  return ranked[0].m;
 }
-function hideCheckHint(){const e=document.querySelector("#checkHint");if(e){e.className=profile.owned.includes("special_checkhint")?"checkHint idle":"checkHint hidden";e.textContent="";}}
+function hideCheckHint(){const e=document.querySelector("#checkHint");if(e){e.className="checkHint hidden";e.textContent="";}}
+// 把提示放在棋盤內最上方的空白邊（不蓋到線格）
+function placeCheckHint(){
+ const e=document.querySelector("#checkHint"),c=document.querySelector("#board"),w=document.querySelector("#boardWrap");
+ if(!e||!c||!w)return;
+ const cr=c.getBoundingClientRect(),wr=w.getBoundingClientRect(),m=cr.width*40/c.width; // 棋盤上緣空白高度
+ e.style.left=(cr.left-wr.left)+"px";e.style.top=(cr.top-wr.top)+"px";e.style.width=cr.width+"px";
+ e.style.height=Math.max(14,m-3)+"px";e.style.marginTop="1px";e.style.fontSize=Math.max(10,Math.min(15,m*.58))+"px";
+}
+window.addEventListener("resize",()=>{const e=document.querySelector("#checkHint");if(e&&!e.classList.contains("hidden"))placeCheckHint();});
 function updateCheckHint(){
  const e=document.querySelector("#checkHint");if(!e)return;
  if(!profile.owned.includes("special_checkhint")||over||turn!==PLAYER){hideCheckHint();return;}
  if(winning(PLAYER).length){hideCheckHint();return;}
- // 被將軍：對手下一手就能連五，或下一手能形成無法阻擋的活四（目前已有活三／雙重威脅）
- const danger=candidateMoves().some(([r,c])=>!board[r][c]&&score(r,c,AI)>=OPEN4);
- if(!danger){hideCheckHint();return;}
+ // 被將軍：只在對手下一手就能連成五子時顯示
+ if(!winning(AI).length){hideCheckHint();return;}
  e.textContent="⚠ 對手快連五子!請快阻擋!!";
  e.className="checkHint";
+ placeCheckHint();
 }
 function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;stopMoveTimer();hideCheckHint();history.push({r,c,p});last=[r,c];draw();startFlash(r,c);playGameSound("move");if(won(r,c,p)){over=true;const playerWon=p===PLAYER;showResultBanner(playerWon?"🎉 你贏了！":"😢 你輸了！",playerWon?"win":"lose");playGameSound(playerWon?"win":"lose");statusEl.textContent=(playerWon?"🎉 你贏了！":"😢 你輸了！")+(mode==="tournament"?" 即將前往賽程畫面…":"");if(mode==="tournament"){lockResultButtons(true);clearTimeout(resultTimer);resultTimer=setTimeout(()=>{resultTimer=null;lockResultButtons(false);finishTournament(playerWon);},RESULT_DELAY);}else settleMatchReward(playerWon);return true;}if(history.length===N*N){over=true;showResultBanner("🤝 平手！","draw");playGameSound("draw");statusEl.textContent="🤝 平手！";if(mode==="practice")settleMatchReward(false);return true;}return true;}
 function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請落子。";startMoveTimer();updateCheckHint();}},30);}
