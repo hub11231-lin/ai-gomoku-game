@@ -940,7 +940,9 @@ function onMoveTimeout(){
  if(over||busy||turn!==PLAYER)return;
  const mv=pickTimeoutMove();if(!mv)return;
  playGameSound("timeout");
- if(place(mv[0],mv[1],PLAYER)&&!over){turn=AI;aiMove();statusEl.textContent="⏰ 時間到！系統已代為落子，電腦思考中…";}
+ const placed=place(mv[0],mv[1],PLAYER);
+ if(placed){autoMark=[mv[0],mv[1]];draw();}
+ if(placed&&!over){turn=AI;aiMove();statusEl.textContent="⏰ 時間到！系統已代為落子（紅圈標記），電腦思考中…";}
  else if(over){statusEl.textContent="⏰ 時間到！系統已代為落子。"+statusEl.textContent;}
 }
 function showResultBanner(text,kind){const el=document.querySelector("#resultBanner");if(!el)return;el.textContent=text;el.style.display="block";el.dataset.kind=kind;}
@@ -977,7 +979,7 @@ function updateSideLabels(){
  document.querySelector("#playerFighter .fighterSideLabel").textContent=playerBlack?"🧑‍🚀 玩家・黑棋":"🧑‍🚀 玩家・白棋";
  document.querySelector("#opponentFighter .fighterSideLabel").textContent=playerBlack?"🤖 對手・白棋":"🤖 對手・黑棋";
 }
-function fresh(forced){hideCheckHint();clearTimeout(resultTimer);resultTimer=null;lockResultButtons(false);hideResultBanner();board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;first=(forced===PLAYER||forced===AI)?forced:(Math.random()<0.5?PLAYER:AI);turn=first;over=false;busy=false;gameRewardPaid=false;updateSideLabels();draw();if(mode==="online"){statusEl.textContent=turn===PLAYER?"🌐 你是先手，請落子。":"🌐 對手先手，等待對手落子…";return;}statusEl.textContent=turn===PLAYER?"🎲 隨機先手：你先下，請落子。":"🎲 隨機先手：電腦先下，正在思考…";if(turn===AI)setTimeout(aiMove,250);else startMoveTimer();}
+function fresh(forced){hideCheckHint();clearTimeout(resultTimer);resultTimer=null;lockResultButtons(false);hideResultBanner();autoMark=null;board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;first=(forced===PLAYER||forced===AI)?forced:(Math.random()<0.5?PLAYER:AI);turn=first;over=false;busy=false;gameRewardPaid=false;updateSideLabels();draw();if(mode==="online"){statusEl.textContent=turn===PLAYER?"🌐 你是先手，請落子。":"🌐 對手先手，等待對手落子…";return;}statusEl.textContent=turn===PLAYER?"🎲 隨機先手：你先下，請落子。":"🎲 隨機先手：電腦先下，正在思考…";if(turn===AI)setTimeout(aiMove,250);else startMoveTimer();}
 let flashCell=null,flashVisible=true,flashTimer=null;
 function startFlash(r,c){
  if(flashTimer)clearTimeout(flashTimer);
@@ -985,6 +987,7 @@ function startFlash(r,c){
  function pulse(){flashVisible=(ticks%2===0);draw();ticks++;if(ticks<4)flashTimer=setTimeout(pulse,110);else{flashCell=null;flashTimer=null;draw();}}
  pulse();
 }
+var autoMark=null; // 時間到系統代下的那一手（紅圈，直到玩家下一次自己落子才消失）
 function draw(){
  const w=canvas.width,step=40,margin=40;ctx.clearRect(0,0,w,w);ctx.fillStyle="#e9c98d";ctx.fillRect(0,0,w,w);
  ctx.strokeStyle="#79552d";ctx.lineWidth=1;
@@ -997,6 +1000,7 @@ function draw(){
   if(board[r][c]===first){g.addColorStop(0,"#666");g.addColorStop(1,"#080808")}else{g.addColorStop(0,"#fff");g.addColorStop(1,"#c8c8c8")}
   ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle=board[r][c]===first?"#000":"#999";ctx.stroke();ctx.restore();
  }
+ if(autoMark&&board[autoMark[0]][autoMark[1]]){const ax=40+autoMark[1]*40,ay=40+autoMark[0]*40;ctx.save();ctx.strokeStyle="#ff1f1f";ctx.lineWidth=3.5;ctx.shadowColor="#ff5a5a";ctx.shadowBlur=8;ctx.beginPath();ctx.arc(ax,ay,19,0,Math.PI*2);ctx.stroke();ctx.restore();}
  if(last){ctx.strokeStyle="#d22";ctx.lineWidth=2;ctx.strokeRect(40+last[1]*40-5,40+last[0]*40-5,10,10);}
 }
 function inside(r,c){return r>=0&&r<N&&c>=0&&c<N}
@@ -1039,7 +1043,7 @@ function updateCheckHint(){
  e.className="checkHint";
  placeCheckHint();
 }
-function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;stopMoveTimer();hideCheckHint();history.push({r,c,p});last=[r,c];draw();startFlash(r,c);playGameSound("move");if(won(r,c,p)){over=true;const playerWon=p===PLAYER;showResultBanner(playerWon?"🎉 你贏了！":"😢 你輸了！",playerWon?"win":"lose");playGameSound(playerWon?"win":"lose");statusEl.textContent=(playerWon?"🎉 你贏了！":"😢 你輸了！")+(mode==="tournament"?" 即將前往賽程畫面…":"");if(mode==="tournament"){lockResultButtons(true);clearTimeout(resultTimer);resultTimer=setTimeout(()=>{resultTimer=null;lockResultButtons(false);finishTournament(playerWon);},RESULT_DELAY);}else settleMatchReward(playerWon);return true;}if(history.length===N*N){over=true;showResultBanner("🤝 平手！","draw");playGameSound("draw");statusEl.textContent="🤝 平手！";if(mode==="practice"||mode==="ranked"||mode==="online")settleMatchReward(false,true);return true;}return true;}
+function place(r,c,p){if(over||(busy&&p===PLAYER)||board[r][c])return false;board[r][c]=p;if(p===PLAYER)autoMark=null;stopMoveTimer();hideCheckHint();history.push({r,c,p});last=[r,c];draw();startFlash(r,c);playGameSound("move");if(won(r,c,p)){over=true;const playerWon=p===PLAYER;showResultBanner(playerWon?"🎉 你贏了！":"😢 你輸了！",playerWon?"win":"lose");playGameSound(playerWon?"win":"lose");statusEl.textContent=(playerWon?"🎉 你贏了！":"😢 你輸了！")+(mode==="tournament"?" 即將前往賽程畫面…":"");if(mode==="tournament"){lockResultButtons(true);clearTimeout(resultTimer);resultTimer=setTimeout(()=>{resultTimer=null;lockResultButtons(false);finishTournament(playerWon);},RESULT_DELAY);}else settleMatchReward(playerWon);return true;}if(history.length===N*N){over=true;showResultBanner("🤝 平手！","draw");playGameSound("draw");statusEl.textContent="🤝 平手！";if(mode==="practice"||mode==="ranked"||mode==="online")settleMatchReward(false,true);return true;}return true;}
 function aiMove(){if(over||turn!==AI)return;busy=true;statusEl.textContent="電腦思考中…";setTimeout(()=>{let [r,c]=chooseAI();place(r,c,AI);busy=false;if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請落子。";startMoveTimer();updateCheckHint();}},30);}
 canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect=canvas.getBoundingClientRect(),scale=canvas.width/rect.width,x=(e.clientX-rect.left)*scale,y=(e.clientY-rect.top)*scale,c=Math.round((x-40)/40),r=Math.round((y-40)/40);if(!inside(r,c)||Math.hypot(x-(40+c*40),y-(40+r*40))>19)return;if(place(r,c,PLAYER)){if(mode==="online")netSend({t:"move",r,c});if(!over){turn=AI;if(mode==="online")statusEl.textContent="等待對手落子…";else aiMove();}}});
 const roundLabels=["32強","16強","8強","4強","決賽"];
