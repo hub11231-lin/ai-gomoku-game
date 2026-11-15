@@ -952,7 +952,7 @@ function settleMatchReward(playerWon,isDraw){
  if(gameRewardPaid)return;
  gameRewardPaid=true;
  if(mode==="online")return; // 連線對戰不計金幣、經驗值與連勝
- if(!isDraw)recordResult(playerWon?"win":"lose");
+ if(!isDraw&&(mode!=="practice"||level>=8))recordResult(playerWon?"win":"lose"); // 練習模式要電腦 Lv.8 以上才計連勝連敗
  if(mode==="ranked"){settleRankedGame(playerWon,isDraw);return;}
  const coinReward=mode==="practice"?(playerWon?10:5):(20+(playerWon?50:0));
  awardCoins(coinReward,mode==="practice"?(playerWon?"單機獲勝獎勵（每場上限 10）":"單機完成對局獎勵"):(playerWon?"完成對局 + 獲勝獎勵":"完成對局獎勵"));
@@ -1376,7 +1376,7 @@ function refreshTitleUI(){
    +row(!!b.runner,"🚀 星際亞軍","淘汰賽獲得亞軍")
    +row(!!b.third,"🌟 星際季軍","淘汰賽獲得季軍")
    +row(!!b.fourth,"🛡️ 星際殿軍","淘汰賽獲得殿軍")
-   +`<div class="lock">連勝／連敗只計練習、段位、淘汰賽（連線對戰不計）；平手不影響。</div>`;
+   +`<div class="lock">連勝／連敗只計：練習模式（電腦 Lv.8 以上）、段位模式、淘汰賽；連線對戰不計，平手不影響。</div>`;
  }
 }
 function refreshMenuPlayer(){
