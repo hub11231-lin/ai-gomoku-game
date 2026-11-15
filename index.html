@@ -375,6 +375,20 @@ main{align-items:start}
 .medalBox.bronze .medalLabel{color:#f2bd91}
 .medalName{font-size:14px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(prefers-reduced-motion:reduce){.trophyBox .trophySvg{animation:none}}
+
+/* v33：手機版排版修正 */
+.checkHint.hidden{display:none!important}
+@media(max-width:760px){
+ .controls{grid-template-columns:minmax(0,1fr)}
+ .controls>*{min-width:0;max-width:100%}
+ .profileBox *{min-width:0;max-width:100%}
+ .profileBox .nameRow input{flex:1 1 0}
+ .customizeRow label{min-width:0}
+ .customizeRow select{width:100%}
+ .checkHint{font-size:13px;min-height:40px;padding:5px 8px}
+ .battleArena{align-items:stretch}
+ .fighterCard{justify-content:center}
+}
 </style>
 </head>
 <body>
@@ -501,7 +515,7 @@ const SHOP_ITEMS=[
  {id:"frame_thunder",type:"frame",value:"thunder",name:"雷霆電漿框",cost:380,desc:"青白雷弧閃爍・深藍底高亮對比"},
  {id:"frame_royal",type:"frame",value:"royal",name:"黑金霸王框",cost:450,desc:"純黑鑲金・金光緩緩流動的帥氣王者框"},
  {id:"special_rename",type:"special",value:"rename",name:"改名卡",cost:500,desc:"可重複購買・每張可修改玩家名稱一次"},
- {id:"special_checkhint",type:"special",value:"checkhint",name:"被將軍提示詞",cost:350,desc:"一次購買永久使用・對手下一手就能連成五子（被將軍）時，棋盤上方會顯示「對手快連五子!請快阻擋!!」"},
+ {id:"special_checkhint",type:"special",value:"checkhint",name:"被將軍提示詞",cost:350,desc:"一次購買永久使用・對手連成四子或活三（被將軍）時，棋盤上方會顯示「對手快連五子!請快阻擋!!」"},
  {id:"acc_sun",type:"accessory",value:"☀️",name:"耀日光環",cost:90,desc:"陽光般的頭頂裝飾"},
  {id:"acc_moon",type:"accessory",value:"🌙",name:"月影彎月",cost:110,desc:"優雅月牙點綴"},
  {id:"acc_crown",type:"accessory",value:"👑",name:"時尚皇冠",cost:160,desc:"閃耀王者風格"},
@@ -843,7 +857,7 @@ function winning(p){let out=[];for(const [r,c] of candidateMoves())if(score(r,c,
 function chooseAI(){
  let moves=candidateMoves();if(history.length===0)return [7,7];
  let att=moves.map(m=>score(...m,AI)),def=moves.map(m=>score(...m,PLAYER));
- let wins=moves.filter((m,i)=>att[i]>=FIVE);if(wins.length&&Math.random()<cfgs[level].win)return wins[Math.floor(Math.random()*wins.length)];
+ let wins=moves.filter((m,i)=>att[i]>=FIVE);if(wins.length)return wins[Math.floor(Math.random()*wins.length)]; // 能直接連五時一律優先落子
  if(level>=6){let blocks=moves.filter((m,i)=>def[i]>=OPEN4);if(blocks.length)return blocks[0];}
  else{ // Lv1~5：不一定每次都會擋，較容易失誤
   let five=moves.filter((m,i)=>def[i]>=FIVE);if(five.length&&Math.random()<cfgs[level].block)return five[0];
@@ -860,7 +874,9 @@ function updateCheckHint(){
  const e=document.querySelector("#checkHint");if(!e)return;
  if(!profile.owned.includes("special_checkhint")||over||turn!==PLAYER){hideCheckHint();return;}
  if(winning(PLAYER).length){hideCheckHint();return;}
- const w=winning(AI);if(!w.length){hideCheckHint();return;}
+ // 被將軍：對手下一手就能連五，或下一手能形成無法阻擋的活四（目前已有活三／雙重威脅）
+ const danger=candidateMoves().some(([r,c])=>!board[r][c]&&score(r,c,AI)>=OPEN4);
+ if(!danger){hideCheckHint();return;}
  e.textContent="⚠ 對手快連五子!請快阻擋!!";
  e.className="checkHint";
 }
