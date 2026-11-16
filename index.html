@@ -596,7 +596,7 @@ body[data-view="shop"] #gameMain,body[data-view="profile"] #gameMain{grid-templa
 <script>
 "use strict";
 const N=15, EMPTY=0, PLAYER=1, AI=2, FIVE=1e6, OPEN4=1e5, DANGER=5e4;
-const names=["斷水流大師兄","ψ 猗窩座-","嘴平伊之助","東尼東尼喬巴","娜美Nami","野原新之助","竈門彌豆子","綠巨人浩克","羅羅亞索隆","竈門炭治郎","怪獸8號","我妻善逸","派大星","海綿寶寶","美國隊長","間諜家家酒","蒙奇D魯夫","妮可羅賓","黑寡婦","第一神拳一步","角落小夥伴","火影忍者","蜘蛛人","阿甘妙世界","少年悍將","小小兵","鋼鐵人","雷神索爾","浪子踢球","騙人布","哆啦A夢"];
+const names=["斷水流大師兄","ψ 猗窩座-","嘴平伊之助","東尼東尼喬巴","娜美Nami","野原新之助","竈門彌豆子","綠巨人浩克","羅羅亞索隆","竈門炭治郎","怪獸8號","我妻善逸","派大星","海綿寶寶","美國隊長","間諜家家酒","蒙奇D魯夫","妮可羅賓","黑寡婦","第一神拳一步","服部半藏","追風少年ㄟ","蜘蛛人","阿甘妙世界","少年悍將","小小兵","鋼鐵人","雷神索爾","浪子踢球","騙人布","哆啦A夢"];
 const levelNames=["","新手","入門","初級","進階","中級","中高級","高級","專家","大師","棋神"];
 const cfgs=[
 {}, {noise:.86,top:12,block:.45,win:.55},{noise:.75,top:10,block:.55,win:.65},
@@ -646,7 +646,7 @@ const SHOP_ITEMS=[
  {id:"avatar_mecha",type:"avatar",value:"anim:mecha",name:"霓虹機甲",cost:420,desc:"動態頭像・面罩光幕變色掃描"},
  {id:"avatar_blade",type:"avatar",value:"anim:blade",name:"彩焰劍士",cost:480,desc:"動態頭像・髮色與劍柄寶石變色"},
  {id:"avatar_mage",type:"avatar",value:"anim:mage",name:"星光法師",cost:520,desc:"動態頭像・帽星閃爍、法杖寶石變色"},
- {id:"avatar_wolf",type:"avatar",value:"anim:wolf",name:"暗影狼王",cost:560,desc:"動態頭像・狼眼閃爍變色、獠牙發光、狼爪亮出"},
+ {id:"avatar_wolf",type:"avatar",value:"anim:wolf",name:"暗影狼王",cost:560,desc:"動態頭像・狼眼閃爍變色、獠牙發光"},
  {id:"frame_nebula",type:"frame",value:"nebula",name:"星雲紫焰框",cost:150,desc:"紫焰繞圈旋轉・暗紫與亮白高對比光環"},
  {id:"frame_aurora",type:"frame",value:"aurora",name:"極光綠光框",cost:180,desc:"翠綠青光循環流動・極光閃耀"},
  {id:"frame_fire",type:"frame",value:"fire",name:"超新星烈焰框",cost:250,desc:"橘紅烈焰高速旋轉・黑色漩渦襯底"},
@@ -654,7 +654,7 @@ const SHOP_ITEMS=[
  {id:"frame_thunder",type:"frame",value:"thunder",name:"雷霆電漿框",cost:380,desc:"青白雷弧閃爍・深藍底高亮對比"},
  {id:"frame_royal",type:"frame",value:"royal",name:"黑金霸王框",cost:450,desc:"純黑鑲金・金光緩緩流動的帥氣王者框"},
  {id:"special_rename",type:"special",value:"rename",name:"改名卡",cost:500,desc:"可重複購買・每張可修改玩家名稱一次"},
- {id:"special_checkhint",type:"special",value:"checkhint",name:"被將軍提示詞",cost:350,desc:"一次購買永久使用・對手下一手就能連成五子（被將軍）時，棋盤內最上方會顯示「對手快連五子!請快阻擋!!」"},
+ {id:"special_checkhint",type:"special",value:"checkhint",name:"被將軍提示詞",cost:350,desc:"一次購買永久使用・欲被將軍時，棋盤內最上方會顯示「對手快連五子!請快阻擋!!」"},
  {id:"acc_sun",type:"accessory",value:"☀️",name:"耀日光環",cost:90,desc:"陽光般的頭頂裝飾"},
  {id:"acc_moon",type:"accessory",value:"🌙",name:"月影彎月",cost:110,desc:"優雅月牙點綴"},
  {id:"acc_crown",type:"accessory",value:"👑",name:"時尚皇冠",cost:160,desc:"閃耀王者風格"},
@@ -828,7 +828,7 @@ function updateProfileUI(){
  refreshMenuPlayer();refreshRankedInfo();refreshTitleUI();
 }
 const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
-const OPP_MESSAGES=["來戰吧！","棋逢對手","不會輸的","小心了喔","五子連珠！","星際棋王","別眨眼喔","我先下囉","宇宙最強","認真點喔","交給我吧","穩紮穩打","看我的！","棋盤見真章"];
+const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","狗熊哆嗩毛","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
 function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
 function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
 function makeOpponentLook(){
