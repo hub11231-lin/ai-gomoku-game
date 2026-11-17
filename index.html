@@ -352,6 +352,11 @@ main{align-items:start}
 .frameBody .floorPrice{color:#ffe28b;font-weight:800}
 .frameBody button{width:100%;margin-top:4px;min-height:34px;font-size:13px}
 
+
+/* v39：段位 AI 動態頭像 */
+.rankedBotAvatar{animation:rankedBotFloat 2.2s ease-in-out infinite,rankedBotHue 6s linear infinite;filter:drop-shadow(0 0 8px #80d8ff)}
+@keyframes rankedBotFloat{0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}50%{transform:translateY(-5px) rotate(5deg) scale(1.08)}}
+@keyframes rankedBotHue{0%,100%{text-shadow:0 0 5px #7dd3fc}50%{text-shadow:0 0 14px #e879f9}}
 /* v27：對手留言板／裝飾、樹狀圖中央獎盃與獎牌 */
 #opponentFloorTrim.off{display:none!important}
 .bracketCenter{grid-column:5;grid-row:1/span 32;align-self:center;position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
@@ -596,7 +601,7 @@ body[data-view="shop"] #gameMain,body[data-view="profile"] #gameMain{grid-templa
 <script>
 "use strict";
 const N=15, EMPTY=0, PLAYER=1, AI=2, FIVE=1e6, OPEN4=1e5, DANGER=5e4;
-const names=["斷水流大師兄","ψ 猗窩座-","嘴平伊之助","東尼東尼喬巴","娜美Nami","野原新之助","竈門彌豆子","綠巨人浩克","羅羅亞索隆","竈門炭治郎","怪獸8號","我妻善逸","派大星","海綿寶寶","美國隊長","間諜家家酒","蒙奇D魯夫","妮可羅賓","黑寡婦","第一神拳一步","服部半藏","追風少年ㄟ","蜘蛛人","阿甘妙世界","少年悍將","小小兵","鋼鐵人","雷神索爾","浪子踢球","騙人布","哆啦A夢"];
+const names=["斷水流大師兄","ψ 伏黑惠-","嘴平伊之助","東尼東尼喬巴","娜美Nami","野原新之助","竈門彌豆子","綠巨人浩克","羅羅亞索隆","竈門炭治郎","怪獸8號","我妻善逸","派大星","海綿寶寶","美國隊長","間諜家家酒","蒙奇D魯夫","妮可羅賓","釘崎野薔薇","第一神拳一步","虎杖悠仁","艾連·葉卡","米卡莎阿卡曼","富積阿吉仔","少年悍將","梅川依芙d","鋼鐵人","雷神索爾","浪子踢球","騙人布","哆啦A夢"];
 const levelNames=["","新手","入門","初級","進階","中級","中高級","高級","專家","大師","棋神"];
 const cfgs=[
 {}, {noise:.86,top:12,block:.45,win:.55},{noise:.75,top:10,block:.55,win:.65},
@@ -641,7 +646,7 @@ function optLabel(item){return ["frame","floor","background"].includes(item.type
 const SHOP_ITEMS=[
  {id:"avatar_unicorn",type:"avatar",value:"🦄",name:"星雲獨角獸",cost:180,desc:"稀有頭像"},
  {id:"avatar_alien",type:"avatar",value:"👽",name:"銀河訪客",cost:220,desc:"稀有頭像"},
- {id:"avatar_lion",type:"avatar",value:"🦁",name:"星際獅王",cost:260,desc:"傳說頭像"},
+ {id:"avatar_lion",type:"avatar",value:"🦁",name:"星際獅王",cost:260,desc:"稀有頭像"},
  {id:"avatar_ninja",type:"avatar",value:"anim:ninja",name:"幻瞳忍者",cost:360,desc:"動態頭像・眼睛會變色"},
  {id:"avatar_mecha",type:"avatar",value:"anim:mecha",name:"霓虹機甲",cost:420,desc:"動態頭像・面罩光幕變色掃描"},
  {id:"avatar_blade",type:"avatar",value:"anim:blade",name:"彩焰劍士",cost:480,desc:"動態頭像・髮色與劍柄寶石變色"},
@@ -749,7 +754,7 @@ function getPlayerRank(lv){
  if(lv<=14)return "高階棋手";
  if(lv<=17)return "五子棋高手";
  if(lv<=19)return "S級棋王";
- return "SS棋神";
+ return "S級棋神★";
 }
 function getLevelProgress(){
  const lv=getPlayerLevel();
@@ -828,7 +833,7 @@ function updateProfileUI(){
  refreshMenuPlayer();refreshRankedInfo();refreshTitleUI();
 }
 const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
-const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","狗熊哆嗩毛","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
+const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","欸-真的嗎?","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
 function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
 function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
 function makeOpponentLook(){
@@ -850,7 +855,7 @@ function setOpponentCard(name,title,avatar,detail,decor,look){
  document.querySelector("#fighterOpponentTitle").textContent=title||"星際挑戰者";
  document.querySelector("#fighterOpponentLevel").textContent=detail||"AI Lv.5";
  const decEl=document.querySelector("#opponentDecor");decEl.textContent=decor||"";decEl.style.display=decor?"":"none";
- const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame"),ft=document.querySelector("#opponentFloorTrim");
+ const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame"),ft=document.querySelector("#opponentFloorTrim");av.classList.remove("rankedBotAvatar");
  const set=(id,v)=>{const e=document.querySelector(id);if(e)e.textContent=v||"";};
  if(look){
   setAvatar(av,look.avatar);av.style.background=AVATAR_BGS[look.background]||AVATAR_BGS.space;
@@ -905,7 +910,7 @@ function stopMoveTimer(){
  if(el){el.classList.remove("show","warn","danger");el.textContent="";}
 }
 function startMoveTimer(){
- stopMoveTimer();if(over||mode==="online")return;
+ stopMoveTimer();if(over)return;
  moveDeadline=Date.now()+MOVE_TIME*1000;moveLastTick=Date.now();moveLastShown=-1;
  tickMoveTimer();
  if(moveTimer===null&&!over)moveTimer=setInterval(tickMoveTimer,100);
@@ -942,7 +947,7 @@ function onMoveTimeout(){
  playGameSound("timeout");
  const placed=place(mv[0],mv[1],PLAYER);
  if(placed){autoMark=[mv[0],mv[1]];draw();}
- if(placed&&!over){turn=AI;aiMove();statusEl.textContent="⏰ 時間到！系統已代為落子（紅圈標記），電腦思考中…";}
+ if(placed&&!over){turn=AI;if(mode==="online"){netSend({t:"move",r:mv[0],c:mv[1]});statusEl.textContent="⏰ 時間到！系統已代為落子（紅圈標記），等待對手…";}else{aiMove();statusEl.textContent="⏰ 時間到！系統已代為落子（紅圈標記），電腦思考中…";}}
  else if(over){statusEl.textContent="⏰ 時間到！系統已代為落子。"+statusEl.textContent;}
 }
 function showResultBanner(text,kind){const el=document.querySelector("#resultBanner");if(!el)return;el.textContent=text;el.style.display="block";el.dataset.kind=kind;}
@@ -979,7 +984,7 @@ function updateSideLabels(){
  document.querySelector("#playerFighter .fighterSideLabel").textContent=playerBlack?"🧑‍🚀 玩家・黑棋":"🧑‍🚀 玩家・白棋";
  document.querySelector("#opponentFighter .fighterSideLabel").textContent=playerBlack?"🤖 對手・白棋":"🤖 對手・黑棋";
 }
-function fresh(forced){hideCheckHint();clearTimeout(resultTimer);resultTimer=null;lockResultButtons(false);hideResultBanner();autoMark=null;board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;first=(forced===PLAYER||forced===AI)?forced:(Math.random()<0.5?PLAYER:AI);turn=first;over=false;busy=false;gameRewardPaid=false;updateSideLabels();draw();if(mode==="online"){statusEl.textContent=turn===PLAYER?"🌐 你是先手，請落子。":"🌐 對手先手，等待對手落子…";return;}statusEl.textContent=turn===PLAYER?"🎲 隨機先手：你先下，請落子。":"🎲 隨機先手：電腦先下，正在思考…";if(turn===AI)setTimeout(aiMove,250);else startMoveTimer();}
+function fresh(forced){hideCheckHint();clearTimeout(resultTimer);resultTimer=null;lockResultButtons(false);hideResultBanner();autoMark=null;board=Array.from({length:N},()=>Array(N).fill(0));history=[];last=null;first=(forced===PLAYER||forced===AI)?forced:(Math.random()<0.5?PLAYER:AI);turn=first;over=false;busy=false;gameRewardPaid=false;updateSideLabels();draw();if(mode==="online"){statusEl.textContent=turn===PLAYER?"🌐 你是先手，請落子（9 秒內）。":"🌐 對手先手，等待對手落子…";if(turn===PLAYER)startMoveTimer();return;}statusEl.textContent=turn===PLAYER?"🎲 隨機先手：你先下，請落子。":"🎲 隨機先手：電腦先下，正在思考…";if(turn===AI)setTimeout(aiMove,250);else startMoveTimer();}
 let flashCell=null,flashVisible=true,flashTimer=null;
 function startFlash(r,c){
  if(flashTimer)clearTimeout(flashTimer);
@@ -1267,7 +1272,7 @@ function start(){
   level=rankedAILevel();predict=true;
   if(!rankedSeries||rankedSeries.done)newRankedSeries();
   if(!over){statusEl.textContent="這局還沒結束，下完才能開始下一局。";return;}
-  setOpponentCard("段位挑戰者","段位賽對手","🤖",`AI Lv.${level}`,"");
+  refreshRankedBot();
   document.querySelector("#tournamentView").classList.add("hidden");document.querySelector("#gameMain").classList.remove("hidden");
   const n=rankedSeries.games+1;rankedSeries.started=true;
   fresh(n===2?(rankedSeries.firstG1===PLAYER?AI:PLAYER):undefined);
@@ -1400,6 +1405,26 @@ function refreshRankedInfo(){
 }
 var rankedSeries=null; // var：啟動時 updateProfileUI 就會讀到
 function newRankedSeries(){rankedSeries={w:0,l:0,games:0,firstG1:null,started:false,done:false,won:false};}
+function makeRankedBotLook(){
+ const avatars=["🐲","🦊","👾","🤖","🐺","🦁","🐉","🦉"];
+ const pets=["🐣","🦇","🐉","🦊","👻","🐈‍⬛","🪽","🐸"];
+ const frames=["nebula","aurora","fire","prism","thunder","royal","purple","ruby","cyan"];
+ const floors=["cute","funny","tech","luxe","nature","dark","default"];
+ const messages=["星際最強！","來戰一場吧","今天手感超好","勝利屬於我","一起加油！","挑戰極限！","宇宙見真章"];
+ const pick=a=>a[Math.floor(Math.random()*a.length)];
+ return {avatar:pick(avatars),frame:pick(frames),background:"space",floor:pick(floors),
+  floorMessage:pick(messages),petLeft:pick(pets),petRight:Math.random()<.55?pick(pets):"",
+  accessoryLeft:"",accessoryRight:""};
+}
+function refreshRankedBot(){
+ const botNames=["星雲龍騎士","幻影狐狸","暗夜機械王","銀河守護者","雷光獵手","深空旅者","月影魔導"];
+ const name=botNames[Math.floor(Math.random()*botNames.length)];
+ const look=makeRankedBotLook();
+ setOpponentCard(name,"🏅 段位賽 AI 挑戰者","🤖",`AI Lv.${rankedAILevel()}`,"✦ 特殊造型對手",look);
+ const avatar=document.querySelector("#opponentAvatar");
+ if(avatar)avatar.classList.add("rankedBotAvatar");
+}
+
 function updateSeriesUI(){
  const S=rankedSeries;if(mode!=="ranked"||!S)return;
  const dec=Q("#opponentDecor");dec.style.display="";dec.textContent=`🏅 3戰2勝・你 ${S.w} : ${S.l} 對手`;
@@ -1434,7 +1459,7 @@ function enterMode(m){
   idleBoard("調整電腦等級後，按「開始遊戲」。");
  }else if(m==="ranked"){
   mode="ranked";setView("ranked");level=rankedAILevel();newRankedSeries();
-  setOpponentCard("段位挑戰者","段位賽對手","🤖",`AI Lv.${level}`,"");
+  refreshRankedBot();
   idleBoard(`段位賽（3戰2勝）：對手 AI Lv.${level}，按「開始第 1 局」挑戰。`);
   updateSeriesUI();
  }else if(m==="tournament"){
@@ -1659,7 +1684,7 @@ function onNetMessage(m){
    if(mode!=="online"||over||turn!==AI)break;
    const r=m.r|0,c=m.c|0;if(!inside(r,c)||board[r][c])break;
    place(r,c,AI);
-   if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請落子。";updateCheckHint();}
+   if(!over){turn=PLAYER;statusEl.textContent="輪到你了，請在 9 秒內落子。";startMoveTimer();updateCheckHint();}
    break;}
   case "rematch":{
    const n=parseInt(m.round)||0;if(mode!=="online"||n<=onlineRound)break;
