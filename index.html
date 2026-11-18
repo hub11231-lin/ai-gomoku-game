@@ -355,7 +355,7 @@ main{align-items:start}
 
 /* S級棋神：克蘿希絲◆玥 */
 .sGodFrame{border:3px solid #c79aff!important;box-shadow:0 0 12px #9b59ff,0 0 28px #7b2cffaa!important;animation:sGodPulse 1.8s ease-in-out infinite alternate}
-.sGodAvatar{background-image:url("克蘿希絲玥_頭像.png")!important;background-position:center 34%!important;background-size:cover!important;background-repeat:no-repeat!important;border-radius:50%;box-shadow:inset 0 0 18px #140622,0 0 18px #b76cff}
+.sGodAvatar{background-color:#563b91!important;background-image:url("克蘿希絲玥_頭像.png"),radial-gradient(circle at 28% 24%,#ffb6e8 0%,#8956d8 38%,#253f91 72%,#101b45 100%)!important;background-position:center 34%,center!important;background-size:cover,cover!important;background-repeat:no-repeat!important;border-radius:50%;box-shadow:inset 0 0 18px #140622,0 0 18px #b76cff}
 .sGodBadge{color:#f4dcff!important;text-shadow:0 0 8px #b46aff;font-weight:1000}
 @keyframes sGodPulse{from{box-shadow:0 0 10px #9b59ff,0 0 20px #7b2cff66}to{box-shadow:0 0 18px #e3b5ff,0 0 36px #9c4dff}}
 /* v39：段位 AI 動態頭像 */
@@ -417,7 +417,7 @@ main{align-items:start}
 .menuBtn:hover,.menuBtn:focus-visible{transform:translateY(-3px);border-color:#c4d2ff;box-shadow:0 10px 28px #0009,0 0 22px #6f8dff77;outline:none}
 .menuBtn:active{transform:translateY(0) scale(.99)}
 .menuBtn .menuIcon{font-size:30px;width:44px;text-align:center;flex:0 0 44px;filter:drop-shadow(0 2px 4px #0008)}
-.menuBtn .menuTxt{min-width:0}.menuBtn .menuTxt b{display:block;font-size:19px;letter-spacing:.04em;color:#fff7c9;text-shadow:0 0 8px #8fdcff,0 1px 3px #05091f}.menuBtn .menuTxt small{display:block;opacity:1;font-weight:600;font-size:12px;line-height:1.35;margin-top:2px;color:#d9f2ff;text-shadow:0 1px 3px #05091f}
+.menuBtn .menuTxt{min-width:0}.menuBtn .menuTxt b{display:block;font-size:19px;letter-spacing:.04em}.menuBtn .menuTxt small{display:block;opacity:.8;font-weight:500;font-size:12px;line-height:1.35;margin-top:2px}
 .menuBtn.gold{background:linear-gradient(135deg,#6a4a12cc,#7a2d58cc);border-color:#ffd77a88}
 .menuBtn.green{background:linear-gradient(135deg,#0e5a5fcc,#1c3a86cc);border-color:#7affd588}
 .menuBtn.locked{filter:saturate(.55) brightness(.85)}
@@ -534,12 +534,21 @@ body[data-view="shop"] #gameMain,body[data-view="profile"] #gameMain{grid-templa
   .sGodRevealFrame .avatarPet.left{left:-15px!important}
   .sGodRevealFrame .avatarPet.right{right:-15px!important}
 }
-.menuBtn .menuTxt b{color:#fff4b8;text-shadow:0 0 9px #72cfff,0 0 16px #566dff,0 2px 3px #020617}
-.menuBtn .menuTxt small{color:#e4f6ff;text-shadow:0 1px 4px #020617;opacity:1}
-.menuBadge{color:#d5e5ff;text-shadow:0 0 12px #7ecbff}
-.menuSub{color:#eff5ff;text-shadow:0 1px 5px #020617;opacity:1}
 @media(prefers-reduced-motion:reduce){
   .sGodRevealFrame,.sGodRevealFrame::before,.sGodRevealFrame .avatarPet{animation:none!important}
+}
+
+
+/* 返回主選單按鈕：只微幅提亮，不影響主選單文字 */
+#tourBack,#onlineBack,.battleActions #menu{
+  background:linear-gradient(135deg,#466da5,#354f83)!important;
+  color:#f4f8ff!important;
+  border:1px solid #91b8ed!important;
+  box-shadow:0 2px 10px #4b8bd044,inset 0 0 0 1px #ffffff18;
+}
+#tourBack:hover,#onlineBack:hover,.battleActions #menu:hover{
+  background:linear-gradient(135deg,#527db8,#405d96)!important;
+  border-color:#b5d2ff!important;
 }
 
 </style>
@@ -957,7 +966,7 @@ function applySGodOpponent(){
  // 隱藏挑戰者專屬雙惡魔寵物：固定分列頭像左右，不遮住臉部。
  const demonLeft=document.querySelector("#opponentPetLeft"),demonRight=document.querySelector("#opponentPetRight");
  if(demonLeft)demonLeft.textContent="👿";
- if(demonRight)demonRight.textContent="😈";
+ if(demonRight)demonRight.textContent="👺";
  fr.classList.add("has-pet");
  document.querySelector("#opponentDecor").textContent="✦ S級棋神・隱藏挑戰者 ✦";
  document.querySelector("#opponentDecor").style.display="";
