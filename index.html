@@ -825,7 +825,7 @@ function updateProfileUI(){
  const progress=getLevelProgress();
  document.querySelector("#playerTitle").textContent=progress.rank;
  const levelLine=document.querySelector("#playerLevelLine");
- if(levelLine)levelLine.textContent=progress.lv>=20?`Lv.20 ・ SS棋神 MAX`:`Lv.${progress.lv} ・ ${progress.current.toLocaleString("zh-TW")} / ${progress.need.toLocaleString("zh-TW")} EXP`+(progress.lv===10?"（一般模式上限，需打段位模式才能升級）":"");
+ if(levelLine)levelLine.textContent=progress.lv>=20?`Lv.20 ・ S級棋神 MAX`:`Lv.${progress.lv} ・ ${progress.current.toLocaleString("zh-TW")} / ${progress.need.toLocaleString("zh-TW")} EXP`+(progress.lv===10?"（一般模式上限，需打段位模式才能升級）":"");
  const xpBar=document.querySelector("#xpBar");if(xpBar)xpBar.style.width=progress.pct+"%";
  const avatar=document.querySelector("#avatarChoice"),frame=document.querySelector("#frameChoice");
  const selects={avatar,frame,accessory:[document.querySelector("#accessoryLeftChoice"),document.querySelector("#accessoryRightChoice")],pet:[document.querySelector("#petLeftChoice"),document.querySelector("#petRightChoice")],background:document.querySelector("#backgroundChoice"),floor:document.querySelector("#floorChoice")};
@@ -838,7 +838,7 @@ function updateProfileUI(){
  refreshMenuPlayer();refreshRankedInfo();refreshTitleUI();
 }
 const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
-const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.20, S_GOD_CHANCE_RANKED=0.12;
+const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.45, S_GOD_CHANCE_RANKED=0.32;
 const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","欸-真的嗎?","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
 function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
 function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
