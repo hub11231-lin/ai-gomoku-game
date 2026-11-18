@@ -353,6 +353,11 @@ main{align-items:start}
 .frameBody button{width:100%;margin-top:4px;min-height:34px;font-size:13px}
 
 
+/* S級棋神：克蘿希絲◆玥 */
+.sGodFrame{border:3px solid #c79aff!important;box-shadow:0 0 12px #9b59ff,0 0 28px #7b2cffaa!important;animation:sGodPulse 1.8s ease-in-out infinite alternate}
+.sGodAvatar{background-image:url("克蘿希絲玥_頭像.png")!important;background-position:center 34%!important;background-size:cover!important;background-repeat:no-repeat!important;border-radius:50%;box-shadow:inset 0 0 18px #140622,0 0 18px #b76cff}
+.sGodBadge{color:#f4dcff!important;text-shadow:0 0 8px #b46aff;font-weight:1000}
+@keyframes sGodPulse{from{box-shadow:0 0 10px #9b59ff,0 0 20px #7b2cff66}to{box-shadow:0 0 18px #e3b5ff,0 0 36px #9c4dff}}
 /* v39：段位 AI 動態頭像 */
 .rankedBotAvatar{animation:rankedBotFloat 2.2s ease-in-out infinite,rankedBotHue 6s linear infinite;filter:drop-shadow(0 0 8px #80d8ff)}
 @keyframes rankedBotFloat{0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}50%{transform:translateY(-5px) rotate(5deg) scale(1.08)}}
@@ -833,6 +838,7 @@ function updateProfileUI(){
  refreshMenuPlayer();refreshRankedInfo();refreshTitleUI();
 }
 const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
+const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.20, S_GOD_CHANCE_RANKED=0.12;
 const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","欸-真的嗎?","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
 function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
 function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
@@ -869,6 +875,18 @@ function setOpponentCard(name,title,avatar,detail,decor,look){
   set("#opponentAccessoryLeft","");set("#opponentAccessoryRight","");set("#opponentPetLeft","");set("#opponentPetRight","");
   ft.className="floorTrim floor-default off";ft.textContent="";
  }
+}
+function applySGodOpponent(){
+ const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame");
+ if(!av||!fr)return;
+ av.textContent="";av.innerHTML="";av.classList.remove("hasSvg","rankedBotAvatar");
+ av.classList.add("sGodAvatar");av.style.background="";
+ fr.className="avatarFrame frame-royal sGodFrame";
+ document.querySelector("#opponentDecor").textContent="✦ S級棋神・隱藏挑戰者 ✦";
+ document.querySelector("#opponentDecor").style.display="";
+ document.querySelector("#opponentFloorTrim").className="floorTrim floor-dark off";
+ document.querySelector("#opponentFloorTrim").textContent="";
+ ["#opponentAccessoryLeft","#opponentAccessoryRight","#opponentPetLeft","#opponentPetRight"].forEach(id=>{const e=document.querySelector(id);if(e)e.textContent="";});
 }
 function awardCoins(amount,reason){
  if(!amount)return;
@@ -1054,6 +1072,9 @@ canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect
 const roundLabels=["32強","16強","8強","4強","決賽"];
 function newTournament(){
  let pool=names.map((name,i)=>({name,rank:i+1,group:"ABCD"[Math.floor(i/8)]}));
+ // 20% 機率在本屆 32 強中出現 S 級隱藏棋神，替換一名一般參賽者，維持 32 人賽制。
+ const sGodAppears=Math.random()<S_GOD_CHANCE_TOURNAMENT;
+ if(sGodAppears){const replaceAt=Math.floor(Math.random()*pool.length);pool.splice(replaceAt,1);pool.push({name:S_GOD_NAME,rank:0,isSGod:true,group:"S"});}
  pool.push({name:profile.name.trim()||"玩家",rank:0,player:true,group:""});
  pool.sort(()=>Math.random()-.5);
  // 重新分配四組標籤，每組 8 位；淘汰賽籤位仍採隨機排列
@@ -1063,7 +1084,11 @@ function newTournament(){
  let firstRound=[];for(let i=0;i<32;i+=2)firstRound.push({a:pool[i],b:pool[i+1],winner:null});
  tournament.rounds.push(firstRound);prepareTournamentRound();
 }
-function simulatedWinner(a,b){if(a.player||b.player)return a.player?a:b;return (Math.random()<(.5+(b.rank-a.rank)*.009))?a:b;}
+function simulatedWinner(a,b){
+ if(a.player||b.player)return a.player?a:b;
+ if(a.isSGod||b.isSGod){if(a.isSGod&&b.isSGod)return Math.random()<.5?a:b;return Math.random()<.78?(a.isSGod?a:b):(a.isSGod?b:a);}
+ return (Math.random()<(.5+(b.rank-a.rank)*.009))?a:b;
+}
 function prepareTournamentRound(){
  const t=tournament,ri=t.round,round=t.rounds[ri];if(!round)return;
  let playerMatch=null;
@@ -1076,7 +1101,8 @@ function prepareTournamentRound(){
   const opp=playerMatch.a.player?playerMatch.b:playerMatch.a;
   level=Math.max(1,Math.min(10,11-Math.ceil(opp.rank/3)));
   statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。`;
-  setOpponentCard(opp.name,"淘汰賽對手","👾",`AI Lv.${level}`,"",opp.look);
+  setOpponentCard(opp.name,opp.isSGod?"👑 S級棋神・隱藏挑戰者":"淘汰賽對手",opp.isSGod?"♟":"👾",`AI Lv.${level}`,"",opp.look);
+  if(opp.isSGod)applySGodOpponent();
   showTournamentBracket(`${roundLabels[ri]} 賽前賽程`, `你的對手：${opp.name}（電腦 Lv${level}）。確認賽程後，按「開始本輪比賽」。`, true);
  }else{t.waiting=false;completeTournamentRound();}
  renderBracket();
@@ -1255,7 +1281,8 @@ function beginTournamentMatch(){
  document.querySelector("#gameMain").style.maxWidth="";
  first=PLAYER;fresh();
  const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
- setOpponentCard(opp.name,tournament.isThirdPlaceMatch?"季軍賽對手":"淘汰賽對手","👾",`AI Lv.${level}`,"",opp.look);
+ setOpponentCard(opp.name,opp.isSGod?"👑 S級棋神・隱藏挑戰者":(tournament.isThirdPlaceMatch?"季軍賽對手":"淘汰賽對手"),opp.isSGod?"♟":"👾",`AI Lv.${level}`,"",opp.look);
+ if(opp.isSGod)applySGodOpponent();
  updateProfileUI();
  statusEl.textContent=`${tournament.isThirdPlaceMatch?"季軍賽":roundLabels[tournament.round]}：對戰 ${opp.name}。${turn===PLAYER?"你是先手，請落子。":"電腦先手，正在思考…"}`;
 }
@@ -1332,7 +1359,7 @@ function idleBoard(msg){
  if(msg)statusEl.textContent=msg;
 }
 function menuToast(msg){const t=Q("#menuToast");t.textContent=msg;clearTimeout(menuToast._t);menuToast._t=setTimeout(()=>{t.textContent="";},3500);}
-function rankedAILevel(){const lv=Math.max(10,getPlayerLevel());return Math.min(10,8+Math.floor((lv-10)/4));}
+function rankedAILevel(){if(rankedSeries?.isSGod)return 10;const lv=Math.max(10,getPlayerLevel());return Math.min(10,8+Math.floor((lv-10)/4));}
 function champTitleName(n){const NUM=["","單","雙","三","四","五","六","七","八","九","十"];return `🏆 32強${n<=10?NUM[n]:n}冠王`;} // 啟動時就會被呼叫，不能依賴後面才定義的變數
 function getEarnedTitles(){
  const b=profile.badges||{},t=[];
@@ -1401,10 +1428,10 @@ function refreshRankedInfo(){
  const el=Q("#rankedInfo");if(!el)return;
  const p=getLevelProgress(),capNote=p.lv<=10?"（目前 Lv.10 為一般模式上限）":"",S=rankedSeries;
  const score=S?`<div class="rk">目前系列賽：你 <b>${S.w}</b> : <b>${S.l}</b> 對手${S.done?(S.won?"　🏆 晉級成功":"　😢 系列賽落敗"):(S.started?`　（第 ${S.games+1} 局）`:"")}</div>`:"";
- el.innerHTML=`<div><b>🏅 段位模式（3戰2勝制）</b></div><div class="rk">你的等級：Lv.${p.lv} ${p.rank}${capNote}</div><div class="rk">對手：AI Lv.${rankedAILevel()}（等級越高對手越強，最高 Lv.10）</div>${score}<div class="rk">先贏 2 局才算<b>晉級成功</b>：獲得 <b>150 EXP</b> 與 50 金幣，才會升等；系列賽落敗只得 10 金幣。</div><div class="rk">每場系列賽雙方輪流先手；平手的那局不計，重下一次。中途離開視為放棄。</div><div class="rk">練習／淘汰賽最多只能升到 Lv.10，之後只有段位模式能升級。</div>`;
+ el.innerHTML=`<div><b>🏅 段位模式（3戰2勝制）</b></div><div class="rk">你的等級：Lv.${p.lv} ${p.rank}${capNote}</div><div class="rk">對手：${S?.isSGod?"👑 克蘿希絲◆玥・S級棋神（AI Lv.10）":"AI Lv."+rankedAILevel()+"（等級越高對手越強，最高 Lv.10）"}</div>${score}<div class="rk">先贏 2 局才算<b>晉級成功</b>：獲得 <b>150 EXP</b> 與 50 金幣，才會升等；系列賽落敗只得 10 金幣。</div><div class="rk">每場系列賽雙方輪流先手；平手的那局不計，重下一次。中途離開視為放棄。</div><div class="rk">練習／淘汰賽最多只能升到 Lv.10，之後只有段位模式能升級。</div>`;
 }
 var rankedSeries=null; // var：啟動時 updateProfileUI 就會讀到
-function newRankedSeries(){rankedSeries={w:0,l:0,games:0,firstG1:null,started:false,done:false,won:false};}
+function newRankedSeries(){rankedSeries={w:0,l:0,games:0,firstG1:null,started:false,done:false,won:false,isSGod:Math.random()<S_GOD_CHANCE_RANKED};}
 function makeRankedBotLook(){
  const avatars=["🐲","🦊","👾","🤖","🐺","🦁","🐉","🦉"];
  const pets=["🐣","🦇","🐉","🦊","👻","🐈‍⬛","🪽","🐸"];
@@ -1417,6 +1444,10 @@ function makeRankedBotLook(){
   accessoryLeft:"",accessoryRight:""};
 }
 function refreshRankedBot(){
+ if(rankedSeries?.isSGod){
+  setOpponentCard(S_GOD_NAME,"👑 S級棋神・隱藏挑戰者","♟",`AI Lv.10`,"✦ 隨機遭遇的傳說棋神",null);
+  applySGodOpponent();return;
+ }
  const botNames=["星雲龍騎士","幻影狐狸","暗夜機械王","銀河守護者","雷光獵手","深空旅者","月影魔導"];
  const name=botNames[Math.floor(Math.random()*botNames.length)];
  const look=makeRankedBotLook();
@@ -1458,7 +1489,7 @@ function enterMode(m){
   setOpponentCard("宇宙 AI","星際挑戰者","🤖",`AI Lv.${level}`,"");
   idleBoard("調整電腦等級後，按「開始遊戲」。");
  }else if(m==="ranked"){
-  mode="ranked";setView("ranked");level=rankedAILevel();newRankedSeries();
+  mode="ranked";setView("ranked");newRankedSeries();level=rankedAILevel();
   refreshRankedBot();
   idleBoard(`段位賽（3戰2勝）：對手 AI Lv.${level}，按「開始第 1 局」挑戰。`);
   updateSeriesUI();
