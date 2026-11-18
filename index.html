@@ -362,6 +362,18 @@ main{align-items:start}
 .frameBody button{width:100%;margin-top:4px;min-height:34px;font-size:13px}
 
 
+
+/* v40：S級棋神特效避開頭像，背景慢速變色 */
+.avatarFrame.sGodFrame{position:relative;isolation:isolate;overflow:visible!important;background:transparent!important;}
+.avatarFrame.sGodFrame::before{content:"";position:absolute;inset:-5px;border-radius:50%;z-index:0;background:linear-gradient(135deg,#25104f,#51218a,#172b70,#7b245f,#25104f);background-size:350% 350%;animation:sGodBgShift 10s ease-in-out infinite;box-shadow:0 0 18px #9b59ff88;}
+.avatarFrame.sGodFrame .fighterAvatar{position:relative;z-index:1;}
+.avatarFrame.sGodFrame .avatarAccessory.sGodGhostFire{z-index:4;top:50%;transform:translateY(-50%);font-size:22px;}
+.avatarFrame.sGodFrame .avatarAccessory.sGodGhostFire.left{left:-31px;}
+.avatarFrame.sGodFrame .avatarAccessory.sGodGhostFire.right{right:-31px;}
+.avatarFrame.sGodFrame .avatarPet.sGodDemon{z-index:5;bottom:-24px;right:-25px;left:auto;font-size:23px;}
+@keyframes sGodBgShift{0%{background-position:0% 50%;filter:hue-rotate(0deg)}50%{background-position:100% 50%;filter:hue-rotate(24deg)}100%{background-position:0% 50%;filter:hue-rotate(0deg)}}
+@media(prefers-reduced-motion:reduce){.avatarFrame.sGodFrame::before{animation:none!important}}
+
 /* S級棋神：克蘿希絲◆玥 */
 .sGodFrame{border:3px solid #c79aff!important;box-shadow:0 0 12px #9b59ff,0 0 28px #7b2cffaa!important;animation:sGodPulse 1.8s ease-in-out infinite alternate}
 .sGodAvatar{background-image:url("克蘿希絲玥_頭像.png")!important;background-position:center 34%!important;background-size:cover!important;background-repeat:no-repeat!important;border-radius:50%;box-shadow:inset 0 0 18px #140622,0 0 18px #b76cff}
