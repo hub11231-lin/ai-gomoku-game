@@ -417,7 +417,7 @@ main{align-items:start}
 .menuBtn:hover,.menuBtn:focus-visible{transform:translateY(-3px);border-color:#c4d2ff;box-shadow:0 10px 28px #0009,0 0 22px #6f8dff77;outline:none}
 .menuBtn:active{transform:translateY(0) scale(.99)}
 .menuBtn .menuIcon{font-size:30px;width:44px;text-align:center;flex:0 0 44px;filter:drop-shadow(0 2px 4px #0008)}
-.menuBtn .menuTxt{min-width:0}.menuBtn .menuTxt b{display:block;font-size:19px;letter-spacing:.04em}.menuBtn .menuTxt small{display:block;opacity:.8;font-weight:500;font-size:12px;line-height:1.35;margin-top:2px}
+.menuBtn .menuTxt{min-width:0}.menuBtn .menuTxt b{display:block;font-size:19px;letter-spacing:.04em;color:#fff7c9;text-shadow:0 0 8px #8fdcff,0 1px 3px #05091f}.menuBtn .menuTxt small{display:block;opacity:1;font-weight:600;font-size:12px;line-height:1.35;margin-top:2px;color:#d9f2ff;text-shadow:0 1px 3px #05091f}
 .menuBtn.gold{background:linear-gradient(135deg,#6a4a12cc,#7a2d58cc);border-color:#ffd77a88}
 .menuBtn.green{background:linear-gradient(135deg,#0e5a5fcc,#1c3a86cc);border-color:#7affd588}
 .menuBtn.locked{filter:saturate(.55) brightness(.85)}
@@ -470,6 +470,78 @@ body[data-view="shop"] #gameMain,body[data-view="profile"] #gameMain{grid-templa
 .titlePop{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:300;max-width:calc(100% - 24px);padding:11px 18px;border-radius:14px;background:linear-gradient(135deg,#7a4a00,#b3261e);border:2px solid #ffe08a;color:#fff;font-weight:900;text-align:center;box-shadow:0 8px 28px #000a,0 0 26px #ffb300aa;animation:titlePopIn .45s ease-out,titlePopOut .5s ease-in 4.2s forwards}
 @keyframes titlePopIn{from{opacity:0;transform:translate(-50%,-20px) scale(.9)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
 @keyframes titlePopOut{to{opacity:0;transform:translate(-50%,-14px)}}
+
+/* v40：隱藏挑戰者覺醒登場＋主選單高亮字色 */
+.sGodRevealFrame{
+  width:132px!important;height:132px!important;padding:9px!important;
+  position:relative;isolation:isolate;
+  box-shadow:0 0 18px #ff263d,0 0 34px #9b001b,0 0 58px #000!important;
+  animation:sGodRevealPulse 1.35s ease-in-out infinite alternate!important;
+}
+.sGodRevealFrame::before{
+  content:"";position:absolute;inset:-12px;border-radius:50%;z-index:-2;
+  background:
+    repeating-conic-gradient(from 0deg,#090909 0deg 5deg,#6e0715 5deg 9deg,#e51b35 9deg 11deg,#080808 11deg 16deg),
+    conic-gradient(#ff344c,#080808,#a90020,#050505,#ff344c);
+  -webkit-mask:radial-gradient(circle,transparent 57%,#000 59% 75%,transparent 78%);
+  mask:radial-gradient(circle,transparent 57%,#000 59% 75%,transparent 78%);
+  filter:drop-shadow(0 0 8px #ff1838);
+  animation:sGodSigilSpin 7s linear infinite;
+}
+.sGodRevealFrame::after{
+  content:"";position:absolute;inset:-5px;border-radius:50%;z-index:4;pointer-events:none;
+  border:2px solid #ff344c;
+  box-shadow:0 0 7px #ff1838,inset 0 0 8px #a90020;
+}
+.sGodRevealFrame .fighterAvatar{
+  position:relative;z-index:1;width:100%;height:100%;
+  box-shadow:0 0 0 3px #080808,inset 0 0 16px #000!important;
+}
+.sGodRevealFrame .avatarPet{
+  top:50%!important;bottom:auto!important;
+  width:32px;height:32px;display:grid;place-items:center;
+  font-size:30px;line-height:1;z-index:7;
+  filter:drop-shadow(0 0 5px #ff263d) drop-shadow(0 2px 3px #000);
+}
+.sGodRevealFrame .avatarPet.left{
+  left:-20px!important;right:auto!important;
+  animation:sGodPetLeft 1.8s ease-in-out infinite;
+}
+.sGodRevealFrame .avatarPet.right{
+  right:-20px!important;left:auto!important;
+  animation:sGodPetRight 2s ease-in-out infinite;
+}
+.sGodRevealFrame .avatarPet::after{
+  content:"✦";right:-4px;top:-8px;color:#ff9eaa;
+  text-shadow:0 0 8px #ff1c3d;
+}
+@keyframes sGodRevealPulse{
+  from{box-shadow:0 0 12px #ff263d,0 0 24px #780014,0 0 38px #000}
+  to{box-shadow:0 0 24px #ff5268,0 0 44px #c40026,0 0 64px #000}
+}
+@keyframes sGodSigilSpin{to{transform:rotate(360deg)}}
+@keyframes sGodPetLeft{0%,100%{transform:translateY(-50%) translateX(0) rotate(-8deg)}50%{transform:translateY(calc(-50% - 8px)) translateX(-2px) rotate(8deg)}}
+@keyframes sGodPetRight{0%,100%{transform:translateY(-50%) translateX(0) rotate(8deg)}50%{transform:translateY(calc(-50% - 10px)) translateX(2px) rotate(-8deg)}}
+@media(max-width:1050px){
+  .sGodRevealFrame{width:116px!important;height:116px!important}
+  .sGodRevealFrame .avatarPet{font-size:26px;width:29px;height:29px}
+  .sGodRevealFrame .avatarPet.left{left:-17px!important}
+  .sGodRevealFrame .avatarPet.right{right:-17px!important}
+}
+@media(max-width:760px){
+  .sGodRevealFrame{width:106px!important;height:106px!important}
+  .sGodRevealFrame .avatarPet{font-size:24px;width:27px;height:27px}
+  .sGodRevealFrame .avatarPet.left{left:-15px!important}
+  .sGodRevealFrame .avatarPet.right{right:-15px!important}
+}
+.menuBtn .menuTxt b{color:#fff4b8;text-shadow:0 0 9px #72cfff,0 0 16px #566dff,0 2px 3px #020617}
+.menuBtn .menuTxt small{color:#e4f6ff;text-shadow:0 1px 4px #020617;opacity:1}
+.menuBadge{color:#d5e5ff;text-shadow:0 0 12px #7ecbff}
+.menuSub{color:#eff5ff;text-shadow:0 1px 5px #020617;opacity:1}
+@media(prefers-reduced-motion:reduce){
+  .sGodRevealFrame,.sGodRevealFrame::before,.sGodRevealFrame .avatarPet{animation:none!important}
+}
+
 </style>
 </head>
 <body data-view="menu">
@@ -881,12 +953,17 @@ function applySGodOpponent(){
  if(!av||!fr)return;
  av.textContent="";av.innerHTML="";av.classList.remove("hasSvg","rankedBotAvatar");
  av.classList.add("sGodAvatar");av.style.background="";
- fr.className="avatarFrame frame-royal sGodFrame";
+ fr.className="avatarFrame frame-royal sGodFrame sGodRevealFrame";
+ // 隱藏挑戰者專屬雙惡魔寵物：固定分列頭像左右，不遮住臉部。
+ const demonLeft=document.querySelector("#opponentPetLeft"),demonRight=document.querySelector("#opponentPetRight");
+ if(demonLeft)demonLeft.textContent="👿";
+ if(demonRight)demonRight.textContent="😈";
+ fr.classList.add("has-pet");
  document.querySelector("#opponentDecor").textContent="✦ S級棋神・隱藏挑戰者 ✦";
  document.querySelector("#opponentDecor").style.display="";
  document.querySelector("#opponentFloorTrim").className="floorTrim floor-dark off";
  document.querySelector("#opponentFloorTrim").textContent="";
- ["#opponentAccessoryLeft","#opponentAccessoryRight","#opponentPetLeft","#opponentPetRight"].forEach(id=>{const e=document.querySelector(id);if(e)e.textContent="";});
+ ["#opponentAccessoryLeft","#opponentAccessoryRight"].forEach(id=>{const e=document.querySelector(id);if(e)e.textContent="";});
 }
 function awardCoins(amount,reason){
  if(!amount)return;
