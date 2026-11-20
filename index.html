@@ -961,7 +961,7 @@ function updateProfileUI(){
  refreshMenuPlayer();refreshRankedInfo();refreshTitleUI();
 }
 const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
-const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.23, S_GOD_CHANCE_RANKED=0.23;
+const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.33, S_GOD_CHANCE_RANKED=0.33;
 const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","欸-真的嗎?","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
 function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
 function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
@@ -1008,7 +1008,7 @@ function applySGodOpponent(){
  // 隱藏挑戰者專屬雙惡魔寵物：固定分列頭像左右，不遮住臉部。
  const demonLeft=document.querySelector("#opponentPetLeft"),demonRight=document.querySelector("#opponentPetRight");
  if(demonLeft)demonLeft.textContent="👿";
- if(demonRight)demonRight.textContent="👺";
+ if(demonRight)demonRight.textContent="👻";
  fr.classList.add("has-pet");
  document.querySelector("#opponentDecor").textContent="✦ S級棋神・隱藏挑戰者 ✦";
  document.querySelector("#opponentDecor").style.display="";
@@ -1224,7 +1224,7 @@ canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect
 const roundLabels=["32強","16強","8強","4強","決賽"];
 function newTournament(){
  let pool=names.map((name,i)=>({name,rank:i+1,group:"ABCD"[Math.floor(i/8)]}));
- // 三位隱藏挑戰者各自獨立抽選：每位出現機率 23%，可同時出現；以一般參賽者替換，維持 32 人賽制。
+ // 三位隱藏挑戰者各自獨立抽選：每位出現機率 33%，可同時出現；以一般參賽者替換，維持 32 人賽制。
  const hiddenCharacters=[
   {kind:"sgod",name:S_GOD_NAME},
   {kind:"m",name:"凱爾達▽瓩"},
@@ -1610,10 +1610,10 @@ function newRankedSeries(){
 }
 function makeRankedBotLook(){
  const avatars=["🐲","🦊","👾","🤖","🐺","🦁","🐉","🦉"];
- const pets=["🐣","🦇","🐉","🦊","👻","🐈‍⬛","🪽","🐸"];
+ const pets=["🐣","🦇","🐉","👺","👻","🐈‍⬛","🪽","🐸"];
  const frames=["nebula","aurora","fire","prism","thunder","royal","purple","ruby","cyan"];
  const floors=["cute","funny","tech","luxe","nature","dark","default"];
- const messages=["星際最強！","來戰一場吧","今天手感超好","勝利屬於我","一起加油！","挑戰極限！","宇宙見真章"];
+ const messages=["阿花與阿瓜！","來戰一場吧","今天手感超好","勝利屬於我","我是你的惡夢！","挑戰極限！","宇宙見真章"];
  const pick=a=>a[Math.floor(Math.random()*a.length)];
  return {avatar:pick(avatars),frame:pick(frames),background:"space",floor:pick(floors),
   floorMessage:pick(messages),petLeft:pick(pets),petRight:Math.random()<.55?pick(pets):"",
