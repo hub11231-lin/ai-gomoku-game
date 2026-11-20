@@ -551,6 +551,48 @@ body[data-view="shop"] #gameMain,body[data-view="profile"] #gameMain{grid-templa
   border-color:#b5d2ff!important;
 }
 
+
+/* Lv.10 隱藏挑戰者：凱爾達與瑟琳娜 */
+.mHiddenAvatar,.wHiddenAvatar{
+  background-position:center 34%,center!important;
+  background-size:cover,cover!important;
+  background-repeat:no-repeat!important;
+  border-radius:50%;
+  box-shadow:inset 0 0 18px #080b24,0 0 20px currentColor;
+}
+.mHiddenAvatar{
+  background-image:url("characters_m.png"),radial-gradient(circle at 28% 24%,#b9f7ff 0%,#2478ad 42%,#15265b 76%,#080d28 100%)!important;
+  box-shadow:inset 0 0 18px #061323,0 0 20px #39dfff!important;
+}
+.wHiddenAvatar{
+  background-image:url("characters_w.png"),radial-gradient(circle at 28% 24%,#ffe5fa 0%,#d65bb6 42%,#59328e 76%,#170d36 100%)!important;
+  box-shadow:inset 0 0 18px #210b2b,0 0 22px #ff8de2!important;
+}
+.avatarFrame.frame-keldar{
+  padding:7px;background:#06152a!important;
+  border:3px solid #6deaff!important;
+  box-shadow:0 0 12px #27dfff,0 0 30px #0879caaa!important;
+  animation:keldarPulse 1.35s ease-in-out infinite alternate;
+}
+.avatarFrame.frame-keldar:before{
+  content:"";position:absolute;inset:0;border-radius:50%;z-index:-1;
+  background:conic-gradient(#e9ffff,#00bde9,#06345f,#a9f8ff,#0062ad,#e9ffff);
+  animation:frameSpin 3.6s linear infinite;
+}
+.avatarFrame.frame-serena{
+  padding:7px;background:#260c39!important;
+  border:3px solid #ffc4f0!important;
+  box-shadow:0 0 12px #ff8de2,0 0 30px #b638a5aa!important;
+  animation:serenaPulse 1.8s ease-in-out infinite alternate;
+}
+.avatarFrame.frame-serena:before{
+  content:"";position:absolute;inset:0;border-radius:50%;z-index:-1;
+  background:conic-gradient(#fff4fc,#ff8bdc,#702c9b,#f8c7ff,#c34cc5,#fff4fc);
+  animation:frameSpin 5.2s linear infinite;
+}
+@keyframes keldarPulse{from{filter:drop-shadow(0 0 5px #00cfff)}to{filter:drop-shadow(0 0 17px #8cf5ff)}}
+@keyframes serenaPulse{from{filter:drop-shadow(0 0 5px #e45acb)}to{filter:drop-shadow(0 0 17px #ffc8f0)}}
+
 </style>
 </head>
 <body data-view="menu">
@@ -942,7 +984,7 @@ function setOpponentCard(name,title,avatar,detail,decor,look){
  document.querySelector("#fighterOpponentTitle").textContent=title||"星際挑戰者";
  document.querySelector("#fighterOpponentLevel").textContent=detail||"AI Lv.5";
  const decEl=document.querySelector("#opponentDecor");decEl.textContent=decor||"";decEl.style.display=decor?"":"none";
- const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame"),ft=document.querySelector("#opponentFloorTrim");av.classList.remove("rankedBotAvatar");
+ const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame"),ft=document.querySelector("#opponentFloorTrim");av.classList.remove("rankedBotAvatar","sGodAvatar","mHiddenAvatar","wHiddenAvatar");
  const set=(id,v)=>{const e=document.querySelector(id);if(e)e.textContent=v||"";};
  if(look){
   setAvatar(av,look.avatar);av.style.background=AVATAR_BGS[look.background]||AVATAR_BGS.space;
@@ -973,6 +1015,30 @@ function applySGodOpponent(){
  document.querySelector("#opponentFloorTrim").className="floorTrim floor-dark off";
  document.querySelector("#opponentFloorTrim").textContent="";
  ["#opponentAccessoryLeft","#opponentAccessoryRight"].forEach(id=>{const e=document.querySelector(id);if(e)e.textContent="";});
+}
+function applyHiddenCharacterOpponent(kind){
+ const av=document.querySelector("#opponentAvatar"),fr=document.querySelector("#opponentAvatarFrame");
+ if(!av||!fr)return;
+ av.textContent="";av.innerHTML="";av.classList.remove("hasSvg","rankedBotAvatar","sGodAvatar");
+ av.classList.add(kind==="m"?"mHiddenAvatar":"wHiddenAvatar");av.style.background="";
+ if(kind==="m"){
+  fr.className="avatarFrame frame-keldar";
+  document.querySelector("#opponentPetLeft").textContent="🐉";
+  document.querySelector("#opponentPetRight").textContent="⚡";
+  document.querySelector("#opponentDecor").textContent="✦ 凱爾達▽瓩・深空龍魂 ✦";
+ }else{
+  fr.className="avatarFrame frame-serena";
+  document.querySelector("#opponentPetLeft").textContent="🦢";
+  document.querySelector("#opponentPetRight").textContent="🦋";
+  document.querySelector("#opponentDecor").textContent="✦ 瑟琳娜△魅・月華星靈 ✦";
+ }
+ fr.classList.add("has-pet");
+ document.querySelector("#opponentDecor").style.display="";
+ document.querySelector("#opponentFloorTrim").className="floorTrim floor-dark off";
+ document.querySelector("#opponentFloorTrim").textContent="";
+ ["#opponentAccessoryLeft","#opponentAccessoryRight"].forEach(id=>{
+  const e=document.querySelector(id);if(e)e.textContent="";
+ });
 }
 function awardCoins(amount,reason){
  if(!amount)return;
@@ -1159,8 +1225,13 @@ const roundLabels=["32強","16強","8強","4強","決賽"];
 function newTournament(){
  let pool=names.map((name,i)=>({name,rank:i+1,group:"ABCD"[Math.floor(i/8)]}));
  // 20% 機率在本屆 32 強中出現 S 級隱藏棋神，替換一名一般參賽者，維持 32 人賽制。
- const sGodAppears=Math.random()<S_GOD_CHANCE_TOURNAMENT;
- if(sGodAppears){const replaceAt=Math.floor(Math.random()*pool.length);pool.splice(replaceAt,1);pool.push({name:S_GOD_NAME,rank:0,isSGod:true,group:"S"});}
+ const hiddenAppears=Math.random()<S_GOD_CHANCE_TOURNAMENT;
+ if(hiddenAppears){
+  const hiddenCharacter=pickOne(["sgod","m","w"]);
+  const hiddenNames={sgod:S_GOD_NAME,m:"凱爾達▽瓩",w:"瑟琳娜△魅"};
+  const replaceAt=Math.floor(Math.random()*pool.length);pool.splice(replaceAt,1);
+  pool.push({name:hiddenNames[hiddenCharacter],rank:0,isSGod:hiddenCharacter==="sgod",hiddenCharacter,group:"S"});
+ }
  pool.push({name:profile.name.trim()||"玩家",rank:0,player:true,group:""});
  pool.sort(()=>Math.random()-.5);
  // 重新分配四組標籤，每組 8 位；淘汰賽籤位仍採隨機排列
@@ -1172,7 +1243,10 @@ function newTournament(){
 }
 function simulatedWinner(a,b){
  if(a.player||b.player)return a.player?a:b;
- if(a.isSGod||b.isSGod){if(a.isSGod&&b.isSGod)return Math.random()<.5?a:b;return Math.random()<.78?(a.isSGod?a:b):(a.isSGod?b:a);}
+ if(a.hiddenCharacter||b.hiddenCharacter||a.isSGod||b.isSGod){
+  if((a.hiddenCharacter||a.isSGod)&&(b.hiddenCharacter||b.isSGod))return Math.random()<.5?a:b;
+  return Math.random()<.78?((a.hiddenCharacter||a.isSGod)?a:b):((a.hiddenCharacter||a.isSGod)?b:a);
+ }
  return (Math.random()<(.5+(b.rank-a.rank)*.009))?a:b;
 }
 function prepareTournamentRound(){
@@ -1189,6 +1263,7 @@ function prepareTournamentRound(){
   statusEl.textContent=`${roundLabels[ri]}：你的對手是 ${opp.name}（電腦 Lv${level}）。`;
   setOpponentCard(opp.name,opp.isSGod?"👑 S級棋神・隱藏挑戰者":"淘汰賽對手",opp.isSGod?"♟":"👾",`AI Lv.${level}`,"",opp.look);
   if(opp.isSGod)applySGodOpponent();
+  else if(opp.hiddenCharacter)applyHiddenCharacterOpponent(opp.hiddenCharacter);
   showTournamentBracket(`${roundLabels[ri]} 賽前賽程`, `你的對手：${opp.name}（電腦 Lv${level}）。確認賽程後，按「開始本輪比賽」。`, true);
  }else{t.waiting=false;completeTournamentRound();}
  renderBracket();
@@ -1369,6 +1444,7 @@ function beginTournamentMatch(){
  const opp=tournament.currentMatch.a.player?tournament.currentMatch.b:tournament.currentMatch.a;
  setOpponentCard(opp.name,opp.isSGod?"👑 S級棋神・隱藏挑戰者":(tournament.isThirdPlaceMatch?"季軍賽對手":"淘汰賽對手"),opp.isSGod?"♟":"👾",`AI Lv.${level}`,"",opp.look);
  if(opp.isSGod)applySGodOpponent();
+ else if(opp.hiddenCharacter)applyHiddenCharacterOpponent(opp.hiddenCharacter);
  updateProfileUI();
  statusEl.textContent=`${tournament.isThirdPlaceMatch?"季軍賽":roundLabels[tournament.round]}：對戰 ${opp.name}。${turn===PLAYER?"你是先手，請落子。":"電腦先手，正在思考…"}`;
 }
@@ -1517,7 +1593,13 @@ function refreshRankedInfo(){
  el.innerHTML=`<div><b>🏅 段位模式（3戰2勝制）</b></div><div class="rk">你的等級：Lv.${p.lv} ${p.rank}${capNote}</div><div class="rk">對手：${S?.isSGod?"👑 克蘿希絲◆玥・S級棋神（AI Lv.10）":"AI Lv."+rankedAILevel()+"（等級越高對手越強，最高 Lv.10）"}</div>${score}<div class="rk">先贏 2 局才算<b>晉級成功</b>：獲得 <b>150 EXP</b> 與 50 金幣，才會升等；系列賽落敗只得 10 金幣。</div><div class="rk">每場系列賽雙方輪流先手；平手的那局不計，重下一次。中途離開視為放棄。</div><div class="rk">練習／淘汰賽最多只能升到 Lv.10，之後只有段位模式能升級。</div>`;
 }
 var rankedSeries=null; // var：啟動時 updateProfileUI 就會讀到
-function newRankedSeries(){rankedSeries={w:0,l:0,games:0,firstG1:null,started:false,done:false,won:false,isSGod:Math.random()<S_GOD_CHANCE_RANKED};}
+function newRankedSeries(){
+ // Lv.10 段位賽才會抽到的三位傳說隱藏挑戰者；每個系列賽固定同一位。
+ const roll=Math.random();
+ const hiddenCharacter=roll<S_GOD_CHANCE_RANKED?"sgod":roll<S_GOD_CHANCE_RANKED+0.18?"m":roll<S_GOD_CHANCE_RANKED+0.36?"w":"";
+ rankedSeries={w:0,l:0,games:0,firstG1:null,started:false,done:false,won:false,
+  isSGod:hiddenCharacter==="sgod",hiddenCharacter};
+}
 function makeRankedBotLook(){
  const avatars=["🐲","🦊","👾","🤖","🐺","🦁","🐉","🦉"];
  const pets=["🐣","🦇","🐉","🦊","👻","🐈‍⬛","🪽","🐸"];
@@ -1530,9 +1612,17 @@ function makeRankedBotLook(){
   accessoryLeft:"",accessoryRight:""};
 }
 function refreshRankedBot(){
- if(rankedSeries?.isSGod){
+ if(rankedSeries?.hiddenCharacter==="sgod"||rankedSeries?.isSGod){
   setOpponentCard(S_GOD_NAME,"👑 S級棋神・隱藏挑戰者","♟",`AI Lv.10`,"✦ 隨機遭遇的傳說棋神",null);
   applySGodOpponent();return;
+ }
+ if(rankedSeries?.hiddenCharacter==="m"){
+  setOpponentCard("凱爾達▽瓩","⚡ CHARACTERS M・Lv.10 隱藏挑戰者","♟","AI Lv.10","✦ 深空龍魂・傳說級挑戰者",null);
+  applyHiddenCharacterOpponent("m");return;
+ }
+ if(rankedSeries?.hiddenCharacter==="w"){
+  setOpponentCard("瑟琳娜△魅","🌙 CHARACTERS W・Lv.10 隱藏挑戰者","♟","AI Lv.10","✦ 月華星靈・傳說級挑戰者",null);
+  applyHiddenCharacterOpponent("w");return;
  }
  const botNames=["星雲龍騎士","幻影狐狸","暗夜機械王","銀河守護者","雷光獵手","深空旅者","月影魔導"];
  const name=botNames[Math.floor(Math.random()*botNames.length)];
