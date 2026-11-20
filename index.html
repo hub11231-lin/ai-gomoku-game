@@ -961,7 +961,7 @@ function updateProfileUI(){
  refreshMenuPlayer();refreshRankedInfo();refreshTitleUI();
 }
 const AVATAR_BGS={space:"radial-gradient(circle at 30% 20%,#6687d9,#21134f 70%,#090d2c)",sunset:"linear-gradient(145deg,#ffd27b,#ef704f 55%,#6c235f)",ocean:"radial-gradient(circle at 25% 20%,#a2fff2,#087b9e 45%,#08234f)",nebula:"radial-gradient(circle at 35% 30%,#f7b5ff,#8436b5 48%,#20134c)",galaxy:"radial-gradient(circle at 30% 20%,#fff0ae,#8e55c8 42%,#17103f 78%)"};
-const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.45, S_GOD_CHANCE_RANKED=0.23;
+const S_GOD_NAME="克蘿希絲◆玥", S_GOD_CHANCE_TOURNAMENT=0.23, S_GOD_CHANCE_RANKED=0.23;
 const OPP_MESSAGES=["來戰吧！熱!","棋逢對手","不會輸的","小心了喔","五子連珠！","根本小兒科","別眨眼喔","欸-真的嗎?","不用讓我!!","給我認真點喔","請拿出實力","手下敗將:D","輸了不要哭喔","棋盤見真章"];
 function levelForRank(rank){return Math.max(1,Math.min(10,11-Math.ceil(rank/3)));}
 function pickOne(list){return list[Math.floor(Math.random()*list.length)];}
@@ -1224,14 +1224,22 @@ canvas.addEventListener("click",e=>{if(over||busy||turn!==PLAYER)return;let rect
 const roundLabels=["32強","16強","8強","4強","決賽"];
 function newTournament(){
  let pool=names.map((name,i)=>({name,rank:i+1,group:"ABCD"[Math.floor(i/8)]}));
- // 20% 機率在本屆 32 強中出現 S 級隱藏棋神，替換一名一般參賽者，維持 32 人賽制。
- const hiddenAppears=Math.random()<S_GOD_CHANCE_TOURNAMENT;
- if(hiddenAppears){
-  const hiddenCharacter=pickOne(["sgod","m","w"]);
-  const hiddenNames={sgod:S_GOD_NAME,m:"凱爾達▽瓩",w:"瑟琳娜△魅"};
-  const replaceAt=Math.floor(Math.random()*pool.length);pool.splice(replaceAt,1);
-  pool.push({name:hiddenNames[hiddenCharacter],rank:0,isSGod:hiddenCharacter==="sgod",hiddenCharacter,group:"S"});
- }
+ // 三位隱藏挑戰者各自獨立抽選：每位出現機率 23%，可同時出現；以一般參賽者替換，維持 32 人賽制。
+ const hiddenCharacters=[
+  {kind:"sgod",name:S_GOD_NAME},
+  {kind:"m",name:"凱爾達▽瓩"},
+  {kind:"w",name:"瑟琳娜△魅"}
+ ];
+ hiddenCharacters.forEach(({kind,name})=>{
+  if(Math.random()<S_GOD_CHANCE_TOURNAMENT){
+   const replaceable=pool.map((p,i)=>p.rank>0?i:-1).filter(i=>i>=0);
+   if(replaceable.length){
+    const replaceAt=replaceable[Math.floor(Math.random()*replaceable.length)];
+    pool.splice(replaceAt,1);
+    pool.push({name,rank:0,isSGod:kind==="sgod",hiddenCharacter:kind,group:"S"});
+   }
+  }
+ });
  pool.push({name:profile.name.trim()||"玩家",rank:0,player:true,group:""});
  pool.sort(()=>Math.random()-.5);
  // 重新分配四組標籤，每組 8 位；淘汰賽籤位仍採隨機排列
