@@ -1064,7 +1064,7 @@ function applyHiddenCharacterOpponent(kind){
   fr.className="avatarFrame frame-kate hcBigFrame";
   document.querySelector("#opponentPetLeft").textContent="❄️";
   document.querySelector("#opponentPetRight").textContent="⚡";
-  document.querySelector("#opponentDecor").textContent="✦ 凱特琳_みな・S級隱藏角色 ✦";
+  document.querySelector("#opponentDecor").textContent="✦ 凱特琳_みな・S級棋王 ✦";
  }else if(kind==="m"){
   fr.className="avatarFrame frame-keldar hcBigFrame";
   document.querySelector("#opponentPetLeft").textContent="🐉";
@@ -1645,7 +1645,7 @@ function refreshRankedInfo(){
  const el=Q("#rankedInfo");if(!el)return;
  const p=getLevelProgress(),capNote=p.lv<=10?"（目前 Lv.10 為一般模式上限）":"",S=rankedSeries;
  const score=S?`<div class="rk">目前系列賽：你 <b>${S.w}</b> : <b>${S.l}</b> 對手${S.done?(S.won?"　🏆 晉級成功":"　😢 系列賽落敗"):(S.started?`　（第 ${S.games+1} 局）`:"")}</div>`:"";
- el.innerHTML=`<div><b>🏅 段位模式（3戰2勝制）</b></div><div class="rk">你的等級：Lv.${p.lv} ${p.rank}${capNote}</div><div class="rk">對手：${S?.isSGod?"👑 克蘿希絲◆玥・S級棋神（AI Lv.10）":S?.hiddenCharacter==="kate"?"❄️ 凱特琳_みな・S級隱藏角色（AI Lv.10）":"AI Lv."+rankedAILevel()+"（等級越高對手越強，最高 Lv.10）"}</div>${score}<div class="rk">先贏 2 局才算<b>晉級成功</b>：獲得 <b>150 EXP</b> 與 50 金幣，才會升等；系列賽落敗只得 10 金幣。</div><div class="rk">每場系列賽雙方輪流先手；平手的那局不計，重下一次。中途離開視為放棄。</div><div class="rk">練習／淘汰賽最多只能升到 Lv.10，之後只有段位模式能升級。</div>`;
+ el.innerHTML=`<div><b>🏅 段位模式（3戰2勝制）</b></div><div class="rk">你的等級：Lv.${p.lv} ${p.rank}${capNote}</div><div class="rk">對手：${S?.isSGod?"👑 克蘿希絲◆玥・S級棋神（AI Lv.10）":S?.hiddenCharacter==="kate"?"❄️ 凱特琳_みな・S級棋王（AI Lv.10）":"AI Lv."+rankedAILevel()+"（等級越高對手越強，最高 Lv.10）"}</div>${score}<div class="rk">先贏 2 局才算<b>晉級成功</b>：獲得 <b>150 EXP</b> 與 50 金幣，才會升等；系列賽落敗只得 10 金幣。</div><div class="rk">每場系列賽雙方輪流先手；平手的那局不計，重下一次。中途離開視為放棄。</div><div class="rk">練習／淘汰賽最多只能升到 Lv.10，之後只有段位模式能升級。</div>`;
 }
 var rankedSeries=null; // var：啟動時 updateProfileUI 就會讀到
 function newRankedSeries(){
@@ -1672,15 +1672,15 @@ function refreshRankedBot(){
   applySGodOpponent();return;
  }
  if(rankedSeries?.hiddenCharacter==="m"){
-  setOpponentCard("凱爾達▽瓩","⚡ CHARACTERS M・Lv.10 隱藏挑戰者","♟","AI Lv.10","✦ 深空龍魂・傳說級挑戰者",null);
+  setOpponentCard("凱爾達▽瓩","⚡ CHARACTERS M・隱藏挑戰者","♟","AI Lv.10","✦ 深空龍魂・傳說級挑戰者",null);
   applyHiddenCharacterOpponent("m");return;
  }
  if(rankedSeries?.hiddenCharacter==="kate"){
-  setOpponentCard(KATE_NAME,"❄️ S級隱藏角色・Lv.10 隱藏挑戰者","♟","AI Lv.10","✦ 冰雷降臨・傳說級挑戰者",null);
+  setOpponentCard(KATE_NAME,"❄️ S級棋王・隱角","♟","AI Lv.10","✦ 冰雷降臨・傳說級挑戰者",null);
   applyHiddenCharacterOpponent("kate");return;
  }
  if(rankedSeries?.hiddenCharacter==="w"){
-  setOpponentCard("瑟琳娜△魅","🌙 CHARACTERS W・Lv.10 隱藏挑戰者","♟","AI Lv.10","✦ 月華星靈・傳說級挑戰者",null);
+  setOpponentCard("瑟琳娜△魅","🌙 CHARACTERS W・隱藏挑戰者","♟","AI Lv.10","✦ 月華星靈・傳說級挑戰者",null);
   applyHiddenCharacterOpponent("w");return;
  }
  const botNames=["星雲龍騎士","幻影狐狸","暗夜機械王","銀河守護者","雷光獵手","深空旅者","月影魔導"];
